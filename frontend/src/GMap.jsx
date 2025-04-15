@@ -63,7 +63,7 @@ function GMap({locations}) {
                         <Marker
                             key={index}
                             position={{lat: loc.lat, lng: loc.lng}}
-                            title={`${index + 1}`} // ❌ only shows on hover (desktop)
+                            title={`${index + 1}`} 
                             label={`${index + 1}`}
                             onClick={() => handleMarkerClick(loc)}
                         />
