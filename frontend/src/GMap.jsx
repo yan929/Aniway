@@ -45,6 +45,7 @@ function GMap({locations}) {
                 const blob = await photoRes.blob();
                 const url = URL.createObjectURL(blob);
                 setPhotoUrl(url);
+                // Wait for photo
             }
 
         } catch (err) {
