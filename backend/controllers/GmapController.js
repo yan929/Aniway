@@ -1,10 +1,11 @@
+const GOOGLE_API_HOST = "https://maps.googleapis.com/maps/api";
 const fetchPlaceInfo = async (req, res) => {
     const {lat, lng} = req.body;
 
     try {
         // Step 1: Geocode to get place_id
         const geoRes = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.GOOGLE_API_KEY}`
+            `{GOOGLE_API_HOST}/geocode/json?latlng=${lat},${lng}&key=${process.env.GOOGLE_API_KEY}`
         );
         const geoData = await geoRes.json();
         const result = geoData.results[0];
@@ -12,7 +13,7 @@ const fetchPlaceInfo = async (req, res) => {
 
         // Step 2: Get place details
         const detailsRes = await fetch(
-            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
+            `{GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
         );
         const detailsData = await detailsRes.json();
         const details = detailsData.result;
@@ -42,7 +43,7 @@ const fetchPlacePhoto = async (req, res) => {
         return res.status(400).json({error: 'photo_reference is required'});
     }
 
-    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo_reference}&key=${process.env.GOOGLE_API_KEY}`;
+    const photoUrl = `{GOOGLE_API_HOST}/place/photo?maxwidth=400&photoreference=${photo_reference}&key=${process.env.GOOGLE_API_KEY}`;
 
     try {
         const response = await fetch(photoUrl);
