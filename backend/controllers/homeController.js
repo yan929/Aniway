@@ -56,6 +56,75 @@ const getTrendingData = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Search anime and locations by keyword
+// @route   GET /api/home/search?q=<keyword>
+// @access  Public
+const searchData = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  const limit = 5; // Number of results per category
+
+  if (!q) {
+    return res.status(400).json({ message: "Search query 'q' is required" });
+  }
+
+  try {
+    const regex = new RegExp(q, "i"); // Case-insensitive regex
+
+    // Search Anime
+    const searchAnimeData = await Anime.find({
+      $or: [{ name: regex }, { name_cn: regex }, { name_en: regex }],
+    })
+      .limit(limit)
+      .select("_id name name_cn name_en images")
+      .lean();
+
+    const searchAnime = searchAnimeData.map((anime) => ({
+      id: anime._id,
+      name: anime.name,
+      name_cn: anime.name_cn,
+      name_en: anime.name_en,
+      images: anime.images,
+    }));
+
+    // Search Locations
+    const searchLocationsData = await AnimeLocation.find({
+      $or: [
+        { name: regex },
+        { name_cn: regex },
+        // Refined search: Match keyword within the first part (before first comma) of any address element
+        {
+          gmap_formatted_addresses: {
+            $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
+          },
+        },
+      ],
+    })
+      .limit(limit)
+      .select(
+        "_id name name_cn lat_precise lng_precise gmap_formatted_addresses"
+      )
+      .lean();
+
+    const searchLocations = searchLocationsData.map((loc) => ({
+      id: loc._id,
+      name: loc.name,
+      name_cn: loc.name_cn,
+      lat: loc.lat_precise,
+      lng: loc.lng_precise,
+      addresses: loc.gmap_formatted_addresses,
+    }));
+
+    res.json({
+      searchAnime,
+      searchLocations,
+    });
+  } catch (error) {
+    console.error("Error searching data:", error);
+    res.status(500).json({ message: "Server error while searching data" });
+  }
+});
+
 module.exports = {
   getTrendingData,
+  searchData,
 };
