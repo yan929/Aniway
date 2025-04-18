@@ -16,6 +16,10 @@ app.use(express.json());
 const locationRoutes = require('./routes/locationRoutes');
 app.use('/api/locations', locationRoutes);
 
+// Home Routes (Trending)
+const homeRoutes = require('./routes/homeRoutes');
+app.use('/api/home', homeRoutes);
+
 // GMap Routes
 const gmapRoutes = require('./routes/GMapRoutes');
 app.use('/api/gmap', gmapRoutes);
@@ -31,4 +35,3 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '::', () => console.log(`Server running on port ${PORT}`));
-
