@@ -74,7 +74,11 @@ async function searchTMDB(query) {
       },
     });
 
-    if (response.data && response.data.results && response.data.results.length > 0) {
+    if (
+      response.data &&
+      response.data.results &&
+      response.data.results.length > 0
+    ) {
       // Return all results
       return response.data.results;
     } else {
@@ -84,15 +88,19 @@ async function searchTMDB(query) {
   } catch (error) {
     console.error(
       `Error searching TMDB for "${query}":`,
-      error.response ? `${error.response.status} - ${error.response.statusText}` : error.message
+      error.response
+        ? `${error.response.status} - ${error.response.statusText}`
+        : error.message
     );
     // Handle specific rate limit error (429 Too Many Requests)
     if (error.response && error.response.status === 429) {
-        const retryAfter = error.response.headers['retry-after']; // seconds
-        const waitMs = retryAfter ? (parseInt(retryAfter, 10) * 1000) + 500 : 5000; // wait specified time + buffer, or default 5s
-        console.warn(`Rate limit hit. Waiting ${waitMs / 1000} seconds before retrying...`);
-        await delay(waitMs);
-        return searchTMDB(query); // Retry the request
+      const retryAfter = error.response.headers["retry-after"]; // seconds
+      const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 + 500 : 5000; // wait specified time + buffer, or default 5s
+      console.warn(
+        `Rate limit hit. Waiting ${waitMs / 1000} seconds before retrying...`
+      );
+      await delay(waitMs);
+      return searchTMDB(query); // Retry the request
     }
     return []; // For other errors, return empty array to signify failure/no results
   }
@@ -126,7 +134,10 @@ async function updateSubjectInMongo(subjectMongoId, tmdbData) {
     await Subject.findByIdAndUpdate(subjectMongoId, { $set: updateData });
     // console.log(`Updated subject ${subjectMongoId} successfully.`);
   } catch (error) {
-    console.error(`Failed to update subject ${subjectMongoId} in MongoDB:`, error);
+    console.error(
+      `Failed to update subject ${subjectMongoId} in MongoDB:`,
+      error
+    );
   }
 }
 
@@ -194,7 +205,8 @@ async function main() {
           for (const tmdbResult of tmdbResults) {
             // TMDB can return results for Movies and TV shows. Check both 'title' and 'name'.
             const tmdbTitle = tmdbResult.title || tmdbResult.name;
-            const tmdbOriginalTitle = tmdbResult.original_title || tmdbResult.original_name;
+            const tmdbOriginalTitle =
+              tmdbResult.original_title || tmdbResult.original_name;
 
             if (!tmdbOriginalTitle || !tmdbTitle) {
               console.log(
@@ -255,21 +267,30 @@ async function main() {
         if (!sourceSubjectWasUpdated) {
           try {
             // Double-check it's not enriched before marking
-            const currentStatus = await Subject.findById(sourceSubject._id).select('tmdb_enriched').lean();
+            const currentStatus = await Subject.findById(sourceSubject._id)
+              .select("tmdb_enriched")
+              .lean();
             if (currentStatus && !currentStatus.tmdb_enriched) {
-                console.log(`   -> Marking source subject ${sourceSubject._id} as processed (no update occurred).`);
-                await Subject.updateOne(
-                    { _id: sourceSubject._id },
-                    { $set: { tmdb_enriched: true } }
-                );
+              console.log(
+                `   -> Marking source subject ${sourceSubject._id} as processed (no update occurred).`
+              );
+              await Subject.updateOne(
+                { _id: sourceSubject._id },
+                { $set: { tmdb_enriched: true } }
+              );
             }
           } catch (finalUpdateError) {
-              console.error(`   -> Failed to mark source subject ${sourceSubject._id} as processed after checking:`, finalUpdateError);
+            console.error(
+              `   -> Failed to mark source subject ${sourceSubject._id} as processed after checking:`,
+              finalUpdateError
+            );
           }
         }
 
         // Respect TMDB rate limit after each API call
-        console.log(`--- Waiting ${RATE_LIMIT_DELAY_MS}ms before next API call ---`);
+        console.log(
+          `--- Waiting ${RATE_LIMIT_DELAY_MS}ms before next API call ---`
+        );
         await delay(RATE_LIMIT_DELAY_MS); // This now correctly adds delay between API calls
       } // End of source subject loop
 
