@@ -6,36 +6,7 @@ This document outlines the steps to export the `aniway` database for sharing and
 
 - MongoDB Database Tools installed ([Installation Guide](https://www.mongodb.com/docs/database-tools/installation/installation/)).
 - Access to the MongoDB instance (ensure the correct connection URI, username, and password are used).
-
-## Exporting the Database (`mongodump`) _IGNORE THIS PART_
-
-This command dumps the entire `aniway` database into a directory named `db_dump/aniway` relative to where you run the command.
-
-1.  **Navigate** to the project's root directory in your terminal:
-
-    ```bash
-    cd /path/to/group-project-team-rocket-webmasters
-    ```
-
-2.  **Run `mongodump`:**
-    Replace `<MONGO_URI_WITH_ADMIN_AUTH>` with your actual connection string, typically found in `backend/.env` or similar (ensure it points to the `admin` database for authentication if needed). If your URI already specifies the `aniway` database, you might adjust the URI or command slightly.
-
-    ```bash
-    mongodump --uri="<MONGO_URI_WITH_ADMIN_AUTH>" --db=aniway --out=./db_dump/aniway
-    ```
-
-3.  **(Optional) Compress the dump:**
-    Navigate into the `db_dump` directory and create an archive (e.g., zip or tar.gz) of the `aniway` folder.
-
-    ```bash
-    cd db_dump
-    tar -czvf aniway_dump.tar.gz aniway
-    # Or use zip: zip -r aniway_dump.zip aniway
-    cd ..
-    ```
-
-4.  **Share the dump:**
-    Upload the compressed file (`aniway_dump.tar.gz` or `aniway_dump.zip`) to your chosen object storage or file-sharing service.
+- Download the database dump file: [aniway_dump.tar.gz](http://ptytqjqmd.bkt.clouddn.com/aniway_dump.tar.gz) (You need to delete all ".\_\*" files if you are using Windows)
 
 ## Importing the Database (`mongorestore`)
 
