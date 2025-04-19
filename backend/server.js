@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const { OpenAI } = require('openai');
+
 
 dotenv.config();
 connectDB();
@@ -19,6 +21,11 @@ app.use('/api/locations', locationRoutes);
 // GMap Routes
 const gmapRoutes = require('./routes/GMapRoutes');
 app.use('/api/gmap', gmapRoutes);
+
+// OpenAI API
+const chatgptRoutes = require('./routes/chatgptRoutes');
+app.use('/api/chatgpt', chatgptRoutes);
+
 
 // Root
 app.get('/', (req, res) => {
