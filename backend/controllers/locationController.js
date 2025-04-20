@@ -1,54 +1,62 @@
 // controllers/locationController.js
-const Location = require('../models/Location');
+const asyncHandler = require("express-async-handler"); 
+const Location = require('../models/Location'); 
 
-const getAllLocations = async (req, res) => {
-  const locations = await Location.find();
+const getAllLocations = asyncHandler(async (req, res) => {
+  const locations = await Location.find(); 
   res.json(locations);
-};
+});
 
-const addLocation = async (req, res) => {
-  const { animeTitle, realLocation, coordinates, imageUrl, description } = req.body;
-  const location = new Location({ animeTitle, realLocation, coordinates, imageUrl, description });
+const addLocation = asyncHandler(async (req, res) => {
+  const { name, name_cn, lat_precise, lng_precise, /* other Location fields */ } = req.body;
+  const location = new Location({ name, name_cn, lat_precise, lng_precise, /* ... */ });
   const saved = await location.save();
   res.status(201).json(saved);
-};
+});
 
-const updateLocation = async (req, res) => {
+const updateLocation = asyncHandler(async (req, res) => {
   try {
-    const updated = await Location.findByIdAndUpdate(
+    const updated = await Location.findByIdAndUpdate( 
       req.params.id,
       req.body,
-      { new: true, overwrite: true } // replace the entire document
+      { new: true, overwrite: true }
     );
     if (!updated) return res.status(404).json({ message: 'Location not found' });
     res.json(updated);
   } catch (err) {
+    console.error("Error updating location:", err); 
     res.status(500).json({ error: 'Update failed' });
   }
-};
+});
 
-const partialUpdateLocation = async (req, res) => {
+const partialUpdateLocation = asyncHandler(async (req, res) => {
   try {
-    const updated = await Location.findByIdAndUpdate(
+    const updated = await Location.findByIdAndUpdate( 
       req.params.id,
       { $set: req.body },
-      { new: true } // keep the existing fields and only update the specified ones
+      { new: true }
     );
     if (!updated) return res.status(404).json({ message: 'Location not found' });
     res.json(updated);
   } catch (err) {
+    console.error("Error partially updating location:", err); 
     res.status(500).json({ error: 'Partial update failed' });
   }
-};
+});
 
-const deleteLocation = async (req, res) => {
+const deleteLocation = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const location = await Location.findByIdAndDelete(id);
+  const location = await Location.findByIdAndDelete(id); 
   if (!location) {
     return res.status(404).json({ message: 'Location not found' });
   }
   res.json({ message: 'Location deleted' });
-}
+});
 
-
-module.exports = { getAllLocations, addLocation,updateLocation, partialUpdateLocation,deleteLocation };
+module.exports = {
+  getAllLocations,
+  addLocation,
+  updateLocation,
+  partialUpdateLocation,
+  deleteLocation
+};
