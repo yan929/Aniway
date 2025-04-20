@@ -9,7 +9,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import { MdMovie } from "react-icons/md";
 import "../../layout/SearchBar.css";
 
-function SearchBar() {
+function SearchBar({ setSelectedLocation }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [resultLength, setResultLength] = useState(0);
@@ -35,6 +35,8 @@ function SearchBar() {
         throw new Error("Search fail");
       }
       const data = await response.json();
+
+      console.log("Get loca list: ", data.searchLocations);
 
       setAniResults(data.searchAnime);
       setLocResults(data.searchLocations);
@@ -91,6 +93,11 @@ function SearchBar() {
               title={"Location"}
               resultList={locResults}
               selectedIndex={selectedIndex}
+              onSelectLocation={(loc) => {
+                setSelectedLocation(loc);
+                setInput("");
+                setShowResult(false);
+              }}
             />
             <SearchAniItem
               icon={MdMovie}

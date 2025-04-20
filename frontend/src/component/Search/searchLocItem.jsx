@@ -1,7 +1,17 @@
 import "../../layout/SearchItem.css";
 import React from "react";
 
-function SearchLocItem({ icon, title, resultList, selectedIndex }) {
+function SearchLocItem({
+  icon,
+  title,
+  resultList,
+  selectedIndex,
+  onSelectLocation,
+}) {
+  const handleResultClick = (result) => {
+    onSelectLocation({ lat: result.lat, lng: result.lng, label: result.name });
+  };
+
   return (
     <>
       <div className="resultList">
@@ -12,6 +22,7 @@ function SearchLocItem({ icon, title, resultList, selectedIndex }) {
               <div
                 key={`loc-${id}`}
                 className={`resultItem ${selectedIndex === id ? "active" : ""}`}
+                onClick={() => handleResultClick(result)}
               >
                 <div className="itemIcon">
                   {icon && React.createElement(icon)}{" "}
