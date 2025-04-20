@@ -20,8 +20,6 @@ function SearchBar({ setSelectedLocation }) {
   const baseURL = import.meta.env.VITE_BACKEND_API;
 
   const fetchData = async (keyword) => {
-    console.log("Test keyword: ", keyword);
-
     if (!keyword.trim()) {
       setAniResults([]);
       setLocResults([]);
@@ -36,8 +34,6 @@ function SearchBar({ setSelectedLocation }) {
       }
       const data = await response.json();
 
-      console.log("Get loca list: ", data.searchLocations);
-
       setAniResults(data.searchAnime);
       setLocResults(data.searchLocations);
       setResultLength(aniResults.length + locResults.length);
@@ -50,8 +46,6 @@ function SearchBar({ setSelectedLocation }) {
 
   // Debounce hook with 500 ms
   const debouncedFetch = useDebouncedCallback((keyword) => {
-    console.log("loading ");
-
     fetchData(keyword);
   }, 500);
 
