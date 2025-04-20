@@ -25,6 +25,7 @@ const DynamicMapDemo = ({ selectedLocation }) => {
     });
   }, []);
 
+  // Handle the input from search result
   useEffect(() => {
     if (selectedLocation) {
       setLocations((prev) => [...prev, selectedLocation]);

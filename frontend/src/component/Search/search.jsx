@@ -55,12 +55,23 @@ function SearchBar({ setSelectedLocation }) {
     fetchData(keyword);
   }, 500);
 
+  // Keyboard control
   const handleKeyDown = (e) => {
+    const allResults = [...locResults, ...aniResults];
+
     if (e.key === "ArrowDown") {
       setSelectedIndex((prev) => (prev < resultLength - 1 ? prev + 1 : 0));
     } else if (e.key === "ArrowUp") {
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : resultLength - 1));
     } else if (e.key === "Enter" && selectedIndex >= 0) {
+      const selectedItem = allResults[selectedIndex];
+      if (selectedItem) {
+        handleSelectLocation({
+          lat: selectedItem.lat,
+          lng: selectedItem.lng,
+          label: selectedItem.name,
+        });
+      }
     }
   };
 
@@ -68,6 +79,12 @@ function SearchBar({ setSelectedLocation }) {
     setInput(keyword);
     debouncedFetch(keyword);
     setSelectedIndex(-1);
+  };
+
+  const handleSelectLocation = (loc) => {
+    setSelectedLocation(loc);
+    setInput("");
+    setShowResult(false);
   };
 
   return (
@@ -93,11 +110,7 @@ function SearchBar({ setSelectedLocation }) {
               title={"Location"}
               resultList={locResults}
               selectedIndex={selectedIndex}
-              onSelectLocation={(loc) => {
-                setSelectedLocation(loc);
-                setInput("");
-                setShowResult(false);
-              }}
+              onSelectLocation={(loc) => handleSelectLocation(loc)}
             />
             <SearchAniItem
               icon={MdMovie}
