@@ -1,25 +1,47 @@
 import { FaSearch } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 
-import "../../layout/SearchBar.css";
 import React, { useState } from "react";
+import SearchItem from "./searchItem";
+import "../../layout/SearchBar.css";
 
 function SearchBar() {
   const [input, setInput] = useState("");
+  const [aniResults, setAniResults] = useState([]);
+  const [locResults, setLocResults] = useState([]);
 
-  const fetchData = (value) => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((json) => {
-        const results = json.filter((user) => {
-          return user && user.name && user.name.toLowerCase().include(value);
-        });
-        console.log(results);
-      });
+  const baseURL = import.meta.env.VITE_BASE_URL;
+
+  const fetchData = async (keyword) => {
+    console.log("Test keyword:", keyword);
+
+    if (!keyword.trim()) {
+      setAniResults([]);
+      setLocResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseURL}/home/search?q=${keyword}`);
+      if (!response) {
+        throw new Error("Search fail");
+      }
+      const data = await response.json();
+      console.log("Received data: ", data);
+
+      console.log("Ani get: ", data.searchAnime);
+      console.log("Loc get: ", data.searchLocations);
+
+      setAniResults(data.searchAnime || []);
+      setLocResults(data.searchLocations || []);
+    } catch (error) {
+      console.log("Error of search: ", error);
+    }
   };
 
-  const handleChange = (value) => {
-    setInput(value);
-    fetchData(value);
+  const handleChange = (keyword) => {
+    setInput(keyword);
+    fetchData(keyword);
   };
 
   return (
@@ -34,10 +56,36 @@ function SearchBar() {
             onChange={(e) => handleChange(e.target.value)}
           />
         </div>
-
-        <div className="resultList">
-            
-        </div>
+        {input && (
+          <div className="resultList">
+            <div className="locationList">
+              {locResults.length > 0 && (
+                <div className="section">
+                  <p className="sectionTitle">Locations</p>
+                  {locResults.map((result, id) => (
+                    <div key={`loc-${id}`} className="resultItem">
+                      <p className="itemTitle">{result.name}</p>
+                      <p className="itemInfo">{result.address}</p>
+                    </div>
+                  ))}{" "}
+                </div>
+              )}
+            </div>
+            <div className="aniList">
+              {aniResults.length > 0 && (
+                <div className="section">
+                  <p className="sectionTitle">Anime</p>
+                  {aniResults.map((result, id) => (
+                    <div key={`ani-${id}`} className="resultItem">
+                      <p className="itemTitle">{result.name}</p>
+                      <p className="itemInfo">{result.address}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
