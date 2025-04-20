@@ -1,7 +1,7 @@
 // backend/controllers/homeController.js
 const asyncHandler = require("express-async-handler");
 const Anime = require("../models/Anime");
-const AnimeLocation = require("../models/AnimeLocation");
+const Location = require("../models/Location");
 
 // @desc    Get trending anime and locations for the homepage
 // @route   GET /api/home/trending
@@ -26,7 +26,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
     }));
 
     // Fetch top 5 trending locations
-    const trendingLocationsData = await AnimeLocation.find()
+    const trendingLocationsData = await Location.find()
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
       .select(
@@ -87,7 +87,7 @@ const searchData = asyncHandler(async (req, res) => {
     }));
 
     // Search Locations
-    const searchLocationsData = await AnimeLocation.find({
+    const searchLocationsData = await Location.find({
       $or: [
         { name: regex },
         { name_cn: regex },
