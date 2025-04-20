@@ -1,8 +1,10 @@
+import React, { useState } from "react";
+import SearchLocItem from "./searchLocItem";
+import SearchAniItem from "./searchAniItem";
+
 import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-
-import React, { useState } from "react";
-import SearchItem from "./searchItem";
+import { MdMovie } from "react-icons/md";
 import "../../layout/SearchBar.css";
 
 function SearchBar() {
@@ -32,8 +34,8 @@ function SearchBar() {
       console.log("Ani get: ", data.searchAnime);
       console.log("Loc get: ", data.searchLocations);
 
-      setAniResults(data.searchAnime || []);
-      setLocResults(data.searchLocations || []);
+      setAniResults(data.searchAnime);
+      setLocResults(data.searchLocations);
     } catch (error) {
       console.log("Error of search: ", error);
     }
@@ -57,21 +59,18 @@ function SearchBar() {
           />
         </div>
         {input && (
-          <div className="resultList">
-            <div className="locationList">
-              {locResults.length > 0 && (
-                <div className="section">
-                  <p className="sectionTitle">Locations</p>
-                  {locResults.map((result, id) => (
-                    <div key={`loc-${id}`} className="resultItem">
-                      <p className="itemTitle">{result.name}</p>
-                      <p className="itemInfo">{result.address}</p>
-                    </div>
-                  ))}{" "}
-                </div>
-              )}
-            </div>
-            <div className="aniList">
+          <div className="resultListContainer">
+            <SearchLocItem
+              icon={FaLocationDot}
+              title={"Location"}
+              resultList={locResults}
+            />
+            <SearchAniItem
+              icon={MdMovie}
+              title={"Anime"}
+              resultList={aniResults}
+            />
+            {/* <div className="aniList">
               {aniResults.length > 0 && (
                 <div className="section">
                   <p className="sectionTitle">Anime</p>
@@ -83,7 +82,7 @@ function SearchBar() {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         )}
       </div>

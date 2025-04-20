@@ -6,8 +6,7 @@
   margin-bottom: 1rem;
 }
 
-.searchInputs,
-.resultList {
+.searchInputs {
   background-color: white;
   width: 50%;
   border-radius: 10px;
@@ -31,16 +30,19 @@ input:focus {
   outline: none;
 }
 
-.resultList {
+.resultListContainer {
   position: absolute;
-  top: 100%; /* directly below the search bar */
-
+  top: 100%;
   background-color: white;
+  width: 50%;
+  border-radius: 10px;
+  padding: 0 15px;
+  box-shadow: 0px 0px 8px #ddd;
+  display: flex;
+  align-items: left;
   z-index: 10;
 
   background-color: white;
-  display: flex;
   flex-direction: column;
   height: auto;
-  overflow-y: scroll;
 }
