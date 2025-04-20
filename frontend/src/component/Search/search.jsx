@@ -9,14 +9,14 @@ import "../../layout/SearchBar.css";
 
 function SearchBar() {
   const [input, setInput] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [resultLength, setResultLength] = useState(0);
   const [aniResults, setAniResults] = useState([]);
   const [locResults, setLocResults] = useState([]);
 
   const baseURL = import.meta.env.VITE_BASE_URL;
 
   const fetchData = async (keyword) => {
-    console.log("Test keyword:", keyword);
-
     if (!keyword.trim()) {
       setAniResults([]);
       setLocResults([]);
@@ -29,15 +29,21 @@ function SearchBar() {
         throw new Error("Search fail");
       }
       const data = await response.json();
-      console.log("Received data: ", data);
-
-      console.log("Ani get: ", data.searchAnime);
-      console.log("Loc get: ", data.searchLocations);
-
       setAniResults(data.searchAnime);
       setLocResults(data.searchLocations);
+      setResultLength(aniResults.length + locResults.length);
     } catch (error) {
       console.log("Error of search: ", error);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    console.log("Test key: ", e.key);
+
+    if (e.key === "ArrowDown") {
+      setSelectedIndex((prev) => (prev < resultLength - 1 ? prev + 1 : 0));
+    } else if (e.key === "ArrowUp") {
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : resultLength - 1));
     }
   };
 
@@ -55,7 +61,11 @@ function SearchBar() {
             type="text"
             placeholder="Search..."
             value={input}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => {
+              handleChange(e.target.value);
+              setSelectedIndex(-1);
+            }}
+            onKeyDown={handleKeyDown}
           />
         </div>
         {input && (
@@ -64,25 +74,14 @@ function SearchBar() {
               icon={FaLocationDot}
               title={"Location"}
               resultList={locResults}
+              selectedIndex={selectedIndex}
             />
             <SearchAniItem
               icon={MdMovie}
               title={"Anime"}
               resultList={aniResults}
+              selectedIndex={selectedIndex - locResults.length}
             />
-            {/* <div className="aniList">
-              {aniResults.length > 0 && (
-                <div className="section">
-                  <p className="sectionTitle">Anime</p>
-                  {aniResults.map((result, id) => (
-                    <div key={`ani-${id}`} className="resultItem">
-                      <p className="itemTitle">{result.name}</p>
-                      <p className="itemInfo">{result.address}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div> */}
           </div>
         )}
       </div>
