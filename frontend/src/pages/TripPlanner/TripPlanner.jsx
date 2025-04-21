@@ -1,6 +1,7 @@
 import DynamicMapDemo from "../../component/GMap/GMapDemo";
 import SearchBar from "../../component/Search/search";
 import ChatGPTDemo from "../../ChatGPTDemo";
+
 import { useState } from "react";
 
 function TripPlanner() {
