@@ -83,7 +83,7 @@ function SearchBar({ setSelectedLocation }) {
 
   return (
     <>
-      <div className="search">
+      <div className="search mt-4">
         <div className="searchInputs">
           <FaSearch id="search-icon" />
           <input
