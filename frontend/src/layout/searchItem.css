@@ -1,0 +1,42 @@
+.sectionTitle {
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.5rem 1rem 0.25rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+.section {
+  width: 100%;
+}
+.resultItem {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.5rem 1rem;
+  width: 100;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.resultItem:hover {
+  background-color: #f9f9f9;
+}
+
+.resultItem.active {
+  background-color: #f9f9f9;
+}
+
+.itemTitle {
+  font-weight: 600;
+  margin: 0;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.itemAddress {
+  font-size: 0.85rem;
+  margin: 0;
+  color: #666;
+  text-align: left;
+}
