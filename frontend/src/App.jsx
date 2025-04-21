@@ -9,6 +9,7 @@ function App() {
   return (
     <>
       <Routes>
+        {/* Follow route just for temporary */}
         <Route path="/" element={<TripPlanner />} />
         <Route path="/home" element={<HomePage />} />
 
@@ -17,6 +18,7 @@ function App() {
           - HomePage: planned for homepage in future
           - /planner: planned dedicated route for trip planner
         */}
+
         {/* <Route path="/" element={<HomePage />} /> */}
         {/* <Route path="/planner" element={<TripPlanner />} /> */}
       </Routes>
