@@ -105,6 +105,7 @@ function SearchBar({ setSelectedLocation }) {
               resultList={locResults}
               selectedIndex={selectedIndex}
               onSelectLocation={(loc) => handleSelectLocation(loc)}
+              searchTerm={input} 
             />
             <SearchAniItem
               icon={MdMovie}
