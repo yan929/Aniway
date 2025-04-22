@@ -34,7 +34,7 @@ function SearchLocItem({
                   <p className="itemAddress">{result.addresses[0]}</p>
                 </div>
               </div>
-            ))}{" "}
+            ))}
             <Link 
               to={`/locations/search?q=${encodeURIComponent(searchTerm || '')}`} 
               className="findMoreLocations"

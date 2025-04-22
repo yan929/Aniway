@@ -9,8 +9,6 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
       await Promise.all(
         locList.map(async (loc) => {
           try {
-            console.log("Test loc: ", loc);
-
             const response = await fetch(apiServer + "/api/gmap/", {
               method: "POST",
               headers: {
@@ -20,7 +18,6 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
             });
 
             const data = await response.json();
-            console.log("Test data: ", data);
 
             if (data.photo_reference) {
               const photoRes = await fetch(apiServer + "/api/gmap/photo", {
