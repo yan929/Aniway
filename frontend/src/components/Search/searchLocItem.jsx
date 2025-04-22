@@ -1,5 +1,6 @@
 import "../../layout/SearchItem.css";
 import React from "react";
+import { Link } from "react-router-dom"; 
 
 function SearchLocItem({
   icon,
@@ -7,6 +8,7 @@ function SearchLocItem({
   resultList,
   selectedIndex,
   onSelectLocation,
+  searchTerm,
 }) {
   const handleResultClick = (result) => {
     onSelectLocation({ lat: result.lat, lng: result.lng, label: result.name });
@@ -32,7 +34,13 @@ function SearchLocItem({
                   <p className="itemAddress">{result.addresses[0]}</p>
                 </div>
               </div>
-            ))}{" "}
+            ))}
+            <Link 
+              to={`/locations/search?q=${encodeURIComponent(searchTerm || '')}`} 
+              className="findMoreLocations"
+            >
+              Find more locations
+            </Link>
           </div>
         ) : (
           <p className="noResult">No result found</p>

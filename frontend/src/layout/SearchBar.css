@@ -46,3 +46,21 @@ input:focus {
   flex-direction: column;
   height: auto;
 }
+
+.findMoreLocations {
+  display: block;
+  padding: 10px 15px;
+  margin-top: 5px;
+  text-align: center;
+  color: #4a90e2;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  /* border-top: 1px solid #eee; */
+}
+
+.findMoreLocations:hover {
+  background-color: #f5f8ff;
+  text-decoration: underline;
+}
