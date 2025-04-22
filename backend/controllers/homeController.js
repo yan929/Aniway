@@ -29,19 +29,23 @@ const getTrendingData = asyncHandler(async (req, res) => {
     const trendingLocationsData = await Location.find()
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
-      .select(
-        "_id name name_cn lat_precise lng_precise gmap_formatted_addresses"
-      ) // Select only needed fields
+      .select("_id anitabi_names anitabi_cn_names lat lng addresses") // Select only needed fields
       .lean(); // Get plain JS objects
 
     // Rename fields in the location data
     const trendingLocations = trendingLocationsData.map((loc) => ({
       id: loc._id,
-      name: loc.name,
-      name_cn: loc.name_cn,
-      lat: loc.lat_precise, // Rename lat_precise to lat
-      lng: loc.lng_precise, // Rename lng_precise to lng
-      addresses: loc.gmap_formatted_addresses,
+      name:
+        loc.anitabi_names && loc.anitabi_names.length > 0
+          ? loc.anitabi_names[0]
+          : "",
+      name_cn:
+        loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
+          ? loc.anitabi_cn_names[0]
+          : "",
+      lat: loc.lat, // Rename lat_precise to lat
+      lng: loc.lng, // Rename lng_precise to lng
+      addresses: loc.addresses,
     }));
 
     res.json({
@@ -89,11 +93,12 @@ const searchData = asyncHandler(async (req, res) => {
     // Search Locations
     const searchLocationsData = await Location.find({
       $or: [
-        { name: regex },
-        { name_cn: regex },
+        { anitabi_names: regex }, // Search if any name in the array matches
+        { anitabi_cn_names: regex }, // Search if any CN name matches
         // Refined search: Match keyword within the first part (before first comma) of any address element
         {
-          gmap_formatted_addresses: {
+          addresses: {
+            // Use the correct 'addresses' field
             $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
           },
         },
@@ -101,17 +106,24 @@ const searchData = asyncHandler(async (req, res) => {
     })
       .limit(limit)
       .select(
-        "_id name name_cn lat_precise lng_precise gmap_formatted_addresses"
+        "_id anitabi_names anitabi_cn_names lat lng addresses" // Select correct fields
       )
       .lean();
 
     const searchLocations = searchLocationsData.map((loc) => ({
       id: loc._id,
-      name: loc.name,
-      name_cn: loc.name_cn,
-      lat: loc.lat_precise,
-      lng: loc.lng_precise,
-      addresses: loc.gmap_formatted_addresses,
+      // Use the first name found, or provide the array if needed
+      name:
+        loc.anitabi_names && loc.anitabi_names.length > 0
+          ? loc.anitabi_names[0]
+          : "",
+      name_cn:
+        loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
+          ? loc.anitabi_cn_names[0]
+          : "",
+      lat: loc.lat, // Use correct field
+      lng: loc.lng, // Use correct field
+      addresses: loc.addresses, // Use correct field
     }));
 
     res.json({
