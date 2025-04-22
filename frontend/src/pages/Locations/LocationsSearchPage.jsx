@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import DisplayPopLocInfo from "../../component/PopularItem/LocDataInfo";
-import "../../layout/LocationsSearch.css";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
@@ -44,22 +43,22 @@ function LocationsSearchPage() {
   }, [searchQuery, baseURL]);
 
   return (
-    <div className="locations-search-page p-6">
-      <div className="page-header mb-6">
-        <Link to="/" className="back-button inline-flex items-center gap-2 text-blue-500 hover:underline">
+    <div className="p-5 max-w-7xl mx-auto">
+      <header className="mb-8 flex flex-col gap-2.5">
+        <Link to="/" className="inline-flex items-center gap-2 text-blue-500 no-underline text-base mb-2.5 hover:underline">
           <FaArrowLeft /> Back to Home
         </Link>
-        <h1 className="text-4xl font-bold mt-4">Locations for "{searchQuery}"</h1>
-      </div>
+        <h1 className="text-4xl font-bold">Locations for "{searchQuery}"</h1>
+      </header>
 
       {loading ? (
-        <div className="loading-state text-center py-10">Loading locations...</div>
+        <div className="text-center py-10 text-gray-600 text-base">Loading locations...</div>
       ) : error ? (
-        <div className="error-state text-center py-10 text-red-500">Error: {error}</div>
+        <div className="text-center py-10 text-red-500 text-base">Error: {error}</div>
       ) : locations.length > 0 ? (
         <DisplayPopLocInfo sectionTitle="Search Results" locList={locations} />
       ) : (
-        <div className="no-results text-center py-10">
+        <div className="text-center py-10 text-gray-600 text-base">
           <p>No locations found for "{searchQuery}"</p>
         </div>
       )}
