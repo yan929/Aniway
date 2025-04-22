@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import DisplayPopAniInfo from "../../component/PopularItem/AniDataInfo";
-import DisplayPopLocInfo from "../../component/PopularItem/LocDataInfo";
-import SearchBar from "../../component/Search/search";
+import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
+import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
+import SearchBar from "../../components/Search/search";
 
 function HomePage() {
   const [aniData, setAniData] = useState([]);

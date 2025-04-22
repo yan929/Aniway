@@ -1,5 +1,5 @@
-import DynamicMapDemo from "../../component/GMap/GMapDemo";
-import SearchBar from "../../component/Search/search";
+import DynamicMapDemo from "../../components/GMap/GMapDemo";
+import SearchBar from "../../components/Search/search";
 import ChatGPTDemo from "../../ChatGPTDemo";
 
 import { useState } from "react";

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import DisplayPopLocInfo from "../../component/PopularItem/LocDataInfo";
+import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
