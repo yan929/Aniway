@@ -32,23 +32,17 @@ const getTrendingData = asyncHandler(async (req, res) => {
     const trendingLocationsData = await Location.find()
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
-      .select("_id anitabi_names anitabi_cn_names lat lng addresses") // Select only needed fields
+      .select("_id anitabi_names lat lng addresses images") // Select only needed fields
       .lean(); // Get plain JS objects
 
     // Rename fields in the location data
     const trendingLocations = trendingLocationsData.map((loc) => ({
       id: loc._id,
-      name:
-        loc.anitabi_names && loc.anitabi_names.length > 0
-          ? loc.anitabi_names[0]
-          : "",
-      name_cn:
-        loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
-          ? loc.anitabi_cn_names[0]
-          : "",
       lat: loc.lat,
       lng: loc.lng,
       addresses: loc.addresses,
+      images: loc.images,
+      names: loc.anitabi_names,
     }));
 
     res.json({
