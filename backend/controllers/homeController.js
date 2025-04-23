@@ -14,15 +14,18 @@ const getTrendingData = asyncHandler(async (req, res) => {
     const trendingAnimeData = await Anime.find()
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
-      .select("_id name name_cn name_en images"); // Select only needed fields for display
+      .select(
+        "_id name name_cn name_en images cover overview summary locations"
+      ); // Select only needed fields for display
 
     // Rename fields in the anime data
     const trendingAnime = trendingAnimeData.map((anime) => ({
       id: anime._id,
-      name: anime.name,
-      name_cn: anime.name_cn,
-      name_en: anime.name_en,
+      name: anime.name_en || anime.name || anime.name_cn,
       images: anime.images,
+      cover: anime.cover,
+      locations: anime.locations,
+      description: anime.overview || anime.summary,
     }));
 
     // Fetch top 5 trending locations
@@ -43,8 +46,8 @@ const getTrendingData = asyncHandler(async (req, res) => {
         loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
           ? loc.anitabi_cn_names[0]
           : "",
-      lat: loc.lat, // Rename lat_precise to lat
-      lng: loc.lng, // Rename lng_precise to lng
+      lat: loc.lat,
+      lng: loc.lng,
       addresses: loc.addresses,
     }));
 
@@ -79,15 +82,18 @@ const searchData = asyncHandler(async (req, res) => {
       $or: [{ name: regex }, { name_cn: regex }, { name_en: regex }],
     })
       .limit(limit)
-      .select("_id name name_cn name_en images")
+      .select(
+        "_id name name_cn name_en images cover overview summary locations"
+      )
       .lean();
 
     const searchAnime = searchAnimeData.map((anime) => ({
       id: anime._id,
-      name: anime.name,
-      name_cn: anime.name_cn,
-      name_en: anime.name_en,
+      name: anime.name_en || anime.name || anime.name_cn,
       images: anime.images,
+      cover: anime.cover,
+      locations: anime.locations,
+      description: anime.overview || anime.summary,
     }));
 
     // Search Locations
