@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import axios from "axios";
 
 import SearchLocItem from "./searchLocItem";
 import SearchAniItem from "./searchAniItem";
@@ -17,8 +18,6 @@ function SearchBar({ setSelectedLocation }) {
   const [aniResults, setAniResults] = useState([]);
   const [locResults, setLocResults] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_API;
-
   const fetchData = async (keyword) => {
     if (!keyword.trim()) {
       setAniResults([]);
@@ -28,18 +27,27 @@ function SearchBar({ setSelectedLocation }) {
     }
 
     try {
-      const response = await fetch(`${baseURL}/api/home/search?q=${keyword}`);
-      if (!response) {
-        throw new Error("Search fail");
-      }
-      const data = await response.json();
+      const response = await axios.get(`/api/home/search`, {
+        params: { q: keyword },
+      });
 
-      setAniResults(data.searchAnime);
-      setLocResults(data.searchLocations);
-      setResultLength(aniResults.length + locResults.length);
+      const data = response.data;
+
+      const anime = data.searchAnime || [];
+      const locations = data.searchLocations || [];
+      setAniResults(anime);
+      setLocResults(locations);
+      setResultLength(anime.length + locations.length);
       setShowResult(true);
-    } catch (error) {
-      console.log("Error of search: ", error);
+    } catch (err) {
+      console.error(
+        "Search request failed:",
+        err.response
+          ? `${err.response.status} ${err.response.statusText}`
+          : err.message
+      );
+      setAniResults([]);
+      setLocResults([]);
       setShowResult(false);
     }
   };
@@ -105,7 +113,7 @@ function SearchBar({ setSelectedLocation }) {
               resultList={locResults}
               selectedIndex={selectedIndex}
               onSelectLocation={(loc) => handleSelectLocation(loc)}
-              searchTerm={input} 
+              searchTerm={input}
             />
             <SearchAniItem
               icon={MdMovie}

@@ -1,53 +1,91 @@
 import { useEffect, useState } from "react";
-function DisplayPopLocInfo({ sectionTitle, locList }) {
-  const [locationImagesList, setlocationImagesList] = useState({});
-  const apiServer = import.meta.env.VITE_BACKEND_API;
+import axios from "axios";
 
-  const fectchLocationImage = async () => {
-    const mapImagesList = {};
-    try {
-      await Promise.all(
+function DisplayPopLocInfo({ sectionTitle, locList }) {
+  const [locationImages, setLocationImages] = useState({});
+
+  useEffect(() => {
+    // Keep track of URLs created in this specific effect run
+    let currentObjectUrls = [];
+
+    const fetchImages = async () => {
+      if (!locList || locList.length === 0) {
+        setLocationImages({});
+        return;
+      }
+
+      const results = await Promise.allSettled(
         locList.map(async (loc) => {
           try {
-            const response = await fetch(apiServer + "/api/gmap/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ lat: loc.lat, lng: loc.lng }),
+            const placeResponse = await axios.post("/api/gmap/", {
+              lat: loc.lat,
+              lng: loc.lng,
             });
+            const placeData = placeResponse.data;
 
-            const data = await response.json();
+            if (placeData && placeData.photo_reference) {
+              const photoResponse = await axios.post(
+                "/api/gmap/photo",
+                { photo_reference: placeData.photo_reference },
+                { responseType: "blob" }
+              );
+              const photoBlob = photoResponse.data;
 
-            if (data.photo_reference) {
-              const photoRes = await fetch(apiServer + "/api/gmap/photo", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ photo_reference: data.photo_reference }),
-              });
-
-              const blob = await photoRes.blob();
-              const url = URL.createObjectURL(blob);
-
-              if (url) {
-                mapImagesList[loc.id] = url;
-              }
+              const url = URL.createObjectURL(photoBlob);
+              currentObjectUrls.push(url);
+              return { id: loc.id, url: url };
+            } else {
+              return null;
             }
           } catch (err) {
-            console.log(err);
+            console.error(
+              `Error processing location ${loc.id}:`,
+              err.response
+                ? `${err.response.status} ${err.response.statusText}`
+                : err.message
+            );
+            return null;
           }
         })
       );
-    } catch (error) {
-      console.log(error);
-    }
-    setlocationImagesList(mapImagesList);
-  };
 
-  useEffect(() => {
-    if (locList) {
-      fectchLocationImage();
+      // Simplify state update using filter and reduce
+      const newMapImages = results.reduce((acc, result, index) => {
+        // Check if the promise was fulfilled and returned a valid URL object
+        if (result.status === "fulfilled" && result.value?.url) {
+          acc[locList[index].id] = result.value.url;
+        } else if (result.status === "rejected") {
+          // Log rejected promises (optional, but good for debugging)
+          console.warn(
+            `Image fetch failed for location ${locList[index].id}:`,
+            result.reason
+          );
+        }
+        return acc;
+      }, {}); // Start with an empty object accumulator
+
+      setLocationImages(newMapImages);
+    };
+
+    // Reset state if locList becomes empty
+    if (!locList || locList.length === 0) {
+      setLocationImages({});
+      return () => {};
     }
+
+    fetchImages();
+
+    // Cleanup function: Revokes only the URLs created in *this* effect run
+    return () => {
+      currentObjectUrls.forEach((url) => {
+        if (url && url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      // Clear the array for the next run (though technically not needed as it's scoped)
+      currentObjectUrls = [];
+    };
+    // Only re-run the effect if locList changes
   }, [locList]);
 
   return (
@@ -62,9 +100,13 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
             className="relative bg-white rounded-lg overflow-hidden shadow-md  object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
           >
             <img
-              src={locationImagesList[data.id] || "/default-image.jpg"}
+              src={locationImages[data.id] || "/default-image.jpg"}
               alt={data.name}
               className="w-full h-60 object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/default-image.jpg";
+              }}
             />
 
             <div className="p-2">
@@ -74,7 +116,9 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
                   {data.addresses[0]}
                 </p>
               ) : (
-                <p className="text-sm text-gray-500 truncate">Description...</p>
+                <p className="text-sm text-gray-400 italic">
+                  Address not available
+                </p>
               )}
             </div>
           </div>

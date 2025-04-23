@@ -13,16 +13,16 @@ function DisplayPopAniInfo({ sectionTitle, aniList }) {
             className="relative bg-white rounded-lg overflow-hidden shadow-md  object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
           >
             <img
-              src={data.images.large}
+              src={data.images.large ?? data.cover}
               alt={data.name}
               className="w-full h-80 object-cover"
             />
 
             <div className="p-2">
               <h3 className="text-lg font-bold truncate">{data.name}</h3>
-              {data.addresses ? (
-                <p className="text-sm text-gray-500 truncate whitespace-normal break-words">
-                  {data.addresses[0]}
+              {data.description ? (
+                <p className="text-sm text-gray-500 truncate whitespace-normal break-words line-clamp-3">
+                  {data.description}
                 </p>
               ) : (
                 <p className="text-sm text-gray-500 truncate">Description...</p>
