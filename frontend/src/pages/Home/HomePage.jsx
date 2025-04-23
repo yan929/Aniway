@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBar from "../../components/Search/search";
@@ -7,26 +8,28 @@ function HomePage() {
   const [aniData, setAniData] = useState([]);
   const [locData, setLocData] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_API;
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${baseURL}/api/home/trending`);
-      if (!response) {
-        throw new Error("Search fail");
-      }
-      const data = await response.json();
-
-      setAniData(data.trendingAnime);
-      setLocData(data.trendingLocations);
-    } catch (error) {
-      console.log("Error of search: ", error);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchDataOnMount = async () => {
+      try {
+        const response = await axios.get(`/api/home/trending`);
+
+        const data = response.data;
+
+        setAniData(data.trendingAnime);
+        setLocData(data.trendingLocations);
+      } catch (error) {
+        console.error(
+          "Error fetching trending data: ",
+          error.response
+            ? `${error.response.status} ${error.response.statusText}`
+            : error.message
+        );
+      }
+    };
+
+    fetchDataOnMount(); // Call the inner function
+  }, []); // Empty dependency array means this runs once on mount
+
   return (
     <>
       <h1>Homepage</h1>
