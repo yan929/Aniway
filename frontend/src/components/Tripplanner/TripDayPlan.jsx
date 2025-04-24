@@ -10,6 +10,8 @@ export default function TripDayPlan({ day, index }) {
 
     const placeDetailsMap = usePlaceDetails(day.itinerary);
 
+    console.log("placeDetailsMap", placeDetailsMap);
+
 
 
     return (
@@ -22,7 +24,7 @@ export default function TripDayPlan({ day, index }) {
             <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
                 {day.itinerary.map((item, itemIndex) => {
                     const detail = placeDetailsMap[item.gpPlaceId];
-                
+
 
                     return (
                         <div key={itemIndex} className="flex items-center gap-2">
@@ -34,17 +36,17 @@ export default function TripDayPlan({ day, index }) {
 
                                     <div className="pl-4 pr-2">
                                         <h3 className="text-lg font-bold text-gray-700 text-left">
-                                            {detail?.name || item.gpPlaceId} Location title
+                                            {detail?.name || item.gpPlaceId}
                                         </h3>
                                         <p className="text-sm text-gray-700 text-left">
-                                            {detail?.formatted_address || item.gpPlaceId} description
+                                            {detail?.editorial_summary.overview || item.gpPlaceId}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="w-32 h-24 flex-shrink-0">
                                     <img
-                                        src={ "https://via.placeholder.com/128x96"}
+                                        src={"https://via.placeholder.com/128x96"}
                                         alt="Place"
                                         className="object-cover w-full h-full rounded-r-xl"
                                     />

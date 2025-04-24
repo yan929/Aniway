@@ -16,7 +16,7 @@ exports.getPlaceDetails = async (placeId) => {
   const params = new URLSearchParams({
     place_id: placeId,
     key: GOOGLE_API_KEY,
-    fields: 'name,formatted_address,geometry,rating,photos' // add any other fields you need
+    fields: 'name,formatted_address,geometry,rating,photos,opening_hours,editorial_summary,formatted_phone_number' // add any other fields you need
   });
 
   try {
