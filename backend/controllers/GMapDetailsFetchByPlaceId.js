@@ -1,4 +1,4 @@
-const GMapService = require('./GMapPlaceIdService');
+const GMapService = require('../services/GMapPlaceIdService');
 
 // 处理Place Details请求
 exports.getPlaceDetails = async (req, res) => {

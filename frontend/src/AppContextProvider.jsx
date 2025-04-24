@@ -27,22 +27,22 @@ const testTripData = [
         "date": "2025-10-01",
         "index": 9,
         "itinerary": [
-            { "gpPlaceId": "ChIJ123123", "order": 1, "arrivalTime": "12:00", "note": "Dinner with view" },
-            { "gpPlaceId": "ChIJ456456", "order": 2, "arrivalTime": "22:00", "note": "Dinner with view" }
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "12:00", "note": "Dinner with view" },
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 2, "arrivalTime": "22:00", "note": "Dinner with view" }
         ]
     },
     {
         "date": "2025-10-02",
         "index": 20,
         "itinerary": [
-            { "gpPlaceId": "ChIJ789789", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
         ]
     },
     {
         "date": "2025-10-03",
         "index": 1,
         "itinerary": [
-            { "gpPlaceId": "ChIJ789789", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
         ]
     },
 ];
