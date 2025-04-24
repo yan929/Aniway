@@ -1,19 +1,20 @@
-import DynamicMapDemo from "../../components/GMap/GMapDemo";
-import SearchBar from "../../components/Search/search";
-import ChatGPTDemo from "../../ChatGPTDemo";
+import React, { use } from 'react';
+import Sidebar from '../../components/Tripplanner/Sidebar';
+import TripHeader from '../../components/Tripplanner/TripHeader';
 
-import { useState } from "react";
+// import DaySection from './components/DaySection';
+// import MapPanel from './components/MapPanel';
 
-function TripPlanner() {
-  const [selectedlocation, setSelectedLocation] = useState(null);
-  return (
-    <>
-      <h1>Trip Planner</h1>
-      <SearchBar setSelectedLocation={(loc) => setSelectedLocation(loc)} />
-      <DynamicMapDemo selectedLocation={selectedlocation} />
-      <ChatGPTDemo />
-    </>
-  );
+export default function ItineraryPage() {
+
+    return (
+        <div className="flex h-screen overflow-hidden">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto bg-gray-100">
+                <TripHeader />
+                {/* <DaySection /> */}
+            </main>
+            {/* <MapPanel /> */}
+        </div>
+    );
 }
-
-export default TripPlanner;

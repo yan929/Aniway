@@ -11,9 +11,9 @@ function App() {
     <>
       <Routes>
         {/* Follow route just for temporary */}
-        <Route path="/" element={<TripPlanner />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/locations/search" element={<LocationsSearchPage />} /> 
+        <Route path="/" element={<HomePage />} />
+        <Route path="/tripplanner" element={<TripPlanner />} />
+        <Route path="/locations/search" element={<LocationsSearchPage />} />
         {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future
