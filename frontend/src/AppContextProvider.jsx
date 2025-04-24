@@ -70,7 +70,7 @@ function AppContextProvider({ children }) {
         if (tripData) {
             //save new data
             localStorage.setItem('tripData', JSON.stringify(tripData));
-            console.log("locolStorage tripData:", localStorage.getItem('tripData'));
+            // console.log("locolStorage tripData:", localStorage.getItem('tripData'));
         }
     }, [tripData]);
 
@@ -104,7 +104,7 @@ function AppContextProvider({ children }) {
 
         //setTripData will update the trip data
         setTripData(extended);
-        console.log("Updated trip data:", tripData);
+        // console.log("Updated trip data:", tripData);
        
     }
 
