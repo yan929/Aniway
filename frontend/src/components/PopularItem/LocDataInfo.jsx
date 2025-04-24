@@ -21,10 +21,11 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
             />
 
             <div className="p-2">
-              <h3 className="text-lg font-bold truncate">{data.name}</h3>
+              <h3 className="text-lg font-bold truncate">{data.names[0]}</h3>
               {data.names ? (
                 <p className="text-sm text-gray-500 truncate whitespace-normal break-words">
-                  {data.names[0]}
+                  {/* Change to anime name */}
+                  Food for the Soul
                 </p>
               ) : (
                 <p className="text-sm text-gray-400 italic">N/A</p>
