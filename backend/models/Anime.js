@@ -1,5 +1,5 @@
 // backend/models/Anime.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const animeSchema = new mongoose.Schema(
   {
@@ -39,4 +39,4 @@ const animeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Anime", animeSchema);
+export default mongoose.model("Anime", animeSchema);

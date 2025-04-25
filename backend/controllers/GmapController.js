@@ -56,4 +56,4 @@ const fetchPlacePhoto = async (req, res) => {
   }
 };
 
-module.exports = { fetchPlaceInfo, fetchPlacePhoto };
+export { fetchPlaceInfo, fetchPlacePhoto };

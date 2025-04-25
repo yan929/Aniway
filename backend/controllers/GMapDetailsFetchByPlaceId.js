@@ -1,4 +1,4 @@
-const GMapService = require('../services/GMapPlaceIdService');
+import PlaceDetails from "../services/GMapPlaceIdService.js";
 
 // 处理Place Details请求
 const getPlaceDetails = async (req, res) => {
@@ -6,17 +6,17 @@ const getPlaceDetails = async (req, res) => {
     const { placeId } = req.params;
 
     if (!placeId || placeId.length < 5) {
-      return res.status(400).json({ error: 'Invalid place_id parameter' });
+      return res.status(400).json({ error: "Invalid place_id parameter" });
     }
 
-    const details = await GMapService.getPlaceDetails(placeId);
+    const details = await PlaceDetails(placeId);
     res.json(details);
-
   } catch (error) {
     console.error(`[Place Error] ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const fetchPlacePhotoByPlaceId = async (req, res) => {
   const { photo_reference } = req.query;
@@ -38,4 +38,4 @@ const fetchPlacePhotoByPlaceId = async (req, res) => {
   }
 };
 
-module.exports = { getPlaceDetails, fetchPlacePhotoByPlaceId };
+export { getPlaceDetails, fetchPlacePhotoByPlaceId };

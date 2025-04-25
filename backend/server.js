@@ -1,10 +1,18 @@
 // server.js
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const { OpenAI } = require('openai');
-
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+// Location Routes
+import locationRoutes from "./routes/LocationRoutes.js";
+// Home Routes (Trending)
+import homeRoutes from "./routes/HomeRoutes.js";
+// GMap Routes
+import gmapRoutes from "./routes/GMapRoutes.js";
+// OpenAI API
+import chatgptRoutes from "./routes/ChatgptRoutes.js";
+// Error handling middleware
+import {errorHandler} from "./middleware/ErrorMiddleware.js";
 
 dotenv.config();
 connectDB();
@@ -14,31 +22,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Location Routes
-const locationRoutes = require('./routes/locationRoutes');
-app.use('/api/locations', locationRoutes);
+app.use("/api/locations", locationRoutes);
 
-// Home Routes (Trending)
-const homeRoutes = require('./routes/homeRoutes');
-app.use('/api/home', homeRoutes);
+app.use("/api/home", homeRoutes);
 
-// GMap Routes
-const gmapRoutes = require('./routes/GMapRoutes');
-app.use('/api/gmap', gmapRoutes);
+app.use("/api/gmap", gmapRoutes);
 
-// OpenAI API
-const chatgptRoutes = require('./routes/chatgptRoutes');
-app.use('/api/chatgpt', chatgptRoutes);
-
+app.use("/api/chatgpt", chatgptRoutes);
 
 // Root
-app.get('/', (req, res) => {
-    res.send('AniWay backend is running 🚀');
+app.get("/", (req, res) => {
+  res.send("AniWay backend is running 🚀");
 });
 
-// Error handling middleware
-const { errorHandler } = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '::', () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "::", () => console.log(`Server running on port ${PORT}`));

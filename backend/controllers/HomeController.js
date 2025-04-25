@@ -1,7 +1,7 @@
-// backend/controllers/homeController.js
-const asyncHandler = require("express-async-handler");
-const Anime = require("../models/Anime");
-const Location = require("../models/Location");
+// backend/controllers/HomeController.js
+import asyncHandler from "express-async-handler";
+import Anime from "../models/Anime.js";
+import Location from "../models/Location.js";
 
 // @desc    Get trending anime and locations for the homepage
 // @route   GET /api/home/trending
@@ -12,7 +12,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
   try {
     // Fetch top 5 trending anime
     const trendingAnimeData = await Anime.find()
-      .sort({ search_ranking: -1 }) // Sort by ranking descending
+      .sort({search_ranking: -1}) // Sort by ranking descending
       .limit(limit)
       .select(
         "_id name name_cn name_en images cover overview summary locations"
@@ -30,7 +30,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
 
     // Fetch top 5 trending locations
     const trendingLocationsData = await Location.find()
-      .sort({ search_ranking: -1 }) // Sort by ranking descending
+      .sort({search_ranking: -1}) // Sort by ranking descending
       .limit(limit)
       .select("_id anitabi_names lat lng addresses images") // Select only needed fields
       .lean(); // Get plain JS objects
@@ -53,7 +53,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
     console.error("Error fetching trending data:", error);
     res
       .status(500)
-      .json({ message: "Server error while fetching trending data" });
+      .json({message: "Server error while fetching trending data"});
   }
 });
 
@@ -61,11 +61,11 @@ const getTrendingData = asyncHandler(async (req, res) => {
 // @route   GET /api/home/search?q=<keyword>
 // @access  Public
 const searchData = asyncHandler(async (req, res) => {
-  const { q } = req.query;
+  const {q} = req.query;
   const limit = 5; // Number of results per category
 
   if (!q) {
-    return res.status(400).json({ message: "Search query 'q' is required" });
+    return res.status(400).json({message: "Search query 'q' is required"});
   }
 
   try {
@@ -73,7 +73,7 @@ const searchData = asyncHandler(async (req, res) => {
 
     // Search Anime
     const searchAnimeData = await Anime.find({
-      $or: [{ name: regex }, { name_cn: regex }, { name_en: regex }],
+      $or: [{name: regex}, {name_cn: regex}, {name_en: regex}],
     })
       .limit(limit)
       .select(
@@ -93,13 +93,13 @@ const searchData = asyncHandler(async (req, res) => {
     // Search Locations
     const searchLocationsData = await Location.find({
       $or: [
-        { anitabi_names: regex }, // Search if any name in the array matches
-        { anitabi_cn_names: regex }, // Search if any CN name matches
+        {anitabi_names: regex}, // Search if any name in the array matches
+        {anitabi_cn_names: regex}, // Search if any CN name matches
         // Refined search: Match keyword within the first part (before first comma) of any address element
         {
           addresses: {
             // Use the correct 'addresses' field
-            $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
+            $elemMatch: {$regex: `^[^,]*${q}[^,]*`, $options: "i"},
           },
         },
       ],
@@ -132,11 +132,8 @@ const searchData = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error("Error searching data:", error);
-    res.status(500).json({ message: "Server error while searching data" });
+    res.status(500).json({message: "Server error while searching data"});
   }
 });
 
-module.exports = {
-  getTrendingData,
-  searchData,
-};
+export {getTrendingData, searchData};
