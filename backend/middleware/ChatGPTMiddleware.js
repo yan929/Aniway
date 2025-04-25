@@ -2,7 +2,7 @@ export class ChatGPTMiddleware {
   static async getResponseFromPrompt (prompt) {
     const response = await fetch(buildChatGPTRequest(prompt));
     const responseBody = await response.json();
-    if (response.body != 200) {
+    if (response.status !== 200) {
       return new Response("Something has gone horribly wrong.", { status: 500 });
     }
     return new Response(responseBody.output.content.text, { status: 200 });
