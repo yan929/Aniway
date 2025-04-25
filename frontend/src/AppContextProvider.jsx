@@ -11,56 +11,37 @@ import { updateTripItinerary } from './util/updateTripItinerary.js';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
 const AppContext = React.createContext({
-  tripData: null,
-  loading: false,
-  updateTrip: () => {},
-  fetchTrip: () => {},
+    tripData: null,
+    loading: false,
+    updateTrip: () => { },
+    fetchTrip: () => { },
+    updateItinerary: () => { },
 });
 
 // test data
 const testTripData = [
-  {
-    date: "2025-10-01",
-    index: 9,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 1,
-        arrivalTime: "12:00",
-        note: "Dinner with view",
-      },
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 2,
-        arrivalTime: "22:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
-  {
-    date: "2025-10-02",
-    index: 20,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 1,
-        arrivalTime: "10:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
-  {
-    date: "2025-10-03",
-    index: 1,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 1,
-        arrivalTime: "10:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
+    {
+        "date": "2025-10-01",
+        "index": 9,
+        "itinerary": [
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "12:00", "note": "Dinner with view" },
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 2, "arrivalTime": "22:00", "note": "Dinner with view" }
+        ]
+    },
+    {
+        "date": "2025-10-02",
+        "index": 20,
+        "itinerary": [
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
+        ]
+    },
+    {
+        "date": "2025-10-03",
+        "index": 2,
+        "itinerary": [
+            { "gpPlaceId": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "order": 1, "arrivalTime": "10:00", "note": "Dinner with view" }
+        ]
+    },
 ];
 
 function AppContextProvider({ children }) {
@@ -93,10 +74,11 @@ function AppContextProvider({ children }) {
         setTripData(extendedTrip);
     }
 
-    function updateItinerary(){
+    function updateItinerary(tripData, updateItem){
 
-        const newTripData = updateTripItinerary(tripData);
+        const newTripData = updateTripItinerary(tripData, updateItem);
         setTripData(newTripData);
+        console.log("tripData 99:", tripData);
     }
 
 

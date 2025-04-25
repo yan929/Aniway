@@ -8,6 +8,10 @@ export default function ItinerarySection() {
     const { tripData } = useContext(AppContext);
     console.log("Tripdata", tripData);
 
+    if (!Array.isArray(tripData)) {
+        return <div className="text-red-500">Error: Trip data is invalid.</div>;
+      }
+
     return (
         <div className="flex flex-col bg-white shadow-md rounded-lg p-4">
     

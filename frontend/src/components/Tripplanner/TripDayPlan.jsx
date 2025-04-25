@@ -7,7 +7,7 @@ import SearchBar from "../Search/search.jsx"
 import { AppContext } from "../../AppContextProvider.jsx";
 import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
-import ItineraryItem from "./ItineraryItem.jsx"; // 导入子组件
+import ItineraryItem from "./ItineraryItem.jsx";
 
 
 
@@ -16,13 +16,18 @@ export default function TripDayPlan({ day, index }) {
 
     const placeDetailsMap = usePlaceDetails(day.itinerary);
 
-    const { tripData, updateTrip } = useContext(AppContext);
+    const { tripData, updateTrip, updateItinerary } = useContext(AppContext);
 
     const handleAddLocationToDay = async (loc) => {
         console.log("✅ Selected Location from SearchBar:", loc);
 
         const newPlaceData = await fetchPlaceByLatLng(loc.lat, loc.lng);
-
+        const testUpdateItem = {
+            date: "2025-10-01",
+            gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
+            order: 3,
+        };
+        const newTripData = updateItinerary(tripData, testUpdateItem);
         console.log("✅ newPlace:", newPlaceData);
         console.log("✅ newPlace placeID:", newPlaceData.place_id);
     };

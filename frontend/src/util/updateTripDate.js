@@ -10,7 +10,10 @@ import { extendTripDate } from './extendTripDate';
 export function updateTripDate(newRangeTripData) {
     console.log("💡 updateTripDate 输入值:", newRangeTripData);
 
-    if (!Array.isArray(newRangeTripData) || newRangeTripData.length === 0) return;
+    if (!Array.isArray(newRangeTripData) || newRangeTripData.length === 0) {
+        console.error("Invalid newRangeTripData");
+        return []; // Return an empty array if the input is invalid
+    }
 
     // normalize the new data by formatting the new range trip data
     const normalizedNewData = newRangeTripData.map(day => ({
