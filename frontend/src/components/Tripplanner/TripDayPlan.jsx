@@ -2,6 +2,7 @@ import React from "react";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
+import usePlacePhoto from "../../hooks/usePlacePhoto.js";
 
 
 
@@ -9,8 +10,8 @@ import usePlaceDetails from "../../hooks/usePlaceDetails.js";
 export default function TripDayPlan({ day, index }) {
 
     const placeDetailsMap = usePlaceDetails(day.itinerary);
-
     console.log("placeDetailsMap", placeDetailsMap);
+    // console.log("usePlacePhoto", usePlacePhoto);
 
 
 
@@ -24,7 +25,7 @@ export default function TripDayPlan({ day, index }) {
             <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
                 {day.itinerary.map((item, itemIndex) => {
                     const detail = placeDetailsMap[item.gpPlaceId];
-
+                    const photoURL = usePlacePhoto(detail?.photos[0]?.photo_reference);
 
                     return (
                         <div key={itemIndex} className="flex items-center gap-2">
@@ -45,11 +46,23 @@ export default function TripDayPlan({ day, index }) {
                                 </div>
 
                                 <div className="w-32 h-24 flex-shrink-0">
-                                    <img
+                                    {/* {photoURL && <></>} */}
+                                    {{photoURL} ? (
+                                        <img
+                                            src={photoURL}
+                                            alt={detail?.name || item.gpPlaceId}
+                                            className="object-cover w-full h-full rounded-r-xl"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-r-xl">
+                                            <span className="text-gray-500">No Image</span>
+                                        </div>
+                                    )}
+                                    {/* <img
                                         src={"https://via.placeholder.com/128x96"}
                                         alt="Place"
                                         className="object-cover w-full h-full rounded-r-xl"
-                                    />
+                                    /> */}
                                 </div>
                             </div>
                         </div>
