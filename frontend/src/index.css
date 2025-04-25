@@ -2,6 +2,8 @@
 @plugin "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
 
+
+
 @layer base {
   h1 {
     @apply text-4xl font-bold;
@@ -35,4 +37,10 @@
   button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
+
+  input[type="date"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+
 }
