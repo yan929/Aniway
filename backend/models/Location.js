@@ -1,5 +1,5 @@
 // models/Location.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // Schema based on the user-provided definite structure for the 'locations' collection
 const locationSchema = new mongoose.Schema(
@@ -23,4 +23,4 @@ const locationSchema = new mongoose.Schema(
 // Add a compound index for the coordinate lookup, as lat/lng were used for upserting
 locationSchema.index({ lat: 1, lng: 1 });
 
-module.exports = mongoose.model("Location", locationSchema);
+export default mongoose.model("Location", locationSchema);

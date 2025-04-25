@@ -1,7 +1,7 @@
-// backend/controllers/homeController.js
-const asyncHandler = require("express-async-handler");
-const Anime = require("../models/Anime");
-const Location = require("../models/Location");
+// backend/controllers/HomeController.js
+import asyncHandler from "express-async-handler";
+import Anime from "../models/Anime.js";
+import Location from "../models/Location.js";
 
 // @desc    Get trending anime and locations for the homepage
 // @route   GET /api/home/trending
@@ -136,7 +136,4 @@ const searchData = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {
-  getTrendingData,
-  searchData,
-};
+export { getTrendingData, searchData };

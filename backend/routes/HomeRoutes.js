@@ -1,10 +1,8 @@
-// backend/routes/homeRoutes.js
-const express = require("express");
+// backend/routes/HomeRoutes.js
+import express from "express";
+import { getTrendingData, searchData } from "../controllers/HomeController.js";
+
 const router = express.Router();
-const {
-  getTrendingData,
-  searchData,
-} = require("../controllers/homeController");
 
 // Route for fetching trending data
 router.get("/trending", getTrendingData);
@@ -14,4 +12,4 @@ router.get("/search", searchData);
 
 // Future routes for the 'home' section could be added here
 
-module.exports = router;
+export default router;

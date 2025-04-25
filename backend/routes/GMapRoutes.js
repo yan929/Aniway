@@ -1,21 +1,18 @@
-const express = require('express');
+import express from "express";
+import { fetchPlaceInfo, fetchPlacePhoto, } from "../controllers/GmapController.js";
+import { fetchPlacePhotoByPlaceId, getPlaceDetails } from "../controllers/GMapDetailsFetchByPlaceId.js";
+
 const router = express.Router();
-const { fetchPlaceInfo, fetchPlacePhoto } = require('../controllers/GmapController');
-const { getPlaceDetails,fetchPlacePhotoByPlaceId } = require('../controllers/GMapDetailsFetchByPlaceId');
 
-
-
-router.post('/', fetchPlaceInfo);
-router.post('/photo', fetchPlacePhoto);
-
+router.post("/", fetchPlaceInfo);
+router.post("/photo", fetchPlacePhoto);
 
 //fethch place photo by place_id
 router.get('/photo', fetchPlacePhotoByPlaceId);
 
 
 //get place details by place_id
-router.get('/:placeId', getPlaceDetails);
+router.get("/:placeId", getPlaceDetails);
 //Test Place ID： ChIJCewJkL2LGGAR3Qmk0vCTGkg
 
-
-module.exports = router;
+export default router;
