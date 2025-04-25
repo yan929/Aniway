@@ -6,18 +6,14 @@ export default function usePlacePhoto(photoReference = '') {
 
     useEffect(() => {
         let newPhotoURL = null;
-        console.log('Fetching photo for reference:', photoReference);
         const fetchPhoto = async () => {
 
             try {
                 const url = await fetchPlacePhoto(photoReference);
                 let newPhotoURL = url;
                 setPlacePhoto(newPhotoURL);
-                console.log("newPhotoURL", newPhotoURL);
             } catch (err) {
-
                 setPlacePhoto(null);
-                console.error(`❌ fetchPlacePhoto failed for ${photoReference}:`, err.message);
             }
 
         };

@@ -10,10 +10,6 @@ import usePlacePhoto from "../../hooks/usePlacePhoto.js";
 export default function TripDayPlan({ day, index }) {
 
     const placeDetailsMap = usePlaceDetails(day.itinerary);
-    console.log("placeDetailsMap", placeDetailsMap);
-    // console.log("usePlacePhoto", usePlacePhoto);
-
-
 
     return (
         <>
@@ -46,8 +42,7 @@ export default function TripDayPlan({ day, index }) {
                                 </div>
 
                                 <div className="w-32 h-24 flex-shrink-0">
-                                    {/* {photoURL && <></>} */}
-                                    {{photoURL} ? (
+                                    {{ photoURL } ? (
                                         <img
                                             src={photoURL}
                                             alt={detail?.name || item.gpPlaceId}
@@ -58,11 +53,6 @@ export default function TripDayPlan({ day, index }) {
                                             <span className="text-gray-500">No Image</span>
                                         </div>
                                     )}
-                                    {/* <img
-                                        src={"https://via.placeholder.com/128x96"}
-                                        alt="Place"
-                                        className="object-cover w-full h-full rounded-r-xl"
-                                    /> */}
                                 </div>
                             </div>
                         </div>
