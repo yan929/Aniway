@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { extendTripDate } from "./util/extendTripDate.js";
-import dayjs from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isBetween from "dayjs/plugin/isBetween.js";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { validateTripDates } from './util/convertTripData.js';
+import { extendTripDate } from './util/extendTripDate.js';
+import { updateTripIndexAndOrder } from './util/updateTripIndex&Order.js';
 
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isBetween);
+import {updateTripDate} from './util/updateTripDate.js';
+import { updateTripItinerary } from './util/updateTripItinerary.js';
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
@@ -88,44 +87,25 @@ function AppContextProvider({ children }) {
     }
   }, [tripData]);
 
-  function updateTrip(newRangeTripData) {
-    if (!Array.isArray(newRangeTripData) || newRangeTripData.length === 0)
-      return;
+    function updateTrip(newRangeTripData) {
+        const extendedTrip = updateTripDate(newRangeTripData);
+        //setTripData will update the trip data
+        setTripData(extendedTrip);
+    }
 
-    // 强制标准化日期并提取范围
-    const normalizedNewData = newRangeTripData.map((day) => ({
-      ...day,
-      date: dayjs(day.date).format("YYYY-MM-DD"),
-    }));
-    const startDate = normalizedNewData[0].date;
-    const endDate = normalizedNewData[normalizedNewData.length - 1].date;
+    function updateItinerary(){
 
-    // 完全重置：仅保留新数据，不依赖旧数据
-    let trimmed = [];
-    normalizedNewData.forEach((newDay) => {
-      if (
-        dayjs(newDay.date).isSameOrAfter(startDate, "day") &&
-        dayjs(newDay.date).isSameOrBefore(endDate, "day")
-      ) {
-        trimmed.push(newDay);
-      }
-    });
+        const newTripData = updateTripItinerary(tripData);
+        setTripData(newTripData);
+    }
 
-    // extendTipDate will fill in the missing dates and reset the index
-    // const sorted = updateTripIndexAndOrder(trimmed);
-    // const extended = extendTripDate(sorted);
-    const extended = extendTripDate(trimmed);
 
-    //setTripData will update the trip data
-    setTripData(extended);
-    // console.log("Updated trip data:", tripData);
-  }
-
-  const context = {
-    tripData,
-    loading,
-    updateTrip,
-  };
+    const context = {
+        tripData,
+        loading,
+        updateTrip,
+        updateItinerary,
+    };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
 }
