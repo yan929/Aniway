@@ -10,6 +10,8 @@ function LocationsSearchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const baseURL = import.meta.env.VITE_BACKEND_API;
+
   useEffect(() => {
     const fetchAllLocations = async () => {
       if (!searchQuery) {
@@ -18,33 +20,27 @@ function LocationsSearchPage() {
         return;
       }
 
-      setLoading(true);
-      setError(null);
       try {
-        const response = await axios.get(
-          `/api/locations/search/${encodeURIComponent(searchQuery)}`
-        );
+        setLoading(true);
+        const response = await axios.get(`${baseURL}/api/home/search/all?q=${searchQuery}`);
+        console.log("API URL:", `${baseURL}/api/home/search/all?q=${searchQuery}`);
 
-        setLocations(response.data.searchLocations || []);
+        if (!response.ok) {
+          throw new Error("Failed to fetch locations");
+        }
+
+        const data = await response.json();
+        setLocations(data.searchLocations || []);
         setLoading(false);
       } catch (err) {
-        console.error(
-          "Error fetching locations:",
-          err.response
-            ? `${err.response.status} ${err.response.statusText}`
-            : err.message
-        );
-        setError(
-          err.response
-            ? `${err.response.status} ${err.response.statusText}`
-            : err.message
-        );
+        console.error("Error fetching locations:", err);
+        setError(err.message);
         setLoading(false);
       }
     };
 
     fetchAllLocations();
-  }, [searchQuery]);
+  }, [searchQuery, baseURL]);
 
   return (
     <div className="p-5 max-w-7xl mx-auto">
