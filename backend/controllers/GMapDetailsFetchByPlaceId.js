@@ -20,7 +20,6 @@ const getPlaceDetails = async (req, res) => {
 
 const fetchPlacePhotoByPlaceId = async (req, res) => {
   const { photo_reference } = req.query;
-  console.log("backend photo_reference", photo_reference);
 
   if (!photo_reference) {
     return res.status(400).json({ error: "photo_reference is required" });
