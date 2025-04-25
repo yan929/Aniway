@@ -1,3 +1,5 @@
+import React from "react";
+
 function DisplayPopLocInfo({ sectionTitle, locList }) {
   return (
     <>
@@ -8,12 +10,12 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
         {locList.map((data) => (
           <div
             key={data.id}
-            className="relative bg-white rounded-lg overflow-hidden shadow-md  object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
+            className="relative bg-white rounded-lg overflow-hidden shadow-md object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
           >
             <img
               src={(data.images && data.images[0]) || "/default-image.jpg"}
-              alt={data.name}
-              className="w-full h-60 object-cover"
+              alt={data.names}
+              className="w-full h-80 object-cover"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "/default-image.jpg";
@@ -21,14 +23,13 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
             />
 
             <div className="p-2">
-              <h3 className="text-lg font-bold truncate">{data.names[0]}</h3>
-              {data.names ? (
-                <p className="text-sm text-gray-500 truncate whitespace-normal break-words">
-                  {/* Change to anime name */}
-                  Food for the Soul
+              <h3 className="text-lg font-bold truncate">{data.names}</h3>
+              {data.animeName ? (
+                <p className="text-sm text-gray-500 truncate whitespace-normal break-words line-clamp-3">
+                  {data.animeName}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 italic">N/A</p>
+                <p className="text-sm text-gray-500 truncate">Associated anime unavailable</p>
               )}
             </div>
           </div>

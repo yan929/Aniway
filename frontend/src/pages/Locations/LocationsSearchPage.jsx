@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import { FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 
 function LocationsSearchPage() {
-  const { searchQuery } = useParams();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q');
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,19 +23,19 @@ function LocationsSearchPage() {
 
       try {
         setLoading(true);
-        const response = await axios.get(`${baseURL}/api/home/search/all?q=${searchQuery}`);
-        console.log("API URL:", `${baseURL}/api/home/search/all?q=${searchQuery}`);
+        
+        const response = await axios.get(`${baseURL}/api/home/search/all`, {
+          params: { q: searchQuery }
+        });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch locations");
-        }
-
-        const data = await response.json();
-        setLocations(data.searchLocations || []);
+        console.log("Search response data:", response.data);
+        console.log("Location sample:", response.data.searchLocations[0]);
+        
+        setLocations(response.data.searchLocations || []);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching locations:", err);
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
         setLoading(false);
       }
     };
@@ -60,7 +61,7 @@ function LocationsSearchPage() {
         </div>
       ) : error ? (
         <div className="text-center py-10 text-red-500 text-base">
-          Error: {error}
+          <p>Error: {error}</p>
         </div>
       ) : locations.length > 0 ? (
         <DisplayPopLocInfo sectionTitle="Search Results" locList={locations} />
