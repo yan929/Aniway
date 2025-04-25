@@ -8,7 +8,9 @@
 
 .searchInputs {
   background-color: white;
-  width: 50%;
+  /* modify this to change the width of the search bar */
+  width: 100%;
+  max-width: 600px;
   border-radius: 10px;
   height: 2.5rem;
   padding: 0 15px;
@@ -34,7 +36,9 @@ input:focus {
   position: absolute;
   top: 100%;
   background-color: white;
-  width: 50%;
+  /* modify this to change the width of the result bar */
+  width: 100%;
+  max-width: 600px;
   border-radius: 10px;
   padding: 0 15px;
   box-shadow: 0px 0px 8px #ddd;

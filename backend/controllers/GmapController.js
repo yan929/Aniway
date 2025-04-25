@@ -10,6 +10,7 @@ const fetchPlaceInfo = async (req, res) => {
     const geoData = await geoRes.json();
     const result = geoData.results[0];
     const placeId = result.place_id;
+    console.log("backend Place ID:", placeId);
 
     // Step 2: Get place details
     const detailsRes = await fetch(
@@ -29,6 +30,7 @@ const fetchPlaceInfo = async (req, res) => {
       opening_hours: details.opening_hours?.weekday_text,
       location: details.geometry?.location,
       photo_reference: details.photos?.[0]?.photo_reference,
+      place_id: placeId,
     });
   } catch (err) {
     console.error(err);

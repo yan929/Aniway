@@ -9,7 +9,7 @@ import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdMovie } from "react-icons/md";
 
-function SearchBar({ setSelectedLocation }) {
+function SearchBar({ onLocationSelected }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [resultLength, setResultLength] = useState(0);
@@ -83,9 +83,12 @@ function SearchBar({ setSelectedLocation }) {
   };
 
   const handleSelectLocation = (loc) => {
-    setSelectedLocation(loc);
+    // setSelectedLocation(loc);
     setInput("");
     setShowResult(false);
+    if (typeof onLocationSelected === "function") {
+      onLocationSelected(loc); // pass the selected location to the parent component
+    }
   };
 
   return (
