@@ -1,8 +1,7 @@
 import Anime from "../models/Anime.js";
-import Location from "../models/Location.js";
 
 export class DatabaseMiddleware {
-  static async queryForAnimeByName(animeName) {
+  static async queryForAnimeByName (animeName) {
     /*
      * Queries for an anime from the database by its name.
      */
@@ -16,7 +15,7 @@ export class DatabaseMiddleware {
     return new Response(animeByEN ? animeByEN : animeByCN, { status: 200 });
   }
 
-  static async queryForAllAnime() {
+  static async queryForAllAnime () {
     /*
      * Queries for all animes stored in the database. Ideally should not
      * be used as it can be expensive resource-wise.

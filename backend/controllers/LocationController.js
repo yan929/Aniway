@@ -31,11 +31,11 @@ const updateLocation = asyncHandler(async (req, res) => {
       overwrite: true,
     });
     if (!updated)
-      return res.status(404).json({message: "Location not found"});
+      return res.status(404).json({ message: "Location not found" });
     res.json(updated);
   } catch (err) {
     console.error("Error updating location:", err);
-    res.status(500).json({error: "Update failed"});
+    res.status(500).json({ error: "Update failed" });
   }
 });
 
@@ -43,25 +43,25 @@ const partialUpdateLocation = asyncHandler(async (req, res) => {
   try {
     const updated = await Location.findByIdAndUpdate(
       req.params.id,
-      {$set: req.body},
-      {new: true}
+      { $set: req.body },
+      { new: true }
     );
     if (!updated)
-      return res.status(404).json({message: "Location not found"});
+      return res.status(404).json({ message: "Location not found" });
     res.json(updated);
   } catch (err) {
     console.error("Error partially updating location:", err);
-    res.status(500).json({error: "Partial update failed"});
+    res.status(500).json({ error: "Partial update failed" });
   }
 });
 
 const deleteLocation = asyncHandler(async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const location = await Location.findByIdAndDelete(id);
   if (!location) {
-    return res.status(404).json({message: "Location not found"});
+    return res.status(404).json({ message: "Location not found" });
   }
-  res.json({message: "Location deleted"});
+  res.json({ message: "Location deleted" });
 });
 
 export {

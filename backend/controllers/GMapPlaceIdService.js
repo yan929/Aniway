@@ -9,7 +9,7 @@ export const getPlaceDetails = async (placeId) => {
   const GOOGLE_API_HOST = process.env.GOOGLE_API_HOST;
   const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
   const GMAP_PLACE_DETAILS_ENDPOINT = `${GOOGLE_API_HOST}/place/details/json`;
-
+  
   // call Google API
   const params = new URLSearchParams({
     place_id: placeId,

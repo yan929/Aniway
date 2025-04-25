@@ -12,7 +12,7 @@ import gmapRoutes from "./routes/GMapRoutes.js";
 // OpenAI API
 import chatgptRoutes from "./routes/ChatgptRoutes.js";
 // Error handling middleware
-import {errorHandler} from "./middleware/ErrorMiddleware.js";
+import { errorHandler } from "./middleware/ErrorMiddleware.js";
 
 dotenv.config();
 connectDB();

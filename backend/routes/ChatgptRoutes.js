@@ -1,6 +1,6 @@
 // backend/routes/ChatgptRoutes.js
 import express from "express";
-import {OpenAI} from "openai";
+import { OpenAI } from "openai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 // Helper function to build prompt
-function buildPrompt(prompt, startDate, endDate) {
+function buildPrompt (prompt, startDate, endDate) {
   return `You are a travel planner.
 I will give you a request in natural language, along with a start and end date.
 Generate a structured JSON plan. For each day from ${startDate} to ${endDate},
@@ -35,14 +35,14 @@ User request: "${prompt}"`;
 
 // POST /api/chatgpt/itinerary
 router.post("/itinerary", async (req, res) => {
-  const {prompt, startDate, endDate} = req.body;
+  const { prompt, startDate, endDate } = req.body;
   console.log("🟢 Prompt received:", prompt);
   console.log("📆 Start:", startDate, "End:", endDate);
 
   if (!prompt || !startDate || !endDate) {
     return res
       .status(400)
-      .json({error: "Missing prompt, startDate, or endDate"});
+      .json({ error: "Missing prompt, startDate, or endDate" });
   }
 
   try {
@@ -69,13 +69,13 @@ router.post("/itinerary", async (req, res) => {
       res.json(JSON.parse(reply));
     } catch (e) {
       console.error("❌ Invalid JSON from AI:", e);
-      res.status(500).json({error: "AI returned invalid JSON", raw: reply});
+      res.status(500).json({ error: "AI returned invalid JSON", raw: reply });
     }
   } catch (err) {
     console.error("❌ ChatGPT Error:", err);
     res
       .status(500)
-      .json({error: "Failed to generate itinerary from ChatGPT."});
+      .json({ error: "Failed to generate itinerary from ChatGPT." });
   }
 });
 
