@@ -9,7 +9,7 @@ import ItineraryItem from "./ItineraryItem.jsx";
 
 export default function TripDayPlan({ day, index }) {
     const placeDetailsMap = usePlaceDetails(day.itinerary);
-    const { tripData, updateItinerary,deleteTripItem } = useContext(AppContext);
+    const { tripData, updateItinerary, deleteTripItem } = useContext(AppContext);
     const [items, setItems] = React.useState(day.itinerary);
 
     React.useEffect(() => {
@@ -34,14 +34,11 @@ export default function TripDayPlan({ day, index }) {
             gpPlaceId: newPlaceData.place_id,
             order: 3,
         };
-        const newTripData = updateItinerary(tripData, testUpdateItem);
-        console.log("✅ newPlace:", newPlaceData);
+        const newTripData = updateItinerary(tripData, testUpdateItem);;
     };
 
     const handdleDelete = (item) => {
-
-        console.log("Delete item:", item);
-        deleteTripItem(day,item);
+        deleteTripItem(day, item);
     }
 
     return (

@@ -5,7 +5,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { VscTrash } from "react-icons/vsc";
 
 
-const ItineraryItem = ({ item, detail, itemIndex, moveItem,onDelete }) => {
+const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete }) => {
 
 
   const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference);
@@ -31,7 +31,7 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem,onDelete }) => {
 
   drag(drop(ref));
 
-  const handleDelete =()=> {
+  const handleDelete = () => {
     if (typeof onDelete === "function") {
       onDelete(item); // pass the selected location to the parent component
     }
@@ -41,11 +41,11 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem,onDelete }) => {
   return (
     <div
       ref={ref}
-      className={`flex p-4 items-center gap-2 ${isDragging ? "opacity-50" : ""
+      className={`flex p-4 items-center gap-2 group  ${isDragging ? "opacity-50" : ""
         }`}
       style={{ cursor: "move" }}
     >
-      <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl">
+      <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl ">
         <div className="flex-1 p-4 relative">
           <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-green-500 text-white text-sm rounded-full flex items-center justify-center z-10 shadow">
             {itemIndex + 1}
@@ -75,14 +75,10 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem,onDelete }) => {
           )}
         </div>
       </div>
-      <div className=" flex items-center justify-center">
+      <div className=" flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-800">
         <button
-          className=" hover:text-red-500 text-xs p-1"
-          onClick={() => {
-            handleDelete();
-            console.log("✅ item222:", item);
-          }
-          }
+          className=" hover:text-red-500 text-xs p-1 "
+          onClick={() => handleDelete()}
         >
           <VscTrash className="w-5 h-5" /> </button>
       </div>

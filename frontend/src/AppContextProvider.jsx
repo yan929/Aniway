@@ -92,17 +92,11 @@ function AppContextProvider({ children }) {
     function updateItinerary(tripData, updateItem) {
         const newTripData = updateTripItinerary(tripData, updateItem);
         setTripData(newTripData);
-        console.log("tripData 99:", tripData);
     }
 
     function deleteTripItem(deleteTripDay, deleteItem) {
 
-        console.log("deleteTripItem:", deleteItem);
-        console.log("day:", deleteTripDay);
-
-
         const newTripData = tripData.map(day => {
-            console.log("day:", day);
             if (day.date === deleteTripDay.date) {
                 return {
                     ...day,
