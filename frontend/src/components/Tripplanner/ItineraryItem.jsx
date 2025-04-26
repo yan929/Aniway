@@ -46,7 +46,7 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem }) => {
               {detail?.name || item.gpPlaceId}
             </h3>
             <p className="text-sm text-gray-700 text-left">
-              {detail?.editorial_summary?.overview || item.gpPlaceId}
+              {detail?.editorial_summary?.overview || detail?.formatted_address}
             </p>
           </div>
         </div>
