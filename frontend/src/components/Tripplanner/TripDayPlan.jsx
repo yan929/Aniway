@@ -9,8 +9,21 @@ import ItineraryItem from "./ItineraryItem.jsx";
 
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
-
   const { tripData, updateItinerary } = useContext(AppContext);
+  const [items, setItems] = React.useState(day.itinerary);
+
+  React.useEffect(() => {
+    setItems(day.itinerary);
+  }, [day.itinerary]);
+
+  const moveItem = (from, to) => {
+    if (from === to) return;
+    const updated = [...items];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    setItems(updated);
+    // Optionally update global state here
+  };
 
   const handleAddLocationToDay = async (loc) => {
     console.log("✅ Selected Location from SearchBar:", loc);
@@ -32,14 +45,14 @@ export default function TripDayPlan({ day, index }) {
         <span>Day {index + 1}</span>
         <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
       </div>
-
       <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
-        {day.itinerary.map((item, itemIndex) => (
+        {items.map((item, itemIndex) => (
           <ItineraryItem
             key={itemIndex}
             item={item}
             detail={placeDetailsMap[item.gpPlaceId]}
             itemIndex={itemIndex}
+            moveItem={moveItem}
           />
         ))}
       </div>

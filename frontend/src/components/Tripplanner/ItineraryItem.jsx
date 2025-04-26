@@ -1,12 +1,40 @@
 // ItineraryItem.jsx
-import React from "react";
+import { useRef } from "react";
 import usePlacePhoto from "../../hooks/usePlacePhoto.js";
+import { useDrag, useDrop } from "react-dnd";
 
-const ItineraryItem = ({ item, detail, itemIndex }) => {
-  const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference); // ✅ 在子组件中安全调用 Hook
+const ItineraryItem = ({ item, detail, itemIndex, moveItem }) => {
+  const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference);
+  const ref = useRef(null);
+
+  const [, drop] = useDrop({
+    accept: "ITINERARY_ITEM",
+    hover(dragged) {
+      if (dragged.index !== itemIndex) {
+        moveItem(dragged.index, itemIndex);
+        dragged.index = itemIndex;
+      }
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "ITINERARY_ITEM",
+    item: { index: itemIndex },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
 
   return (
-    <div className="flex p-4 items-center gap-2">
+    <div
+      ref={ref}
+      className={`flex p-4 items-center gap-2 ${
+        isDragging ? "opacity-50" : ""
+      }`}
+      style={{ cursor: "move" }}
+    >
       <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl">
         <div className="flex-1 p-4 relative">
           <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-green-500 text-white text-sm rounded-full flex items-center justify-center z-10 shadow">
