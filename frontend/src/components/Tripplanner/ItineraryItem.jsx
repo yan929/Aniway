@@ -2,8 +2,12 @@
 import { useRef } from "react";
 import usePlacePhoto from "../../hooks/usePlacePhoto.js";
 import { useDrag, useDrop } from "react-dnd";
+import { VscTrash } from "react-icons/vsc";
 
-const ItineraryItem = ({ item, detail, itemIndex, moveItem }) => {
+
+const ItineraryItem = ({ item, detail, itemIndex, moveItem,onDelete }) => {
+
+
   const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference);
   const ref = useRef(null);
 
@@ -27,12 +31,18 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem }) => {
 
   drag(drop(ref));
 
+  const handleDelete =()=> {
+    if (typeof onDelete === "function") {
+      onDelete(item); // pass the selected location to the parent component
+    }
+  }
+
+
   return (
     <div
       ref={ref}
-      className={`flex p-4 items-center gap-2 ${
-        isDragging ? "opacity-50" : ""
-      }`}
+      className={`flex p-4 items-center gap-2 ${isDragging ? "opacity-50" : ""
+        }`}
       style={{ cursor: "move" }}
     >
       <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl">
@@ -65,6 +75,18 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem }) => {
           )}
         </div>
       </div>
+      <div className=" flex items-center justify-center">
+        <button
+          className=" hover:text-red-500 text-xs p-1"
+          onClick={() => {
+            handleDelete();
+            console.log("✅ item222:", item);
+          }
+          }
+        >
+          <VscTrash className="w-5 h-5" /> </button>
+      </div>
+
     </div>
   );
 };

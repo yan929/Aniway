@@ -9,7 +9,7 @@ import ItineraryItem from "./ItineraryItem.jsx";
 
 export default function TripDayPlan({ day, index }) {
     const placeDetailsMap = usePlaceDetails(day.itinerary);
-    const { tripData, updateItinerary } = useContext(AppContext);
+    const { tripData, updateItinerary,deleteTripItem } = useContext(AppContext);
     const [items, setItems] = React.useState(day.itinerary);
 
     React.useEffect(() => {
@@ -26,9 +26,9 @@ export default function TripDayPlan({ day, index }) {
     };
 
     const handleAddLocationToDay = async (loc) => {
-        console.log("✅ Selected Location from SearchBar:", loc);
 
         const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
+        //not finished yet
         const testUpdateItem = {
             date: "2025-10-01",
             gpPlaceId: newPlaceData.place_id,
@@ -36,8 +36,13 @@ export default function TripDayPlan({ day, index }) {
         };
         const newTripData = updateItinerary(tripData, testUpdateItem);
         console.log("✅ newPlace:", newPlaceData);
-        console.log("✅ newPlace placeID:", newPlaceData.place_id);
     };
+
+    const handdleDelete = (item) => {
+
+        console.log("Delete item:", item);
+        deleteTripItem(day,item);
+    }
 
     return (
         <>
@@ -47,7 +52,7 @@ export default function TripDayPlan({ day, index }) {
             </div>
             <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
                 {items.map((item, itemIndex) => {
-                const detail = placeDetailsMap[item.gpPlaceId];
+                    const detail = placeDetailsMap[item.gpPlaceId];
                     return (
                         <ItineraryItem
                             key={itemIndex}
@@ -55,8 +60,10 @@ export default function TripDayPlan({ day, index }) {
                             detail={detail}
                             itemIndex={itemIndex}
                             moveItem={moveItem}
+                            onDelete={handdleDelete}
                         />
-                    )})}
+                    )
+                })}
             </div>
             <div className="mt-6 w-full max-w-2xl">
                 <SearchBar onLocationSelected={handleAddLocationToDay} />
