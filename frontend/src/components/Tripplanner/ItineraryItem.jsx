@@ -6,10 +6,10 @@ const ItineraryItem = ({ item, detail, itemIndex }) => {
   const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference); // ✅ 在子组件中安全调用 Hook
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-start bg-gray-100 rounded-xl shadow-sm overflow-hidden w-full max-w-2xl">
+    <div className="flex p-4 items-center gap-2">
+      <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl">
         <div className="flex-1 p-4 relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-green-500 text-white text-sm rounded-full flex items-center justify-center z-10 shadow">
+          <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-green-500 text-white text-sm rounded-full flex items-center justify-center z-10 shadow">
             {itemIndex + 1}
           </div>
 
