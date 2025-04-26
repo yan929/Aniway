@@ -25,9 +25,9 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
             <div className="p-2">
               <h3 className="text-lg font-bold truncate">{data.names}</h3>
               {data.animeName ? (
-                <p className="text-sm text-gray-500 truncate whitespace-normal break-words line-clamp-3">
-                  {data.animeName}
-                </p>
+                  <p className="text-sm text-gray-500 truncate whitespace-normal break-words line-clamp-3">
+                    {data.animeName}
+                  </p>
               ) : (
                 <p className="text-sm text-gray-500 truncate">Associated anime unavailable</p>
               )}

@@ -9,6 +9,8 @@ import locationRoutes from "./routes/LocationRoutes.js";
 import homeRoutes from "./routes/HomeRoutes.js";
 // GMap Routes
 import gmapRoutes from "./routes/GMapRoutes.js";
+// Anime Routes
+import animeRoutes from "./routes/AnimeRoutes.js";
 // OpenAI API
 import chatgptRoutes from "./routes/ChatgptRoutes.js";
 // Error handling middleware
@@ -27,6 +29,8 @@ app.use("/api/locations", locationRoutes);
 app.use("/api/home", homeRoutes);
 
 app.use("/api/gmap", gmapRoutes);
+
+app.use("/api/anime", animeRoutes);
 
 app.use("/api/chatgpt", chatgptRoutes);
 
