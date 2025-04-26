@@ -35,15 +35,32 @@ const getTrendingData = asyncHandler(async (req, res) => {
       .select("_id anitabi_names lat lng addresses images") // Select only needed fields
       .lean(); // Get plain JS objects
 
-    // Rename fields in the location data
-    const trendingLocations = trendingLocationsData.map((loc) => ({
-      id: loc._id,
-      lat: loc.lat,
-      lng: loc.lng,
-      addresses: loc.addresses,
-      images: loc.images,
-      names: loc.anitabi_names,
-    }));
+    // For each location, find related anime
+    const trendingLocations = await Promise.all(
+      trendingLocationsData.map(async (loc) => {
+        // Find anime that reference this location
+        const relatedAnime = await Anime.find({
+          'locations.lat': loc.lat,
+          'locations.lng': loc.lng
+        })
+        .select('_id name name_en name_cn')
+        .limit(1) // Get just the first related anime
+        .lean();
+
+        return {
+          id: loc._id,
+          lat: loc.lat,
+          lng: loc.lng,
+          addresses: loc.addresses,
+          images: loc.images,
+          names: loc.anitabi_names,
+          // Include the first related anime's name if available
+          animeName: relatedAnime.length > 0 
+            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
+            : null
+        };
+      })
+    );
 
     res.json({
       trendingAnime,
@@ -57,9 +74,76 @@ const getTrendingData = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Search anime and locations by keyword
-// @route   GET /api/home/search?q=<keyword>
+// @desc    Search all locations by keyword without limit
+// @route   GET /api/home/search/all?q=<keyword>
 // @access  Public
+const searchAllLocations = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) {
+    return res.status(400).json({ message: "Search query 'q' is required" });
+  }
+
+  try {
+    const regex = new RegExp(q, "i"); // Case-insensitive regex
+
+    // Search Locations without limit
+    const searchLocationsData = await Location.find({
+      $or: [
+        { anitabi_names: regex },
+        { anitabi_cn_names: regex },
+        {
+          addresses: {
+            $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
+          },
+        },
+      ],
+    })
+      .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
+      .lean();
+
+    // For each location, find related anime
+    const searchLocations = await Promise.all(
+      searchLocationsData.map(async (loc) => {
+        // Find anime that reference this location
+        const relatedAnime = await Anime.find({
+          'locations.lat': loc.lat,
+          'locations.lng': loc.lng
+        })
+        .select('_id name name_en name_cn')
+        .limit(1) // Get just the first related anime
+        .lean();
+
+        return {
+          id: loc._id,
+          names: loc.anitabi_names && loc.anitabi_names.length > 0 
+            ? loc.anitabi_names[0] 
+            : "",
+          name_cn: loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0 
+            ? loc.anitabi_cn_names[0] 
+            : "",
+          lat: loc.lat,
+          lng: loc.lng,
+          addresses: loc.addresses || [],
+          images: loc.images || [],
+          // Include the first related anime's name if available
+          animeName: relatedAnime.length > 0 
+            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
+            : null
+        };
+      })
+    );
+
+    res.json({
+      searchLocations,
+    });
+  } catch (error) {
+    console.error("Error searching all locations:", error);
+    res.status(500).json({ message: "Server error while searching all locations" });
+  }
+});
+
+// Maintain other controller functions
 const searchData = asyncHandler(async (req, res) => {
   const { q } = req.query;
   const limit = 5; // Number of results per category
@@ -93,65 +177,6 @@ const searchData = asyncHandler(async (req, res) => {
     // Search Locations
     const searchLocationsData = await Location.find({
       $or: [
-        { anitabi_names: regex }, // Search if any name in the array matches
-        { anitabi_cn_names: regex }, // Search if any CN name matches
-        // Refined search: Match keyword within the first part (before first comma) of any address element
-        {
-          addresses: {
-            // Use the correct 'addresses' field
-            $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
-          },
-        },
-      ],
-    })
-      .limit(limit)
-      .select(
-        "_id anitabi_names anitabi_cn_names lat lng addresses" // Select correct fields
-      )
-      .lean();
-
-    const searchLocations = searchLocationsData.map((loc) => ({
-      id: loc._id,
-      // Use the first name found, or provide the array if needed
-      name:
-        loc.anitabi_names && loc.anitabi_names.length > 0
-          ? loc.anitabi_names[0]
-          : "",
-      name_cn:
-        loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
-          ? loc.anitabi_cn_names[0]
-          : "",
-      lat: loc.lat, // Use correct field
-      lng: loc.lng, // Use correct field
-      addresses: loc.addresses, // Use correct field
-    }));
-
-    res.json({
-      searchAnime,
-      searchLocations,
-    });
-  } catch (error) {
-    console.error("Error searching data:", error);
-    res.status(500).json({ message: "Server error while searching data" });
-  }
-});
-
-// @desc    Search all locations by keyword without limit
-// @route   GET /api/home/search/all?q=<keyword>
-// @access  Public
-const searchAllLocations = asyncHandler(async (req, res) => {
-  const { q } = req.query;
-
-  if (!q) {
-    return res.status(400).json({ message: "Search query 'q' is required" });
-  }
-
-  try {
-    const regex = new RegExp(q, "i"); // Case-insensitive regex
-
-    // Search Locations without limit
-    const searchLocationsData = await Location.find({
-      $or: [
         { anitabi_names: regex },
         { anitabi_cn_names: regex },
         {
@@ -161,29 +186,52 @@ const searchAllLocations = asyncHandler(async (req, res) => {
         },
       ],
     })
-      .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
+      .limit(limit)
+      .select(
+        "_id anitabi_names anitabi_cn_names lat lng addresses"
+      )
       .lean();
 
-    const searchLocations = searchLocationsData.map((loc) => ({
-      id: loc._id,
-      names: loc.anitabi_names && loc.anitabi_names.length > 0 
-        ? loc.anitabi_names[0] 
-        : "",
-      name_cn: loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0 
-        ? loc.anitabi_cn_names[0] 
-        : "",
-      lat: loc.lat,
-      lng: loc.lng,
-      addresses: loc.addresses || [],
-      images: loc.images || []
-    }));
+    // For each location, find related anime
+    const searchLocations = await Promise.all(
+      searchLocationsData.map(async (loc) => {
+        // Find anime that reference this location
+        const relatedAnime = await Anime.find({
+          'locations.lat': loc.lat,
+          'locations.lng': loc.lng
+        })
+        .select('_id name name_en name_cn')
+        .limit(1) // Get just the first related anime
+        .lean();
+
+        return {
+          id: loc._id,
+          name:
+            loc.anitabi_names && loc.anitabi_names.length > 0
+              ? loc.anitabi_names[0]
+              : "",
+          name_cn:
+            loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
+              ? loc.anitabi_cn_names[0]
+              : "",
+          lat: loc.lat,
+          lng: loc.lng,
+          addresses: loc.addresses,
+          // Include the first related anime's name if available
+          animeName: relatedAnime.length > 0 
+            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
+            : null
+        };
+      })
+    );
 
     res.json({
+      searchAnime,
       searchLocations,
     });
   } catch (error) {
-    console.error("Error searching all locations:", error);
-    res.status(500).json({ message: "Server error while searching all locations" });
+    console.error("Error searching data:", error);
+    res.status(500).json({ message: "Server error while searching data" });
   }
 });
 
