@@ -1,4 +1,4 @@
-// scripts/20_copyCollectionsToAniway.js
+// scripts/18_copyCollectionsToAniway.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -31,7 +31,9 @@ async function copyCollections() {
   let sourceConn;
   try {
     console.log(`Connecting to source database: ${SOURCE_DB_NAME}...`);
-    sourceConn = await mongoose.createConnection(MONGODB_URI_SOURCE).asPromise();
+    sourceConn = await mongoose
+      .createConnection(MONGODB_URI_SOURCE)
+      .asPromise();
     console.log(`Connected to source DB: ${sourceConn.name}`);
 
     for (const collectionInfo of COLLECTIONS_TO_COPY) {

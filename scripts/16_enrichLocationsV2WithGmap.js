@@ -1,4 +1,4 @@
-// scripts/18_enrichLocationsV2WithGmap.js
+// scripts/16_enrichLocationsV2WithGmap.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Client } from "@googlemaps/google-maps-services-js";

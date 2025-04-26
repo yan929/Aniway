@@ -1,4 +1,4 @@
-// scripts/19_copyAniwayImagesToAnime1.js
+// scripts/17_copyAniwayImagesToAnime1.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -19,9 +19,9 @@ if (!MONGODB_URI_BASE) {
 
 // Function to construct DB specific URI
 function constructDbUri(baseUri, dbName) {
-    const uri = new URL(baseUri);
-    uri.pathname = `/${dbName}`;
-    return uri.toString();
+  const uri = new URL(baseUri);
+  uri.pathname = `/${dbName}`;
+  return uri.toString();
 }
 
 const MONGODB_URI_ANIWAY = constructDbUri(MONGODB_URI_BASE, SOURCE_DB_NAME);
@@ -60,18 +60,30 @@ async function copyImages() {
   try {
     // Establish connections to both databases
     console.log(`Connecting to source DB (${SOURCE_DB_NAME})...`);
-    aniwayConn = await mongoose.createConnection(MONGODB_URI_ANIWAY).asPromise();
+    aniwayConn = await mongoose
+      .createConnection(MONGODB_URI_ANIWAY)
+      .asPromise();
     console.log(`Connected to source DB: ${aniwayConn.name}`);
 
     console.log(`Connecting to target DB (${TARGET_DB_NAME})...`);
-    bangumiConn = await mongoose.createConnection(MONGODB_URI_BANGUMI).asPromise();
+    bangumiConn = await mongoose
+      .createConnection(MONGODB_URI_BANGUMI)
+      .asPromise();
     console.log(`Connected to target DB: ${bangumiConn.name}`);
 
     // Define models on their respective connections
-    SourceAnime = aniwayConn.model("SourceAnimeForImageCopy", sourceAnimeSchema);
-    TargetAnime = bangumiConn.model("TargetAnimeForImageCopy", targetAnimeSchema);
+    SourceAnime = aniwayConn.model(
+      "SourceAnimeForImageCopy",
+      sourceAnimeSchema
+    );
+    TargetAnime = bangumiConn.model(
+      "TargetAnimeForImageCopy",
+      targetAnimeSchema
+    );
 
-    console.log(`Fetching images data from source collection '${SOURCE_DB_NAME}.${SOURCE_COLLECTION_NAME}'...`);
+    console.log(
+      `Fetching images data from source collection '${SOURCE_DB_NAME}.${SOURCE_COLLECTION_NAME}'...`
+    );
 
     // Step 1: Fetch all necessary image data from the source collection into a Map.
     // Key: bangumi_id, Value: images field content
@@ -86,28 +98,38 @@ async function copyImages() {
 
     let sourceDocsProcessed = 0;
     for await (const doc of sourceCursor) {
-        // Optional: Add check if imagesData is meaningful (e.g., not empty object/array)
-        const imagesData = doc.images;
-        const hasImageData = imagesData &&
-                             (typeof imagesData !== 'object' || Object.keys(imagesData).length > 0) &&
-                             (!Array.isArray(imagesData) || imagesData.length > 0);
+      // Optional: Add check if imagesData is meaningful (e.g., not empty object/array)
+      const imagesData = doc.images;
+      const hasImageData =
+        imagesData &&
+        (typeof imagesData !== "object" ||
+          Object.keys(imagesData).length > 0) &&
+        (!Array.isArray(imagesData) || imagesData.length > 0);
 
-        if (hasImageData) {
-            imageMap.set(doc.bangumi_id, imagesData);
-        }
-        sourceDocsProcessed++;
-        if (sourceDocsProcessed % 5000 === 0) {
-             console.log(` -> Processed ${sourceDocsProcessed} source documents... Found images for ${imageMap.size} unique bangumi_ids.`);
-        }
+      if (hasImageData) {
+        imageMap.set(doc.bangumi_id, imagesData);
+      }
+      sourceDocsProcessed++;
+      if (sourceDocsProcessed % 5000 === 0) {
+        console.log(
+          ` -> Processed ${sourceDocsProcessed} source documents... Found images for ${imageMap.size} unique bangumi_ids.`
+        );
+      }
     }
-    console.log(`Finished fetching source data. Found images for ${imageMap.size} unique bangumi_ids.`);
+    console.log(
+      `Finished fetching source data. Found images for ${imageMap.size} unique bangumi_ids.`
+    );
 
     if (imageMap.size === 0) {
-        console.log("No source documents with images found. No updates needed for target collection.");
-        return;
+      console.log(
+        "No source documents with images found. No updates needed for target collection."
+      );
+      return;
     }
 
-    console.log(`Starting update process for target collection '${TARGET_DB_NAME}.${TARGET_COLLECTION_NAME}'...`);
+    console.log(
+      `Starting update process for target collection '${TARGET_DB_NAME}.${TARGET_COLLECTION_NAME}'...`
+    );
 
     // Step 2: Iterate through the target collection and prepare updates.
     const targetCursor = TargetAnime.find({
@@ -138,13 +160,17 @@ async function copyImages() {
 
         // Execute the batch if it reaches the BATCH_SIZE
         if (bulkOps.length >= BATCH_SIZE) {
-          console.log(`Processed ${targetDocsProcessed} target docs. Executing batch update for ${bulkOps.length} documents...`);
+          console.log(
+            `Processed ${targetDocsProcessed} target docs. Executing batch update for ${bulkOps.length} documents...`
+          );
           try {
             const result = await TargetAnime.bulkWrite(bulkOps);
-            console.log(` -> Batch executed. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`);
+            console.log(
+              ` -> Batch executed. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`
+            );
           } catch (bulkError) {
-             console.error("Error executing bulkWrite:", bulkError);
-             // Consider adding retry logic or skipping the batch on error
+            console.error("Error executing bulkWrite:", bulkError);
+            // Consider adding retry logic or skipping the batch on error
           }
           bulkOps = []; // Reset the bulk operations array
         }
@@ -152,36 +178,39 @@ async function copyImages() {
 
       // Log progress periodically
       if (targetDocsProcessed % 1000 === 0) {
-         console.log(`Processed ${targetDocsProcessed} target documents... Updates prepared for ${targetDocsUpdated}.`);
+        console.log(
+          `Processed ${targetDocsProcessed} target documents... Updates prepared for ${targetDocsUpdated}.`
+        );
       }
     }
 
     // Execute any remaining operations in the final batch
     if (bulkOps.length > 0) {
       console.log(`Executing final batch of ${bulkOps.length} updates...`);
-       try {
-            const result = await TargetAnime.bulkWrite(bulkOps);
-            console.log(` -> Final batch executed. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`);
-          } catch (bulkError) {
-             console.error("Error executing final bulkWrite:", bulkError);
-          }
+      try {
+        const result = await TargetAnime.bulkWrite(bulkOps);
+        console.log(
+          ` -> Final batch executed. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`
+        );
+      } catch (bulkError) {
+        console.error("Error executing final bulkWrite:", bulkError);
+      }
     }
 
     console.log("\n--- Image Copy Summary ---");
     console.log(`Total target documents processed: ${targetDocsProcessed}`);
     console.log(`Target documents updated with images: ${targetDocsUpdated}`);
-
   } catch (error) {
     console.error("An error occurred during the image copy process:", error);
   } finally {
     // Ensure the database connections are closed
     if (aniwayConn && aniwayConn.readyState === 1) {
-        await aniwayConn.close();
-        console.log(`Source DB connection (${aniwayConn.name}) closed.`);
+      await aniwayConn.close();
+      console.log(`Source DB connection (${aniwayConn.name}) closed.`);
     }
     if (bangumiConn && bangumiConn.readyState === 1) {
-        await bangumiConn.close();
-        console.log(`Target DB connection (${bangumiConn.name}) closed.`);
+      await bangumiConn.close();
+      console.log(`Target DB connection (${bangumiConn.name}) closed.`);
     }
   }
 }

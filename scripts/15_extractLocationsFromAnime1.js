@@ -1,4 +1,4 @@
-// scripts/17_extractLocationsFromAnime1.js
+// scripts/15_extractLocationsFromAnime1.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
