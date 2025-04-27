@@ -27,7 +27,8 @@ const getAllPlans = asyncHandler(async (req, res) => {
 
 const addPlan = asyncHandler(async (req, res) => {
   try {
-    const data = req.body;
+    
+const data = req.body;
 
     const newPlan = new TripPlan(data);
     const savedPlan = await newPlan.save();
