@@ -13,6 +13,8 @@ import gmapRoutes from "./routes/GMapRoutes.js";
 import animeRoutes from "./routes/AnimeRoutes.js";
 // OpenAI API
 import chatgptRoutes from "./routes/ChatgptRoutes.js";
+// Trip Plan Routes
+import tPlanRoutes from "./routes/TPlanRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
 
@@ -41,6 +43,8 @@ app.use("/api/chatgpt", chatgptRoutes);
 app.use("/api/ai", AIAdviceRoutes);
 
 app.use("/api/trip", TripDataRoutes);
+
+app.use("/api/tplan", tPlanRoutes);
 
 // Root
 app.get("/", (req, res) => {
