@@ -1,12 +1,12 @@
 import express from "express";
 import {
-    fetchPlaceInfo,
-    fetchPlacePhoto,
-    fetchPlaceNearby,
-} from "../controllers/GmapController.js";
+  fetchPlaceInfo,
+  fetchPlacePhoto,
+  fetchPlaceNearby,
+} from "../controllers/GMapController.js";
 import {
-    fetchPlacePhotoByPlaceId,
-    getPlaceDetails,
+  fetchPlacePhotoByPlaceId,
+  getPlaceDetails,
 } from "../controllers/GMapDetailsFetchByPlaceId.js";
 
 const router = express.Router();

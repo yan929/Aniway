@@ -2,8 +2,6 @@
 @plugin "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
 
-
-
 @layer base {
   h1 {
     @apply text-4xl font-bold;
@@ -43,4 +41,14 @@
     -webkit-appearance: auto;
   }
 
+  /* Restore list styles within chat messages */
+  .chat-message-content ul {
+    @apply list-disc pl-5 mb-2; /* Use disc bullets, add left padding, add bottom margin */
+  }
+
+  .chat-message-content li {
+    @apply mb-1; /* Add small bottom margin to list items */
+  }
 }
+
+@tailwind utilities;

@@ -4,60 +4,58 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-
 const analyzeUserInput = async (req, res) => {
-    const { prompt, startDate, endDate } = req.body;
-    console.log("🟢 Prompt received:", prompt);
-    console.log("📆 Start:", startDate, "End:", endDate);
+  const { prompt, startDate, endDate } = req.body;
+  console.log("🟢 Prompt received:", prompt);
+  console.log("📆 Start:", startDate, "End:", endDate);
 
-    if (!prompt || !startDate || !endDate) {
-        return res
-            .status(400)
-            .json({ error: "Missing prompt, startDate, or endDate" });
-    }
+  if (!prompt || !startDate || !endDate) {
+    return res
+      .status(400)
+      .json({ error: "Missing prompt, startDate, or endDate" });
+  }
+
+  try {
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful travel assistant. Reply in valid JSON only, following the given format strictly.",
+        },
+        {
+          role: "user",
+          content: buildUserQueryPrompt(prompt, startDate, endDate), // response in JSON format which defines the itinerary
+        },
+      ],
+      temperature: 0.3, // Adjust the creativity of the response
+    });
+
+    const reply = chatResponse.choices[0].message.content;
+    console.log("✅ Response from ChatGPT");
 
     try {
-        const chatResponse = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [
-                {
-                    role: "system",
-                    content:
-                        "You are a helpful travel assistant. Reply in valid JSON only, following the given format strictly.",
-                },
-                {
-                    role: "user",
-                    content: buildUserQueryPrompt(prompt, startDate, endDate), // response in JSON format which defines the itinerary
-                },
-            ],
-            temperature: 0.3, // Adjust the creativity of the response
-        });
-
-        const reply = chatResponse.choices[0].message.content;
-        console.log("✅ Response from ChatGPT");
-
-        try {
-            res.json(JSON.parse(reply));
-            console.log("✅ Parsed JSON successfully", JSON.parse(reply));
-        } catch (e) {
-            console.error("❌ Invalid JSON from AI:", e);
-            res.status(500).json({ error: "AI returned invalid JSON", raw: reply });
-        }
-    } catch (err) {
-        console.error("❌ ChatGPT Error:", err);
-        res
-            .status(500)
-            .json({ error: "Failed to generate itinerary from ChatGPT." });
+      res.json(JSON.parse(reply));
+      console.log("✅ Parsed JSON successfully", JSON.parse(reply));
+    } catch (e) {
+      console.error("❌ Invalid JSON from AI:", e);
+      res.status(500).json({ error: "AI returned invalid JSON", raw: reply });
     }
+  } catch (err) {
+    console.error("❌ ChatGPT Error:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to generate itinerary from ChatGPT." });
+  }
 };
-
 
 // Helper function to build prompt
 function buildUserQueryPrompt(prompt, startDate, endDate) {
-    return `You are a travel request analyzer.
+  return `You are a travel request analyzer.
 
 Your task:
 - Carefully extract any locations (e.g., cities, places, landmarks).
@@ -90,7 +88,5 @@ Important rules:
 User Request: "${prompt}"
 `;
 }
-
-
 
 export { analyzeUserInput };

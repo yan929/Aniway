@@ -22,8 +22,8 @@ const locationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: "locations", // Explicitly targeting the 'locations' collection
-    strict: false, // Allow fields not explicitly defined in the schema
+    collection: "locations",
+    strict: false,
   }
 );
 

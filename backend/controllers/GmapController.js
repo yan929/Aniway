@@ -13,7 +13,6 @@ const fetchPlaceInfo = async (req, res) => {
     const result = geoData.results[0];
     const placeId = result.place_id;
 
-
     // Step 2: Get place details
     const detailsRes = await axios.get(
       `${GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
@@ -61,20 +60,37 @@ const fetchPlacePhoto = async (req, res) => {
 };
 
 const fetchPlaceNearby = async (req, res) => {
-  const {keyword, lat, lng } = req.query;
-  console.log("keyword:",keyword,"lat:", lat, "lng:", lng);
+  const { keyword, lat, lng } = req.query;
+  console.log("keyword:", keyword, "lat:", lat, "lng:", lng);
 
   try {
-    const nearbyRes = await axios.get(
-      `${GOOGLE_API_HOST}/place/nearbysearch/json?keyword=${keyword}&location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`
-    );
-    const nearbyData = nearbyRes.data;
+    let nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?keyword=${keyword}&location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
+    console.log("nearbyUrl:", nearbyUrl);
+    const nearbyRes = await axios.get(nearbyUrl);
+    let nearbyData = nearbyRes.data;
 
     if (!nearbyData.results || nearbyData.results.length === 0) {
+      nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=10&key=${process.env.GOOGLE_API_KEY}`;
+      console.log(
+        "nearby with keyword failed, try without keyword:",
+        nearbyUrl
+      );
+      const nearbyRes = await axios.get(nearbyUrl);
+      nearbyData = nearbyRes.data;
+      if (!nearbyData.results || nearbyData.results.length === 0) {
+        return res.status(404).json({ error: "No nearby places found" });
+      }
+    }
+
+    const results = nearbyData.results.filter((result) => {
+      return result.business_status === "OPERATIONAL";
+    });
+
+    if (results.length === 0) {
       return res.status(404).json({ error: "No nearby places found" });
     }
 
-    const placeId = nearbyData.results[0].place_id;
+    const placeId = results[0].place_id;
     console.log("backend placeId:", placeId);
     const detailsRes = await axios.get(
       `${GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
@@ -95,7 +111,6 @@ const fetchPlaceNearby = async (req, res) => {
       photo_reference: details.photos?.[0]?.photo_reference,
       place_id: placeId,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to get nearby places" });

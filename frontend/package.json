@@ -22,11 +22,13 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.5.1",
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
