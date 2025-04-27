@@ -26,4 +26,4 @@ const planSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("TripPlan", planSchema);
+export default mongoose.model("TripPlan", planSchema);
