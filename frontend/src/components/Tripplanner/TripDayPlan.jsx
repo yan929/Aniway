@@ -42,11 +42,21 @@ export default function TripDayPlan({ day, index }) {
         deleteTripItem(day, item);
     }
 
+    const handleSmartAdvice = () => {
+        // Implement smart advice logic here
+        console.log("Smart advice clicked");
+
+    }
+
     return (
         <>
             <div className="flex items-center gap-6 text-[1.375rem] font-semibold text-gray-800">
                 <span>Day {index + 1}</span>
                 <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
+                <button className="mt-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300"
+                    onClick={handleSmartAdvice}
+                >
+                    Smart advice </button>
             </div>
             <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
                 {items.map((item, itemIndex) => {

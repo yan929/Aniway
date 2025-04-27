@@ -16,6 +16,8 @@ import chatgptRoutes from "./routes/ChatgptRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
 
+import AIAdviceRoutes from "./routes/AIAdviceRoutes.js";
+
 dotenv.config();
 connectDB();
 
@@ -33,6 +35,8 @@ app.use("/api/gmap", gmapRoutes);
 app.use("/api/anime", animeRoutes);
 
 app.use("/api/chatgpt", chatgptRoutes);
+
+app.use("/api/ai", AIAdviceRoutes);
 
 // Root
 app.get("/", (req, res) => {
