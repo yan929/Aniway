@@ -28,13 +28,14 @@ export default function TripDayPlan({ day, index }) {
     const handleAddLocationToDay = async (loc) => {
 
         const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
+        console.log("day", day);
         //not finished yet
-        const testUpdateItem = {
-            date: "2025-10-01",
+        const UpdateItem = {
+            date: day.date,
             gpPlaceId: newPlaceData.place_id,
-            order: 3,
+            order: day.itinerary.length,
         };
-        const newTripData = updateItinerary(tripData, testUpdateItem);;
+        updateItinerary(tripData, UpdateItem);;
     };
 
     const handdleDelete = (item) => {
