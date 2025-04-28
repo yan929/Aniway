@@ -1,16 +1,21 @@
 import React from "react";
 import dayjs from "dayjs";
+import { useState } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
 import SearchBar from "../Search/search.jsx";
 import { AppContext } from "../../AppContextProvider.jsx";
 import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
 import ItineraryItem from "./ItineraryItem.jsx";
+import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
 
 export default function TripDayPlan({ day, index }) {
     const placeDetailsMap = usePlaceDetails(day.itinerary);
     const { tripData, updateItinerary, deleteTripItem } = useContext(AppContext);
-    const [items, setItems] = React.useState(day.itinerary);
+    const [items, setItems] = useState(day.itinerary);
+    const [isOpen, setIsOpen] = useState(false);
+
+
 
     React.useEffect(() => {
         setItems(day.itinerary);
@@ -42,11 +47,6 @@ export default function TripDayPlan({ day, index }) {
         deleteTripItem(day, item);
     }
 
-    const handleSmartAdvice = () => {
-        // Implement smart advice logic here
-        console.log("Smart advice clicked");
-
-    }
 
     return (
         <>
@@ -54,9 +54,14 @@ export default function TripDayPlan({ day, index }) {
                 <span>Day {index + 1}</span>
                 <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
                 <button className="mt-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300"
-                    onClick={handleSmartAdvice}
+                    onClick={() => setIsOpen(true)}
                 >
                     Smart advice </button>
+                <SmartAdviceWindow
+                    isOpen={isOpen}
+                    onClose={() => setIsOpen(false)}
+                    day={day}
+                />
             </div>
             <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
                 {items.map((item, itemIndex) => {
