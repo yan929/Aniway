@@ -17,6 +17,7 @@ const locationSubSchema = new mongoose.Schema(
     addresses: [String], // Array of address strings
     anitabi_names: [String], // Array of names from Anitabi
     anitabi_cn_names: [String], // Array of Chinese names from Anitabi
+    anitabi_en_names: [String],
   },
   { _id: false }
 ); // Disable automatic _id generation for subdocuments
