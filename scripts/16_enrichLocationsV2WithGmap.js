@@ -1,4 +1,5 @@
 // scripts/16_enrichLocationsV2WithGmap.js
+// MODIFIED: Now enriches the final 'locations' collection with Gmap raw response, addresses, country, and city, using a combined 'geoEnriched' flag. Integrate country/city extraction logic.
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Client } from "@googlemaps/google-maps-services-js";
@@ -7,7 +8,8 @@ dotenv.config(); // Load environment variables from .env file
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-const TARGET_COLLECTION_NAME = "locations_v2";
+// MODIFIED: Target the final 'locations' collection
+const TARGET_COLLECTION_NAME = "locations";
 
 if (!MONGODB_URI) {
   console.error("Error: MONGODB_URI is not defined in .env file.");
@@ -18,19 +20,23 @@ if (!GOOGLE_MAPS_API_KEY) {
   process.exit(1);
 }
 
-// Target Schema (should match the one in script 17)
-const locationV2Schema = new mongoose.Schema(
+// MODIFIED: Schema updated to match backend/models/Location.js
+const locationSchema = new mongoose.Schema(
   {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
-    anitabi_ids: [String],
+    addresses: [String], // Existing: Will store formatted addresses
+    originIds: [String], // Keep existing fields from previous migrations/extractions
     anitabi_names: [String],
     anitabi_cn_names: [String],
     images: [String],
-    origins: [String],
-    originURLs: [String],
-    gmap_processed: { type: Boolean, default: false, index: true }, // Index for querying
-    addresses: [String], // To store Google Maps addresses
+    searchRanking: { type: Number, default: 0 }, // Keep existing
+    // Fields added by this enrichment script
+    country: { type: String, index: true },
+    city: { type: String, index: true },
+    gmap_raw_response: { type: Object }, // NEW: Store raw gmap response
+    geoEnriched: { type: Boolean, default: false, index: true }, // NEW: Combined flag
+    gmap_error: { type: String }, // Existing: Keep for error logging
   },
   {
     collection: TARGET_COLLECTION_NAME,
@@ -38,14 +44,64 @@ const locationV2Schema = new mongoose.Schema(
   }
 );
 
-locationV2Schema.index({ lat: 1, lng: 1 }, { unique: true });
+// Use existing index
+locationSchema.index({ lat: 1, lng: 1 }); // Assuming this should identify unique locations based on coords
+// Add index for the new flag
+locationSchema.index({ geoEnriched: 1 });
 
-const LocationV2 = mongoose.model("LocationV2Enrich", locationV2Schema); // Use distinct model name
+// MODIFIED: Model name and schema
+const Location = mongoose.model("LocationEnrich", locationSchema);
 
 const gmapsClient = new Client({});
 
 // Helper function for delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// --- ADDED: Function to extract country and city (from script 20) ---
+function extractGeoInfo(gmapRawResponse) {
+  let country = null;
+  let city = null;
+
+  if (
+    !gmapRawResponse ||
+    !Array.isArray(gmapRawResponse.results) ||
+    gmapRawResponse.results.length === 0
+  ) {
+    // console.warn("No valid results in gmapRawResponse for geo extraction");
+    return { country, city };
+  }
+
+  const result = gmapRawResponse.results[0]; // Use first result
+  if (!result || !Array.isArray(result.address_components)) {
+    // console.warn("No address components in the first result for geo extraction");
+    return { country, city };
+  }
+
+  const addressComponents = result.address_components;
+  for (const component of addressComponents) {
+    if (
+      component.types.includes("country") &&
+      component.types.includes("political")
+    ) {
+      country = component.long_name;
+    }
+    if (
+      component.types.includes("locality") &&
+      component.types.includes("political")
+    ) {
+      city = component.long_name;
+    } else if (
+      !city &&
+      component.types.includes("administrative_area_level_1") &&
+      component.types.includes("political")
+    ) {
+      city = component.long_name; // Fallback to state/prefecture
+    }
+    if (country && city) break;
+  }
+  return { country, city };
+}
+// --- END ADDED FUNCTION ---
 
 async function enrichLocationsWithGmap() {
   try {
@@ -53,7 +109,7 @@ async function enrichLocationsWithGmap() {
     console.log("MongoDB connected successfully.");
 
     const BATCH_SIZE = 50; // Locations per batch
-    const API_DELAY_MS = 50; // Delay between API calls (Google allows 50 QPS standard)
+    const API_DELAY_MS = 50; // Delay between API calls
 
     let totalProcessed = 0;
     let totalUpdated = 0;
@@ -61,26 +117,32 @@ async function enrichLocationsWithGmap() {
     let batchNumber = 0;
 
     console.log(
-      `Starting Google Maps enrichment for '${TARGET_COLLECTION_NAME}'...`
+      // MODIFIED: Log message
+      `Starting Google Maps enrichment (addresses, country, city, raw response) for '${TARGET_COLLECTION_NAME}'...`
     );
 
     while (true) {
       batchNumber++;
       console.log(`\n--- Starting Batch ${batchNumber} ---`);
 
-      const remainingCount = await LocationV2.countDocuments({
-        gmap_processed: { $ne: true },
+      // MODIFIED: Query using the new flag
+      const remainingCount = await Location.countDocuments({
+        geoEnriched: { $ne: true },
       });
       console.log(`Approx. ${remainingCount} locations remaining to process.`);
 
       if (remainingCount === 0) {
-        console.log("All locations have been processed with Google Maps data.");
+        // MODIFIED: Log message
+        console.log(
+          "All locations have been processed/attempted for geo-enrichment."
+        );
         break;
       }
 
       console.log(`Fetching up to ${BATCH_SIZE} unprocessed locations...`);
-      const locationsToEnrich = await LocationV2.find({
-        gmap_processed: { $ne: true },
+      // MODIFIED: Query using the new flag and model
+      const locationsToEnrich = await Location.find({
+        geoEnriched: { $ne: true },
       })
         .limit(BATCH_SIZE)
         .select("_id lat lng") // Select necessary fields
@@ -100,15 +162,27 @@ async function enrichLocationsWithGmap() {
 
       for (const loc of locationsToEnrich) {
         totalProcessed++;
+        // MODIFIED: Initialize update object - always mark as processed
+        let updateOp = {
+          $set: {
+            geoEnriched: true,
+            // Ensure fields are at least nulled if not found, avoid leftover data
+            addresses: [],
+            country: null,
+            city: null,
+            gmap_raw_response: null,
+            gmap_error: null,
+          },
+        };
+
         try {
-          // console.log(`Processing location ID: ${loc._id} (${loc.lat}, ${loc.lng})`);
           const response = await gmapsClient.reverseGeocode({
             params: {
               latlng: { latitude: loc.lat, longitude: loc.lng },
               key: GOOGLE_MAPS_API_KEY,
               result_type:
-                "street_address|route|intersection|political|administrative_area_level_1|administrative_area_level_2|administrative_area_level_3|locality|sublocality|neighborhood|premise|subpremise|point_of_interest|natural_feature|airport|park|postal_code", // Broad types
-              language: "en", // Optional: specify language
+                "street_address|route|intersection|political|administrative_area_level_1|administrative_area_level_2|administrative_area_level_3|locality|sublocality|neighborhood|premise|subpremise|point_of_interest|natural_feature|airport|park|postal_code",
+              language: "en",
             },
             timeout: 5000, // milliseconds
           });
@@ -117,58 +191,44 @@ async function enrichLocationsWithGmap() {
             response.data.status === "OK" &&
             response.data.results.length > 0
           ) {
-            // Extract top 3 formatted addresses
-            const topAddresses = response.data.results
+            const rawResponse = response.data; // Keep the raw data
+            // Extract addresses
+            const topAddresses = rawResponse.results
               .slice(0, 3)
               .map((result) => result.formatted_address)
-              .filter((addr) => addr); // Ensure addresses are not null/empty
+              .filter((addr) => addr);
 
-            if (topAddresses.length > 0) {
+            // Extract country and city using the helper function
+            const { country, city } = extractGeoInfo(rawResponse);
+
+            // Update the $set operation
+            updateOp.$set.gmap_raw_response = rawResponse;
+            updateOp.$set.addresses = topAddresses;
+            if (country) updateOp.$set.country = country;
+            if (city) updateOp.$set.city = city;
+
+            if (topAddresses.length > 0 || country || city) {
               console.log(
-                `  -> Found ${topAddresses.length} addresses for ${loc._id}.`
+                `  -> Success for ${loc._id}. Addr: ${
+                  topAddresses.length
+                }, Country: ${country || "N/A"}, City: ${city || "N/A"}`
               );
-              bulkOps.push({
-                updateOne: {
-                  filter: { _id: loc._id },
-                  update: {
-                    $set: {
-                      addresses: topAddresses,
-                      gmap_processed: true,
-                    },
-                  },
-                },
-              });
               totalUpdated++;
             } else {
               console.warn(
-                `  -> Geocoding OK but no addresses found for ${loc._id}. Marking processed.`
+                `  -> Geocoding OK but no addresses/geo info found for ${loc._id}. Marking processed.`
               );
-              bulkOps.push({
-                // Mark as processed even if no addresses found
-                updateOne: {
-                  filter: { _id: loc._id },
-                  update: { $set: { gmap_processed: true } },
-                },
-              });
             }
           } else {
+            // Handle failed geocoding or no results
             console.warn(
               `  -> Geocoding failed or no results for ${loc._id}: ${
                 response.data.status
               } - ${response.data.error_message || "No results"}`
             );
-            bulkOps.push({
-              // Mark as processed to avoid retrying failed lookups indefinitely
-              updateOne: {
-                filter: { _id: loc._id },
-                update: { $set: { gmap_processed: true } },
-              },
-            });
-          }
-
-          // Optional delay to respect API rate limits
-          if (API_DELAY_MS > 0) {
-            await delay(API_DELAY_MS);
+            updateOp.$set.gmap_error = `${response.data.status}: ${
+              response.data.error_message || "No results"
+            }`;
           }
         } catch (error) {
           console.error(
@@ -176,16 +236,21 @@ async function enrichLocationsWithGmap() {
             error.message
           );
           totalErrors++;
-          // Decide if you want to mark as processed on error or retry later
-          bulkOps.push({
-            // Marking as processed on error to avoid blocking
-            updateOne: {
-              filter: { _id: loc._id },
-              update: {
-                $set: { gmap_processed: true, gmap_error: error.message },
-              }, // Optionally store error
-            },
-          });
+          // Store error message
+          updateOp.$set.gmap_error = error.message;
+        }
+
+        // Add the prepared update operation to bulkOps
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: loc._id },
+            update: updateOp,
+          },
+        });
+
+        // Optional delay
+        if (API_DELAY_MS > 0) {
+          await delay(API_DELAY_MS);
         }
       } // End loop through batch locations
 
@@ -195,13 +260,14 @@ async function enrichLocationsWithGmap() {
           `Executing batch update for ${bulkOps.length} locations...`
         );
         try {
-          const result = await LocationV2.bulkWrite(bulkOps);
+          // MODIFIED: Use updated Model
+          const result = await Location.bulkWrite(bulkOps, { ordered: false });
           console.log(
             ` -> Batch executed. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`
           );
         } catch (bulkError) {
           console.error("Error during bulkWrite:", bulkError);
-          totalErrors += bulkOps.length; // Assume all in batch failed if bulkWrite errors
+          totalErrors += bulkOps.length; // Assume all in batch failed
         }
       } else {
         console.log("No operations to execute for this batch.");
@@ -211,16 +277,19 @@ async function enrichLocationsWithGmap() {
     console.log("\n--- Google Maps Enrichment Summary ---");
     console.log(`Total locations fetched for processing: ${totalProcessed}`);
     console.log(
-      `Locations successfully updated with addresses: ${totalUpdated}`
+      // MODIFIED: Log message
+      `Locations successfully updated with geo data: ${totalUpdated}`
     );
     console.log(
-      `Locations processed with errors or no results: ${
-        totalProcessed - totalUpdated
+      // MODIFIED: Log message
+      `Locations processed but yielded no data: ${
+        totalProcessed - totalUpdated - totalErrors
       }`
-    ); // Includes errors + explicit no results
+    );
     console.log(`Direct errors during processing: ${totalErrors}`);
   } catch (error) {
     console.error(
+      // MODIFIED: Log message
       "An error occurred during the Google Maps enrichment process:",
       error
     );
