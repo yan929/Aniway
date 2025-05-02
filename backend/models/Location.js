@@ -11,11 +11,12 @@ const locationSchema = new mongoose.Schema(
     originIds: [String],
     anitabi_names: [String],
     anitabi_cn_names: [String],
+    anitabi_en_names: [String],
     images: [String],
     searchRanking: { type: Number, default: 0, index: true },
-    country: { type: String, index: true }, // Added for country info
-    city: { type: String, index: true }, // Added for city info
-    gmap_raw_response: { type: Object }, // Store the raw response from Google Maps API
+    country: { type: String, index: true },
+    city: { type: String, index: true },
+    gmap_raw_response: { type: Object },
   },
   {
     timestamps: true,
