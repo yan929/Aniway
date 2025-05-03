@@ -11,7 +11,9 @@ const locationSchema = new mongoose.Schema(
     originIds: [String],
     anitabi_names: [String],
     anitabi_cn_names: [String],
-    anitabi_en_names: [String],
+    anime_names: [String],     // Use plural name
+    anime_cn_names: [String],  // Use plural name
+    anime_en_names: [String],  // Use plural name
     images: [String],
     searchRanking: { type: Number, default: 0, index: true },
     country: { type: String, index: true },
@@ -20,8 +22,8 @@ const locationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: "locations",
-    strict: false,
+    collection: "locations", // Explicitly targeting the 'locations' collection
+    strict: false, // Allow fields not explicitly defined in the schema
   }
 );
 
