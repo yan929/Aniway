@@ -29,10 +29,10 @@ const getTrendingData = asyncHandler(async (req, res) => {
     }));
 
     // Fetch top 5 trending locations
-    const trendingLocationsData = await Location.find()
+    const trendingLocationsData = await Location.find({ isValid: true }) // Filter valid locations
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
-      .select("_id anitabi_names lat lng addresses images") // Select only needed fields
+      .select("_id anitabi_names lat lng addresses images nearby") // Select fields + nearby
       .lean(); // Get plain JS objects
 
     // For each location, find related anime
@@ -40,12 +40,12 @@ const getTrendingData = asyncHandler(async (req, res) => {
       trendingLocationsData.map(async (loc) => {
         // Find anime that reference this location
         const relatedAnime = await Anime.find({
-          'locations.lat': loc.lat,
-          'locations.lng': loc.lng
+          "locations.lat": loc.lat,
+          "locations.lng": loc.lng,
         })
-        .select('_id name name_en name_cn')
-        .limit(1) // Get just the first related anime
-        .lean();
+          .select("_id name name_en name_cn")
+          .limit(1) // Get just the first related anime
+          .lean();
 
         return {
           id: loc._id,
@@ -54,10 +54,14 @@ const getTrendingData = asyncHandler(async (req, res) => {
           addresses: loc.addresses,
           images: loc.images,
           names: loc.anitabi_names,
+          nearby: loc.nearby, // Include nearby field
           // Include the first related anime's name if available
-          animeName: relatedAnime.length > 0 
-            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
-            : null
+          animeName:
+            relatedAnime.length > 0
+              ? relatedAnime[0].name_en ||
+                relatedAnime[0].name ||
+                relatedAnime[0].name_cn
+              : null,
         };
       })
     );
@@ -89,6 +93,7 @@ const searchAllLocations = asyncHandler(async (req, res) => {
 
     // Search Locations without limit
     const searchLocationsData = await Location.find({
+      isValid: true, // Filter valid locations
       $or: [
         { anitabi_names: regex },
         { anitabi_cn_names: regex },
@@ -99,7 +104,9 @@ const searchAllLocations = asyncHandler(async (req, res) => {
         },
       ],
     })
-      .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
+      .select(
+        "_id anitabi_names anitabi_cn_names lat lng addresses images nearby"
+      ) // Select fields + nearby
       .lean();
 
     // For each location, find related anime
@@ -107,29 +114,35 @@ const searchAllLocations = asyncHandler(async (req, res) => {
       searchLocationsData.map(async (loc) => {
         // Find anime that reference this location
         const relatedAnime = await Anime.find({
-          'locations.lat': loc.lat,
-          'locations.lng': loc.lng
+          "locations.lat": loc.lat,
+          "locations.lng": loc.lng,
         })
-        .select('_id name name_en name_cn')
-        .limit(1) // Get just the first related anime
-        .lean();
+          .select("_id name name_en name_cn")
+          .limit(1) // Get just the first related anime
+          .lean();
 
         return {
           id: loc._id,
-          names: loc.anitabi_names && loc.anitabi_names.length > 0 
-            ? loc.anitabi_names[0] 
-            : "",
-          name_cn: loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0 
-            ? loc.anitabi_cn_names[0] 
-            : "",
+          names:
+            loc.anitabi_names && loc.anitabi_names.length > 0
+              ? loc.anitabi_names[0]
+              : "",
+          name_cn:
+            loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
+              ? loc.anitabi_cn_names[0]
+              : "",
           lat: loc.lat,
           lng: loc.lng,
           addresses: loc.addresses || [],
           images: loc.images || [],
+          nearby: loc.nearby, // Include nearby field
           // Include the first related anime's name if available
-          animeName: relatedAnime.length > 0 
-            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
-            : null
+          animeName:
+            relatedAnime.length > 0
+              ? relatedAnime[0].name_en ||
+                relatedAnime[0].name ||
+                relatedAnime[0].name_cn
+              : null,
         };
       })
     );
@@ -139,7 +152,9 @@ const searchAllLocations = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error("Error searching all locations:", error);
-    res.status(500).json({ message: "Server error while searching all locations" });
+    res
+      .status(500)
+      .json({ message: "Server error while searching all locations" });
   }
 });
 
@@ -176,6 +191,7 @@ const searchData = asyncHandler(async (req, res) => {
 
     // Search Locations
     const searchLocationsData = await Location.find({
+      isValid: true, // Filter valid locations
       $or: [
         { anitabi_names: regex },
         { anitabi_cn_names: regex },
@@ -187,9 +203,7 @@ const searchData = asyncHandler(async (req, res) => {
       ],
     })
       .limit(limit)
-      .select(
-        "_id anitabi_names anitabi_cn_names lat lng addresses"
-      )
+      .select("_id anitabi_names anitabi_cn_names lat lng addresses nearby")
       .lean();
 
     // For each location, find related anime
@@ -197,12 +211,12 @@ const searchData = asyncHandler(async (req, res) => {
       searchLocationsData.map(async (loc) => {
         // Find anime that reference this location
         const relatedAnime = await Anime.find({
-          'locations.lat': loc.lat,
-          'locations.lng': loc.lng
+          "locations.lat": loc.lat,
+          "locations.lng": loc.lng,
         })
-        .select('_id name name_en name_cn')
-        .limit(1) // Get just the first related anime
-        .lean();
+          .select("_id name name_en name_cn")
+          .limit(1) // Get just the first related anime
+          .lean();
 
         return {
           id: loc._id,
@@ -217,10 +231,14 @@ const searchData = asyncHandler(async (req, res) => {
           lat: loc.lat,
           lng: loc.lng,
           addresses: loc.addresses,
+          nearby: loc.nearby, // Include nearby field
           // Include the first related anime's name if available
-          animeName: relatedAnime.length > 0 
-            ? (relatedAnime[0].name_en || relatedAnime[0].name || relatedAnime[0].name_cn)
-            : null
+          animeName:
+            relatedAnime.length > 0
+              ? relatedAnime[0].name_en ||
+                relatedAnime[0].name ||
+                relatedAnime[0].name_cn
+              : null,
         };
       })
     );

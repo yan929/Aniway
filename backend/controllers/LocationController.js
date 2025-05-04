@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import Location from "../models/Location.js";
 
 const getAllLocations = asyncHandler(async (req, res) => {
-  const locations = await Location.find();
+  const locations = await Location.find({ isValid: true }); // Filter only valid locations
   res.json(locations);
 });
 
