@@ -31,6 +31,7 @@ const GoogleLogin = () => {
             alt="Profile"
             className="w-20 h-20 rounded-full mb-4 mx-auto"
           />
+          <br />
           <button
             onClick={handleLogout}
             className="px-5 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md text-base"
