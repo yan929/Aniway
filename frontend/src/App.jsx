@@ -27,9 +27,9 @@ function App() {
     <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
       <DndProvider backend={HTML5Backend}>
         <Routes>
-          {/* Follow route just for temporary */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<GoogleLogin />} />
+        {/* Follow route just for temporary */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<GoogleLogin/>}/>
         <Route path="/tripplanner" element={<TripPlanner />} />
         <Route path="/locations/search" element={<LocationsSearchPage />} />
         <Route path="/anime/:id" element={<AniDetail />} />
@@ -43,6 +43,7 @@ function App() {
 
         {/* <Route path="/" element={<HomePage />} /> */}
         {/* <Route path="/planner" element={<TripPlanner />} /> */}
+        
       </Routes>
     </DndProvider>
     </LoadScript>
