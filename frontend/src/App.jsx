@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/Home/HomePage";
 import TripPlanner from "./pages/TripPlanner/TripPlanner";
 import LocationsSearchPage from "./pages/Locations/LocationsSearchPage";
+import AniDetail from "./pages/AniInfo/AniInfo";
 import GMapDemo from "./components/GMap/GMapDemo";
 import "./App.css";
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/tripplanner" element={<TripPlanner />} />
         <Route path="/locations/search" element={<LocationsSearchPage />} />
+        <Route path="/anime/:id" element={<AniDetail />} />
         {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future

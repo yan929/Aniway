@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import SearchInput from "./searchInput";
@@ -9,6 +10,8 @@ import { MdMovie } from "react-icons/md";
 import "../../layout/SearchBar.css";
 
 function AniSearchBar() {
+  const navigate = useNavigate();
+
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showResult, setShowResult] = useState(false);
@@ -66,7 +69,7 @@ function AniSearchBar() {
           selectedIndexChange={(index) => setSelectedIndex(index)}
           selectedIndex={selectedIndex}
           onSelecItem={(item) => {
-            console.log("User selected:", item);
+            navigate(`/anime/${item.id}`);
           }}
           inputValue={input}
           onInputChange={(value) => setInput(value)}

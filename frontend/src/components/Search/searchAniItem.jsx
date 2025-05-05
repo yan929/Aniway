@@ -1,7 +1,9 @@
 import "../../layout/SearchItem.css";
 import React from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function SearchAniItem({ icon, title, resultList, selectedIndex }) {
+  const navigate = useNavigate();
   return (
     <>
       <div className="resultList">
@@ -10,8 +12,9 @@ function SearchAniItem({ icon, title, resultList, selectedIndex }) {
           <div className="section">
             {resultList.map((result, id) => (
               <div
-                key={`loc-${id}`}
+                key={`ani-${id}`}
                 className={`resultItem ${selectedIndex === id ? "active" : ""}`}
+                onClick={() => navigate(`/anime/${result.id}`)}
               >
                 {icon && React.createElement(icon)}
                 <p className="itemTitle">{result.name}</p>
