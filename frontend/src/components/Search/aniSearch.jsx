@@ -2,26 +2,21 @@ import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import axios from "axios";
 
-import SearchLocItem from "./searchLocItem";
 import SearchAniItem from "./searchAniItem";
 
 import { FaSearch } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
 import { MdMovie } from "react-icons/md";
 import "../../layout/SearchBar.css";
 
-function SearchBar({ setSelectedLocation }) {
+function AniSearchBar() {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [resultLength, setResultLength] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [aniResults, setAniResults] = useState([]);
-  const [locResults, setLocResults] = useState([]);
 
   const fetchData = async (keyword) => {
     if (!keyword.trim()) {
       setAniResults([]);
-      setLocResults([]);
       setShowResult(false);
       return;
     }
@@ -34,10 +29,7 @@ function SearchBar({ setSelectedLocation }) {
       const data = response.data;
 
       const anime = data.searchAnime || [];
-      const locations = data.searchLocations || [];
       setAniResults(anime);
-      setLocResults(locations);
-      setResultLength(anime.length + locations.length);
       setShowResult(true);
     } catch (err) {
       console.error(
@@ -47,7 +39,6 @@ function SearchBar({ setSelectedLocation }) {
           : err.message
       );
       setAniResults([]);
-      setLocResults([]);
       setShowResult(false);
     }
   };
@@ -59,20 +50,14 @@ function SearchBar({ setSelectedLocation }) {
 
   // Keyboard control
   const handleKeyDown = (e) => {
-    const allResults = [...locResults, ...aniResults];
-
     if (e.key === "ArrowDown") {
-      setSelectedIndex((prev) => (prev < resultLength - 1 ? prev + 1 : 0));
+      setSelectedIndex((prev) => (prev < aniResults.length - 1 ? prev + 1 : 0));
     } else if (e.key === "ArrowUp") {
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : resultLength - 1));
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : aniResults.length - 1));
     } else if (e.key === "Enter" && selectedIndex >= 0) {
-      const selectedItem = allResults[selectedIndex];
+      const selectedItem = aniResults[selectedIndex];
       if (selectedItem) {
-        handleSelectLocation({
-          lat: selectedItem.lat,
-          lng: selectedItem.lng,
-          label: selectedItem.name,
-        });
+        console.log("Testt selected item: ", selectedItem);
       }
     }
   };
@@ -83,12 +68,6 @@ function SearchBar({ setSelectedLocation }) {
     setSelectedIndex(-1);
   };
 
-  const handleSelectLocation = (loc) => {
-    setSelectedLocation(loc);
-    setInput("");
-    setShowResult(false);
-  };
-
   return (
     <>
       <div className="search mt-4">
@@ -96,7 +75,7 @@ function SearchBar({ setSelectedLocation }) {
           <FaSearch id="search-icon" />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search anime..."
             value={input}
             onChange={(e) => {
               handleChange(e.target.value);
@@ -107,19 +86,11 @@ function SearchBar({ setSelectedLocation }) {
         </div>
         {showResult && (
           <div className="resultListContainer">
-            <SearchLocItem
-              icon={FaLocationDot}
-              title={"Location"}
-              resultList={locResults}
-              selectedIndex={selectedIndex}
-              onSelectLocation={(loc) => handleSelectLocation(loc)}
-              searchTerm={input}
-            />
             <SearchAniItem
               icon={MdMovie}
               title={"Anime"}
               resultList={aniResults}
-              selectedIndex={selectedIndex - locResults.length}
+              selectedIndex={selectedIndex}
             />
           </div>
         )}
@@ -128,4 +99,4 @@ function SearchBar({ setSelectedLocation }) {
   );
 }
 
-export default SearchBar;
+export default AniSearchBar;

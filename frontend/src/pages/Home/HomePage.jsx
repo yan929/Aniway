@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
-import SearchBar from "../../components/Search/search";
+import LocSearchBar from "../../components/Search/locSearch";
+import AniSearchBar from "../../components/Search/aniSearch";
 
 function HomePage() {
   const [aniData, setAniData] = useState([]);
@@ -35,7 +36,8 @@ function HomePage() {
       <h1>Homepage</h1>
 
       <div className="mt-4">
-        <SearchBar />
+        <LocSearchBar />
+        Testing: <AniSearchBar />
       </div>
 
       <DisplayPopLocInfo sectionTitle="Popular Location" locList={locData} />
