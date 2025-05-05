@@ -8,9 +8,31 @@ import { FaCalendarAlt } from "react-icons/fa";
  * @param {Object} props.selectedDates - Currently selected dates { start, end }
  * @param {Function} props.onDateSelect - Callback when dates are selected
  */
-function DatePicker({ selectedDates = { start: "04/10", end: "05/08" }, onDateSelect }) {
+function DatePicker({ selectedDates, onDateSelect }) {
+  // Helper function to format date as MM/DD
+  const getFormattedDate = (date) => {
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${month}/${day}`;
+  };
+
+  // Get default date range (today to 3 days later)
+  const getDefaultDateRange = () => {
+    const today = new Date();
+    const threeDaysLater = new Date();
+    threeDaysLater.setDate(today.getDate() + 3);
+    
+    return {
+      start: getFormattedDate(today),
+      end: getFormattedDate(threeDaysLater)
+    };
+  };
+
+  // Set up initial selected dates - use props if provided, otherwise use default
   const [showCalendar, setShowCalendar] = useState(false);
-  const [localSelectedDates, setLocalSelectedDates] = useState(selectedDates);
+  const [localSelectedDates, setLocalSelectedDates] = useState(
+    selectedDates || getDefaultDateRange()
+  );
   const [hoveredDate, setHoveredDate] = useState(null);
   const datePickerRef = useRef(null);
   
@@ -146,7 +168,9 @@ function DatePicker({ selectedDates = { start: "04/10", end: "05/08" }, onDateSe
 
   // Update local state when props change
   useEffect(() => {
-    setLocalSelectedDates(selectedDates);
+    if (selectedDates) {
+      setLocalSelectedDates(selectedDates);
+    }
   }, [selectedDates]);
 
   // Check if a date is within the selection range
@@ -199,12 +223,11 @@ function DatePicker({ selectedDates = { start: "04/10", end: "05/08" }, onDateSe
   return (
     <div className="relative h-full" ref={datePickerRef}>
       <div 
-        className="flex items-center h-10 px-4 cursor-pointer"
+        className="flex items-center h-12 px-4 cursor-pointer"
         onClick={() => setShowCalendar(!showCalendar)}
       >
-        <span className="text-gray-600 mr-2">When</span>
-        <FaCalendarAlt className="text-gray-400 mr-2" />
-        <span className="text-gray-700">{formatDisplayDate()}</span>
+        <FaCalendarAlt className="text-gray-600 mr-3 text-lg" />
+        <span className="text-gray-700 text-base">{formatDisplayDate()}</span>
       </div>
       
       {/* Date Picker Popup - Single Month View */}

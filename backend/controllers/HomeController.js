@@ -235,4 +235,52 @@ const searchData = asyncHandler(async (req, res) => {
   }
 });
 
-export { getTrendingData, searchData, searchAllLocations };
+// @desc    Search cities and countries specifically
+// @route   GET /api/home/search/cities-countries?q=<keyword>
+// @access  Public
+const searchCitiesAndCountries = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) {
+    return res.status(400).json({ message: "Search query 'q' is required" });
+  }
+
+  try {
+    const regex = new RegExp(q, "i"); // Case-insensitive regex
+
+    const searchLocationsData = await Location.find({
+      $or: [
+        { city: regex },
+        { country: regex }
+      ]
+    })
+    .select("_id city country")
+    .sort({ searchRanking: -1 })
+    .lean();
+
+    let cities = new Set();
+    let countries = new Set();
+
+    searchLocationsData.forEach(loc => {
+      if (loc.city && loc.city.toLowerCase().includes(q.toLowerCase())) {
+        cities.add(loc.city);
+      }
+      if (loc.country && loc.country.toLowerCase().includes(q.toLowerCase())) {
+        countries.add(loc.country);
+      }
+    });
+
+    const cityResults = Array.from(cities).sort();
+    const countryResults = Array.from(countries).sort();
+
+    res.json({
+      cities: cityResults,
+      countries: countryResults
+    });
+  } catch (error) {
+    console.error("Error searching cities and countries:", error);
+    res.status(500).json({ message: "Server error while searching cities and countries" });
+  }
+});
+
+export { getTrendingData, searchData, searchAllLocations, searchCitiesAndCountries };
