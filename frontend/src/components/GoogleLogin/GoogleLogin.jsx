@@ -39,7 +39,7 @@ const GoogleLogin = () => {
           </button>
         </div>
       ) : (
-        <a href="/auth/google">
+        <a href="http://localhost:5050/auth/google">
           <button
             className="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-lg"
           >
