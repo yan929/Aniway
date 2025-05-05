@@ -25,6 +25,20 @@ const LocationPopup = ({ location, onClose }) => {
     return [];
   };
 
+  // Helper function to get the marker title as a string
+  const getMarkerTitle = () => {
+    // If location.names is an array, take the first element
+    if (Array.isArray(location.names)) {
+      return location.names[0] || (placeDetails?.name || "Location");
+    }
+    // If it's a string, use it directly
+    if (typeof location.names === 'string') {
+      return location.names;
+    }
+    // Fall back to placeDetails name or default
+    return placeDetails?.name || "Location";
+  };
+
   useEffect(() => {
     if (!location) return;
 
@@ -103,7 +117,7 @@ const LocationPopup = ({ location, onClose }) => {
               >
                 <Marker
                   position={center}
-                  title={location.names || placeDetails?.name}
+                  title={getMarkerTitle()}
                   onClick={() => setShowInfoWindow(true)}
                 />
 
