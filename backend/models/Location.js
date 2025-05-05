@@ -11,12 +11,34 @@ const locationSchema = new mongoose.Schema(
     originIds: [String],
     anitabi_names: [String],
     anitabi_cn_names: [String],
+    anime_names: [String], // Use plural name
+    anime_cn_names: [String], // Use plural name
+    anime_en_names: [String], // Use plural name
     images: [String],
     searchRanking: { type: Number, default: 0, index: true },
+    country: { type: String, index: true },
+    city: { type: String, index: true },
+    gmap_raw_response: { type: Object },
+    gmap_nearby_response: { type: mongoose.Schema.Types.Mixed }, // Raw response from nearby search
+    isValid: { type: Boolean, default: false, index: true }, // Validity based on nearby search
+    nearby: [
+      {
+        _id: false,
+        place_id: String,
+        name: String,
+        lat: Number,
+        lng: Number,
+        rating: Number,
+        user_ratings_total: Number,
+        types: [String],
+        vicinity: String,
+      },
+    ],
   },
   {
     timestamps: true,
-    collection: "locations",
+    collection: "locations", // Explicitly targeting the 'locations' collection
+    strict: false, // Allow fields not explicitly defined in the schema
   }
 );
 

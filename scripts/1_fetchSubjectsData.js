@@ -26,20 +26,12 @@ const SubjectSchema = new mongoose.Schema(
     },
     eps: Number, // Number of episodes
     volumes: Number, // Number of volumes (for books)
-    collection: {
-      wish: Number,
-      collect: Number,
-      doing: Number,
-      on_hold: Number,
-      dropped: Number,
-    },
     rating: {
       rank: Number,
       total: Number,
       count: { type: Map, of: Number }, // Rating distribution
       score: Number,
     },
-    tags: [{ name: String, count: Number }],
     // Added field for locations
     locations: { type: mongoose.Schema.Types.Mixed }, // Store the raw response from Anitabi for flexibility
   },

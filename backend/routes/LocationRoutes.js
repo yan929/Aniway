@@ -6,6 +6,7 @@ import {
   getAllLocations,
   partialUpdateLocation,
   updateLocation,
+  getCitiesByCountry, // Import the new controller function
 } from "../controllers/LocationController.js";
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.post("/", addLocation);
 router.put("/:id", updateLocation);
 router.patch("/:id", partialUpdateLocation);
 router.delete("/:id", deleteLocation);
+
+// New route to get distinct cities by country
+router.get("/cities/:country", getCitiesByCountry);
 
 export default router;
