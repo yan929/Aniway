@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import axios from "axios";
 
+import SearchInput from "./searchInput";
 import SearchLocItem from "./searchLocItem";
 
 import { FaSearch } from "react-icons/fa";
@@ -11,7 +12,6 @@ import "../../layout/SearchBar.css";
 function LocSearchBar({ setSelectedLocation }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [resultLength, setResultLength] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [locResults, setLocResults] = useState([]);
 
@@ -50,52 +50,38 @@ function LocSearchBar({ setSelectedLocation }) {
     fetchData(keyword);
   }, 500);
 
-  // Keyboard control
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowDown") {
-      setSelectedIndex((prev) => (prev < locResults.length - 1 ? prev + 1 : 0));
-    } else if (e.key === "ArrowUp") {
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : locResults.length - 1));
-    } else if (e.key === "Enter" && selectedIndex >= 0) {
-      const selectedItem = locResults[selectedIndex];
-      if (selectedItem) {
-        handleSelectLocation({
-          lat: selectedItem.lat,
-          lng: selectedItem.lng,
-          label: selectedItem.name,
-        });
-      }
-    }
-  };
-
-  const handleChange = (keyword) => {
-    setInput(keyword);
-    debouncedFetch(keyword);
-    setSelectedIndex(-1);
-  };
-
   const handleSelectLocation = (loc) => {
-    setSelectedLocation(loc);
-    setInput("");
+    setSelectedLocation({
+      lat: loc.lat,
+      lng: loc.lng,
+      label: loc.name,
+    });
+    setInput(loc.name);
     setShowResult(false);
   };
 
   return (
     <>
-      <div className="search mt-4">
-        <div className="searchInputs">
-          <FaSearch id="search-icon" />
-          <input
-            type="text"
-            placeholder="Search loc..."
-            value={input}
-            onChange={(e) => {
-              handleChange(e.target.value);
-              setSelectedIndex(-1);
-            }}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
+      <div
+        className="search mt-4"
+        tabIndex={0}
+        onFocus={() => {
+          if (locResults.length > 0) {
+            setShowResult(true);
+          }
+        }}
+        onBlur={() => setTimeout(() => setShowResult(false), 200)}
+      >
+        <SearchInput
+          resultList={locResults}
+          fetchKeyword={debouncedFetch}
+          selectedIndexChange={(index) => setSelectedIndex(index)}
+          selectedIndex={selectedIndex}
+          onSelecItem={handleSelectLocation}
+          inputValue={input}
+          onInputChange={(value) => setInput(value)}
+        />
+
         {showResult && (
           <div className="resultListContainer">
             <SearchLocItem

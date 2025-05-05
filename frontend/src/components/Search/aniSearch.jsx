@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import axios from "axios";
 
+import SearchInput from "./searchInput";
 import SearchAniItem from "./searchAniItem";
 
-import { FaSearch } from "react-icons/fa";
 import { MdMovie } from "react-icons/md";
 import "../../layout/SearchBar.css";
 
@@ -48,42 +48,29 @@ function AniSearchBar() {
     fetchData(keyword);
   }, 500);
 
-  // Keyboard control
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowDown") {
-      setSelectedIndex((prev) => (prev < aniResults.length - 1 ? prev + 1 : 0));
-    } else if (e.key === "ArrowUp") {
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : aniResults.length - 1));
-    } else if (e.key === "Enter" && selectedIndex >= 0) {
-      const selectedItem = aniResults[selectedIndex];
-      if (selectedItem) {
-        console.log("Testt selected item: ", selectedItem);
-      }
-    }
-  };
-
-  const handleChange = (keyword) => {
-    setInput(keyword);
-    debouncedFetch(keyword);
-    setSelectedIndex(-1);
-  };
-
   return (
     <>
-      <div className="search mt-4">
-        <div className="searchInputs">
-          <FaSearch id="search-icon" />
-          <input
-            type="text"
-            placeholder="Search anime..."
-            value={input}
-            onChange={(e) => {
-              handleChange(e.target.value);
-              setSelectedIndex(-1);
-            }}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
+      <div
+        className="search mt-4"
+        tabIndex={0}
+        onFocus={() => {
+          if (aniResults.length > 0) {
+            setShowResult(true);
+          }
+        }}
+        onBlur={() => setTimeout(() => setShowResult(false), 200)}
+      >
+        <SearchInput
+          resultList={aniResults}
+          fetchKeyword={debouncedFetch}
+          selectedIndexChange={(index) => setSelectedIndex(index)}
+          selectedIndex={selectedIndex}
+          onSelecItem={(item) => {
+            console.log("User selected:", item);
+          }}
+          inputValue={input}
+          onInputChange={(value) => setInput(value)}
+        />
         {showResult && (
           <div className="resultListContainer">
             <SearchAniItem
