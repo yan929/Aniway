@@ -10,7 +10,7 @@ router.get('/auth/google',
 router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
-    res.redirect('http://localhost:5173');
+    res.redirect('/');
   }
 );
 
@@ -23,7 +23,7 @@ router.get('/api/user', (req, res) => {
   }
 });
 
-router.get('/logout', (req, res) => {
+router.get('/api/logout', (req, res) => {
   req.logout(err => {
     if (err) return res.status(500).send('Logout failed');
     req.session.destroy(() => {

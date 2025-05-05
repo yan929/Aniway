@@ -1,73 +1,47 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const GoogleLogin = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5050/api/user', {
-      credentials: 'include'
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Not logged in');
-        return res.json();
-      })
-      .then(data => setUser(data))
+    axios
+      .get('/api/user', { withCredentials: true })
+      .then(res => setUser(res.data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
   const handleLogout = () => {
-    fetch('http://localhost:5050/logout', {
-      credentials: 'include'
-    }).then(() => setUser(null));
+    axios
+      .get('/logout', { withCredentials: true })
+      .then(() => setUser(null));
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="text-center mt-16">Loading...</p>;
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+    <div className="text-center mt-16">
       {user ? (
         <div>
-          <h2 style={{ marginBottom: '0.5rem' }}>Welcome, {user.displayName}</h2>
+          <h2 className="mb-2 text-xl font-semibold">Welcome, {user.displayName}</h2>
           <img
             src={user.photos?.[0]?.value}
             alt="Profile"
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              marginBottom: '1rem'
-            }}
+            className="w-20 h-20 rounded-full mb-4 mx-auto"
           />
-          <br />
           <button
             onClick={handleLogout}
-            style={{
-              padding: '0.6rem 1.2rem',
-              fontSize: '1rem',
-              backgroundColor: '#d9534f',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
+            className="px-5 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md text-base"
           >
             Logout
           </button>
         </div>
       ) : (
-        <a href="http://localhost:5050/auth/google">
+        <a href="/auth/google">
           <button
-            style={{
-              padding: '0.8rem 1.5rem',
-              fontSize: '1.1rem',
-              backgroundColor: '#4285F4',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
+            className="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-lg"
           >
             Login with Google
           </button>
