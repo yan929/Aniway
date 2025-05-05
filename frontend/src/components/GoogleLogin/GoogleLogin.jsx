@@ -31,7 +31,6 @@ const GoogleLogin = () => {
             alt="Profile"
             className="w-20 h-20 rounded-full mb-4 mx-auto"
           />
-          <br />
           <button
             onClick={handleLogout}
             className="px-5 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md text-base"
@@ -40,7 +39,7 @@ const GoogleLogin = () => {
           </button>
         </div>
       ) : (
-        <a href="http://localhost:5050/auth/google">
+        <a href="/auth/google">
           <button
             className="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-lg"
           >
