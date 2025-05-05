@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 
 const LocationPopup = ({ location, onClose }) => {
   const [placeDetails, setPlaceDetails] = useState(null);
@@ -17,7 +17,7 @@ const LocationPopup = ({ location, onClose }) => {
       }));
     }
     if (location?.animeName) {
-      return location.animeName.split(',').map(name => ({
+      return location.animeName.split(",").map((name) => ({
         en_name: name.trim(),
         jp_name: null,
       }));
@@ -34,15 +34,15 @@ const LocationPopup = ({ location, onClose }) => {
         setError(null);
 
         // Get place details from Google Maps
-        const response = await axios.post('/api/gmap/', {
+        const response = await axios.post("/api/gmap/", {
           lat: location.lat,
           lng: location.lng,
         });
 
         setPlaceDetails(response.data);
       } catch (err) {
-        console.error('Error fetching place details:', err);
-        setError('Failed to load location info');
+        console.error("Error fetching place details:", err);
+        setError("Failed to load location info");
       } finally {
         setLoading(false);
       }
@@ -54,19 +54,20 @@ const LocationPopup = ({ location, onClose }) => {
   if (!location) return null;
 
   const mapContainerStyle = {
-    width: '100%',
-    height: '400px'
+    width: "100%",
+    height: "400px",
   };
 
   const center = {
     lat: location.lat,
-    lng: location.lng
+    lng: location.lng,
   };
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+    <div
+      className="fixed inset-0 flex items-center justify-center p-4 z-50"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
+    >
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl">
         {/* Header */}
         <div className="relative">
@@ -76,7 +77,7 @@ const LocationPopup = ({ location, onClose }) => {
           >
             <span className="w-6 h-6 text-gray-600 text-xl font-bold">×</span>
           </button>
-          
+
           {/* Google Map */}
           <div className="w-full h-[400px] bg-gray-200">
             {loading ? (
@@ -88,58 +89,64 @@ const LocationPopup = ({ location, onClose }) => {
                 <p className="text-red-500">{error}</p>
               </div>
             ) : (
-              <LoadScript googleMapsApiKey={apiKey} language="en">
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={center}
-                  zoom={15}
-                  options={{
-                    disableDefaultUI: false,
-                    zoomControl: true,
-                    streetViewControl: true,
-                    mapTypeControl: true,
-                    fullscreenControl: true,
-                  }}
-                >
-                  <Marker
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={center}
+                zoom={15}
+                options={{
+                  disableDefaultUI: false,
+                  zoomControl: true,
+                  streetViewControl: true,
+                  mapTypeControl: true,
+                  fullscreenControl: true,
+                }}
+              >
+                <Marker
+                  position={center}
+                  title={location.names || placeDetails?.name}
+                  onClick={() => setShowInfoWindow(true)}
+                />
+
+                {showInfoWindow && placeDetails && (
+                  <InfoWindow
                     position={center}
-                    title={location.names || placeDetails?.name}
-                    onClick={() => setShowInfoWindow(true)}
-                  />
-                  
-                  {showInfoWindow && placeDetails && (
-                    <InfoWindow
-                      position={center}
-                      onCloseClick={() => setShowInfoWindow(false)}
-                    >
-                      <div className="max-w-xs">
-                        <h3 className="font-bold text-lg">{placeDetails.name || location.names}</h3>
-                        <p className="text-sm mt-1">{placeDetails.address}</p>
-                        {placeDetails.rating && (
-                          <p className="text-sm mt-1">
-                            ⭐ {placeDetails.rating} ({placeDetails.total_ratings} reviews)
-                          </p>
-                        )}
-                      </div>
-                    </InfoWindow>
-                  )}
-                </GoogleMap>
-              </LoadScript>
+                    onCloseClick={() => setShowInfoWindow(false)}
+                  >
+                    <div className="max-w-xs">
+                      <h3 className="font-bold text-lg">
+                        {placeDetails.name || location.names}
+                      </h3>
+                      <p className="text-sm mt-1">{placeDetails.address}</p>
+                      {placeDetails.rating && (
+                        <p className="text-sm mt-1">
+                          ⭐ {placeDetails.rating} ({placeDetails.total_ratings}{" "}
+                          reviews)
+                        </p>
+                      )}
+                    </div>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
             )}
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 400px - 2rem)' }}>
+        <div
+          className="p-6 overflow-y-auto"
+          style={{ maxHeight: "calc(90vh - 400px - 2rem)" }}
+        >
           {/* Location title */}
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               {location.names || placeDetails?.name || location.city}
             </h2>
-            
+
             {/* Address */}
             <p className="text-lg text-gray-600">
-              {placeDetails?.address || location.addresses?.[0] || 'Address not available'}
+              {placeDetails?.address ||
+                location.addresses?.[0] ||
+                "Address not available"}
             </p>
           </div>
 
@@ -153,7 +160,9 @@ const LocationPopup = ({ location, onClose }) => {
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
                   >
-                    <p className="text-base font-semibold text-gray-900">{anime.en_name}</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {anime.en_name}
+                    </p>
                     {anime.jp_name && (
                       <p className="text-sm text-gray-600 mt-1">
                         {anime.jp_name}
@@ -163,7 +172,9 @@ const LocationPopup = ({ location, onClose }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600">No related anime information available</p>
+              <p className="text-gray-600">
+                No related anime information available
+              </p>
             )}
           </div>
         </div>
