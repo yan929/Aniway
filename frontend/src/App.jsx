@@ -8,7 +8,7 @@ import AniDetail from "./pages/AniInfo/AniInfo";
 import GMapDemo from "./components/GMap/GMapDemo";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import GoogleLogin from './components/GoogleLogin/GoogleLogin';
+import GoogleLogin from "./components/GoogleLogin/GoogleLogin";import Setting from "./pages/Setting/Setting";
 import "./App.css";
 
 function App() {
@@ -29,11 +29,13 @@ function App() {
         <Routes>
           {/* Follow route just for temporary */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<GoogleLogin/>}/>
+          <Route path="/login" element={<GoogleLogin />} />
         <Route path="/tripplanner" element={<TripPlanner />} />
-          <Route path="/locations/search" element={<LocationsSearchPage />} />
-          <Route path="/anime/:id" element={<AniDetail />} />
-          {/*
+        <Route path="/locations/search" element={<LocationsSearchPage />} />
+        <Route path="/anime/:id" element={<AniDetail />} />
+
+        <Route path="/setting" element={<Setting />} />
+        {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future
           - /planner: planned dedicated route for trip planner
@@ -41,7 +43,6 @@ function App() {
 
         {/* <Route path="/" element={<HomePage />} /> */}
         {/* <Route path="/planner" element={<TripPlanner />} /> */}
-        
       </Routes>
     </DndProvider>
     </LoadScript>
