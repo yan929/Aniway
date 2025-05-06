@@ -8,7 +8,6 @@ import SearchAniItem from "./searchAniItem";
 import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdMovie } from "react-icons/md";
-import "../../layout/SearchBar.css";
 
 function SearchBar({ setSelectedLocation }) {
   const [input, setInput] = useState("");
@@ -91,8 +90,8 @@ function SearchBar({ setSelectedLocation }) {
 
   return (
     <>
-      <div className="search mt-4">
-        <div className="searchInputs">
+      <div className="relative flex flex-col items-center">
+        <div className="flex items-center bg-white w-full rounded-l-full h-10 px-4">
           <FaSearch id="search-icon" />
           <input
             type="text"
@@ -103,10 +102,11 @@ function SearchBar({ setSelectedLocation }) {
               setSelectedIndex(-1);
             }}
             onKeyDown={handleKeyDown}
+            className="bg-transparent border-none h-full text-base w-full ml-1.5 focus:outline-none"
           />
         </div>
         {showResult && (
-          <div className="resultListContainer">
+          <div className="absolute top-full bg-white w-full rounded-lg px-4 shadow-md flex flex-col items-start z-10 h-auto">
             <SearchLocItem
               icon={FaLocationDot}
               title={"Location"}

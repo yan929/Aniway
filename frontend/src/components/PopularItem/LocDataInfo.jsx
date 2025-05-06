@@ -1,6 +1,6 @@
 import React from "react";
 
-function DisplayPopLocInfo({ sectionTitle, locList }) {
+function DisplayPopLocInfo({ sectionTitle, locList, onLocationClick }) {
   return (
     <>
       <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
@@ -10,7 +10,8 @@ function DisplayPopLocInfo({ sectionTitle, locList }) {
         {locList.map((data) => (
           <div
             key={data.id}
-            className="relative bg-white rounded-lg overflow-hidden shadow-md object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
+            className="relative bg-white rounded-lg overflow-hidden shadow-md object-cover transition-transform duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+            onClick={() => onLocationClick && onLocationClick(data)}
           >
             <img
               src={(data.images && data.images[0]) || "/default-image.jpg"}
