@@ -182,7 +182,7 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
               {searchResults.countries.length > 0 && (
                 <>
                   <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 border-b border-gray-200">
-                    Countries
+                    Countries and Regions
                   </p>
                   {searchResults.countries.map((country, id) => {
                     const currentIndex = searchResults.cities.length + id;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import { IoClose } from "react-icons/io5";
 
 const LocationPopup = ({ location, onClose }) => {
   const [placeDetails, setPlaceDetails] = useState(null);
@@ -29,10 +30,10 @@ const LocationPopup = ({ location, onClose }) => {
   const getMarkerTitle = () => {
     // If location.names is an array, take the first element
     if (Array.isArray(location.names)) {
-      return location.names[0] || (placeDetails?.name || "Location");
+      return location.names[0] || placeDetails?.name || "Location";
     }
     // If it's a string, use it directly
-    if (typeof location.names === 'string') {
+    if (typeof location.names === "string") {
       return location.names;
     }
     // Fall back to placeDetails name or default
@@ -87,9 +88,9 @@ const LocationPopup = ({ location, onClose }) => {
         <div className="relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition shadow-md"
+            className="absolute top-4 right-4 z-10 w-10 h-10 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition shadow-md flex items-center justify-cente"
           >
-            <span className="w-6 h-6 text-gray-600 text-xl font-bold">×</span>
+            <IoClose className="text-3xl text-gray-700" />
           </button>
 
           {/* Google Map */}
@@ -113,6 +114,9 @@ const LocationPopup = ({ location, onClose }) => {
                   streetViewControl: true,
                   mapTypeControl: true,
                   fullscreenControl: true,
+                  fullscreenControlOptions: {
+                    position: google.maps.ControlPosition.TOP_LEFT,
+                  },
                 }}
               >
                 <Marker
@@ -174,6 +178,7 @@ const LocationPopup = ({ location, onClose }) => {
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
                   >
+                    
                     <p className="text-base font-semibold text-gray-900">
                       {anime.en_name}
                     </p>
