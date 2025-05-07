@@ -3,7 +3,8 @@ import axios from "axios";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBarCity from "../../components/Search/SearchBarCity";
-import NavBar from "../../components/Navbar/NavBar";
+import NavBar from "../../components/Layout/NavBar";
+import Footer from "../../components/Layout/Footer"; 
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 
@@ -75,7 +76,7 @@ function HomePage() {
       </div>
 
       {/* Main Content with top margin to account for fixed header */}
-      <div className="container mx-auto px-4 pt-32 pb-8">
+      <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
         {/* Hero Section with Search */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -129,6 +130,9 @@ function HomePage() {
           <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
         </div>
       </div>
+
+      {/* Footer Component */}
+      <Footer />
 
       {/* Location Popup */}
       {selectedPopupLocation && (

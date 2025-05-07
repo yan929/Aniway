@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
+import HorizontalLocationCard from "../../components/PopularItem/HorizontalLocationCard";
+import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import { FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 
@@ -10,8 +11,17 @@ function LocationsSearchPage() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const baseURL = import.meta.env.VITE_BACKEND_API;
+
+  const handleLocationClick = (location) => {
+    setSelectedLocation(location);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedLocation(null);
+  };
 
   useEffect(() => {
     const fetchAllLocations = async () => {
@@ -64,11 +74,22 @@ function LocationsSearchPage() {
           <p>Error: {error}</p>
         </div>
       ) : locations.length > 0 ? (
-        <DisplayPopLocInfo sectionTitle="Search Results" locList={locations} />
+        <HorizontalLocationCard 
+          sectionTitle="Search Results" 
+          locList={locations} 
+          onLocationClick={handleLocationClick}
+        />
       ) : (
         <div className="text-center py-10 text-gray-600 text-base">
           <p>No locations found for "{searchQuery}"</p>
         </div>
+      )}
+
+      {selectedLocation && (
+        <LocationPopup
+          location={selectedLocation}
+          onClose={handleClosePopup}
+        />
       )}
     </div>
   );
