@@ -22,6 +22,7 @@ export function updateTripItinerary(tripData, updateItem) {
     // try to find the target date
     const targetDayIndex = updatedData.findIndex(day => day.date === formattedDate);
 
+    //if the target day index is -1, it means the date is not in the trip data
     if (targetDayIndex !== -1) {
         // update existing date item
         const targetDay = updatedData[targetDayIndex];
@@ -45,10 +46,10 @@ export function updateTripItinerary(tripData, updateItem) {
         // add new date item
         updatedData.push({
             date: formattedDate,
-            index: updatedData.length, // 正确索引
+            index: updatedData.length, // correctly set the index
             itinerary: [{
                 gpPlaceId: updateItem.gpPlaceId,
-                order: 1, // 新日期的首个项 order 为1
+                order: 1, // new date item starts with order 1
                 arrivalTime: updateItem.arrivalTime ?? '',
                 note: updateItem.note ?? ''
             }]

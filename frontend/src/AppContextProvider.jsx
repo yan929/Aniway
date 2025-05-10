@@ -13,7 +13,7 @@ const AppContext = React.createContext({
     updateItinerary: () => { },
 });
 
-// test data
+// test dummy data
 const testTripData = [
     {
         date: "2025-10-01",
@@ -80,6 +80,7 @@ function AppContextProvider({ children }) {
             //save new data
             localStorage.setItem("tripData", JSON.stringify(tripData));
             // console.log("locolStorage tripData:", localStorage.getItem('tripData'));
+            //testing code, will be removed after saving to database
         }
     }, [tripData]);
 

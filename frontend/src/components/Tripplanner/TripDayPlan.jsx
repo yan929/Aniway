@@ -1,6 +1,7 @@
 import React from "react";
 import dayjs from "dayjs";
 import { useState } from "react";
+import { useEffect } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
 import SearchBar from "../Search/search.jsx";
 import { AppContext } from "../../AppContextProvider.jsx";
@@ -12,19 +13,19 @@ import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
   const { tripData, updateItinerary, deleteTripItem } = useContext(AppContext);
-  const [items, setItems] = useState(day.itinerary);
+  const [tripItems, setTripItems] = useState(day.itinerary);
   const [isOpen, setIsOpen] = useState(false);
 
-  React.useEffect(() => {
-    setItems(day.itinerary);
+  useEffect(() => {
+    setTripItems(day.itinerary);
   }, [day.itinerary]);
 
   const moveItem = (from, to) => {
     if (from === to) return;
-    const updated = [...items];
+    const updated = [...tripItems];
     const [moved] = updated.splice(from, 1);
     updated.splice(to, 0, moved);
-    setItems(updated);
+    setTripItems(updated);
     // Optionally update global state here
   };
 
@@ -62,10 +63,10 @@ export default function TripDayPlan({ day, index }) {
         />
       </div>
       <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
-        {items.map((item, itemIndex) => {
+        {tripItems.map((item, itemIndex) => {
           const detail = placeDetailsMap[item.gpPlaceId];
           return (
-            <ItineraryItem
+            <Itinera ryItem
               key={itemIndex}
               item={item}
               detail={detail}

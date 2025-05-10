@@ -6,16 +6,17 @@ import { IoSparklesOutline } from "react-icons/io5";
 export default function Sidebar({ onToggleChat }) {
   const { tripData } = useContext(AppContext);
 
+  //may refactor later
   const dates = Array.isArray(tripData)
     ? tripData.map((day) => {
-        const date = new Date(day.date);
-        const dayLabel = date.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "numeric",
-          day: "numeric",
-        });
-        return dayLabel;
-      })
+      const date = new Date(day.date);
+      const dayLabel = date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "numeric",
+        day: "numeric",
+      });
+      return dayLabel;
+    })
     : [];
 
   return (
