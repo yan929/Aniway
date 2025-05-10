@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 function DeleteAccountSection() {
   const navigate = useNavigate();
 
-
   const handleUserDelete = async () => {
     console.log("Test deletion");
 
