@@ -7,13 +7,14 @@ import {
   partialUpdateLocation,
   updateLocation,
   getCitiesByCountry, // Import the new controller function
-  getLocationByAnime
+  getLocationByAnime,
 } from "../controllers/LocationController.js";
 
 const router = express.Router();
 
 router.get("/", getAllLocations);
-router.get("/searchByAnime", getLocationByAnime)
+router.get("/searchByAnime", getLocationByAnime);
+router.get("/searchByAnimeName/:animeName", getLocationByAnime);
 router.post("/", addLocation);
 router.put("/:id", updateLocation);
 router.patch("/:id", partialUpdateLocation);

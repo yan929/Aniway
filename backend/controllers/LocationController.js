@@ -137,9 +137,48 @@ const getLocationByAnime = async (req, res) => {
   return response;
 };
 
+const getLocationByAnimeName = async (req, res) => {
+  const animeName = req.params.animeName;
+  console.log("Test animeName:", animeName);
+
+  const locations = await Location.find({
+    $or: [
+      { anime_en_names: { $in: [animeName] } },
+      { anime_cn_names: { $in: [animeName] } },
+    ],
+  });
+  // const locationsByCN = await Location.find({ anime_cn_names: animeName });
+
+  if (!locations) {
+    console.log("Test locations:", locations);
+
+    return res
+      .status(404)
+      .json({ message: "No locations found for this anime" });
+  }
+
+  const locationList = locations.map((location) => ({
+    id: location._id,
+    name: location.anime_names,
+    name_en: location.anime_en_names,
+    images: location.images,
+    lat_precise: location.lat,
+    lng_precise: location.lng,
+  }));
+
+  if (locationList && locationList.length > 0) {
+    return res.status(200).json(locationList);
+  } else {
+    return res
+      .status(404)
+      .json({ message: "No locations found for this anime" });
+  }
+};
+
 export {
   getAllLocations,
   getLocationByAnime,
+  getLocationByAnimeName,
   addLocation,
   updateLocation,
   partialUpdateLocation,

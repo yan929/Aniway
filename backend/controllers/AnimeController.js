@@ -55,4 +55,41 @@ const searchAnimeByLocation = asyncHandler(async (req, res) => {
   }
 });
 
-export { searchAnimeByLocation };
+const getAnimeInfo = asyncHandler(async (req, res) => {
+  const { anime_id } = req.params;
+
+  if (!anime_id) {
+    res.status(400);
+    throw new Error("Anime ID is required");
+  }
+
+  const animeData = await Anime.findById(anime_id);
+
+  if (!animeData) {
+    res.status(404);
+    throw new Error("Anime not found");
+  }
+
+  const animeInfo = {
+    id: animeData._id,
+    name: animeData.name_en || animeData.name || animeData.name_cn,
+    images: animeData.images,
+    cover: animeData.cover,
+    description: animeData.overview || animeData.summary,
+    copyright: animeData.copyright,
+    // locations: animeData.locations.map((loc) => ({
+    //   id: loc._id,
+    //   lat: loc.lat,
+    //   lng: loc.lng,
+    //   names: loc.anitabi_names,
+    //   addresses: loc.addresses,
+    //   images: loc.images,
+    //   s: loc.s,
+    //   ep: loc.ep,
+    // })),
+  };
+
+  res.json(animeInfo);
+});
+
+export { searchAnimeByLocation, getAnimeInfo };
