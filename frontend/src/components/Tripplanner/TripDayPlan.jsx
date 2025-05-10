@@ -66,7 +66,7 @@ export default function TripDayPlan({ day, index }) {
         {tripItems.map((item, itemIndex) => {
           const detail = placeDetailsMap[item.gpPlaceId];
           return (
-            <Itinera ryItem
+            <ItineraryItem
               key={itemIndex}
               item={item}
               detail={detail}

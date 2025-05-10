@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import apiClient from "../util/api";
+import apiClient from "../../util/api.js";
 
 import SearchLocItem from "./searchLocItem";
 import SearchAniItem from "./searchAniItem";

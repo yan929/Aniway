@@ -7,6 +7,12 @@ import TripPlanner from "./pages/TripPlanner/TripPlanner";
 import LocationsSearchPage from "./pages/Locations/LocationsSearchPage";
 import AniDetail from "./pages/AniInfo/AniInfo";
 import GMapDemo from "./components/GMap/GMapDemo";
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
+
+
 import "./App.css";
 
 function App() {
@@ -21,22 +27,25 @@ function App() {
   }
 
   return (
+
     <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
-      <Routes>
-        {/* Follow route just for temporary */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/tripplanner" element={<TripPlanner />} />
-        <Route path="/locations/search" element={<LocationsSearchPage />} />
-        <Route path="/anime/:id" element={<AniDetail />} />
-        {/*
+      <DndProvider backend={HTML5Backend}>
+        <Routes>
+          {/* Follow route just for temporary */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/tripplanner" element={<TripPlanner />} />
+          <Route path="/locations/search" element={<LocationsSearchPage />} />
+          <Route path="/anime/:id" element={<AniDetail />} />
+          {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future
           - /planner: planned dedicated route for trip planner
         */}
 
-        {/* <Route path="/" element={<HomePage />} /> */}
-        {/* <Route path="/planner" element={<TripPlanner />} /> */}
-      </Routes>
+          {/* <Route path="/" element={<HomePage />} /> */}
+          {/* <Route path="/planner" element={<TripPlanner />} /> */}
+        </Routes>
+      </DndProvider>
     </LoadScript>
   );
 }
