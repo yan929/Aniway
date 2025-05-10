@@ -1,18 +1,14 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { LoadScript } from "@react-google-maps/api";
-
 import HomePage from "./pages/Home/HomePage";
 import TripPlanner from "./pages/TripPlanner/TripPlanner";
 import LocationsSearchPage from "./pages/Locations/LocationsSearchPage";
 import AniDetail from "./pages/AniInfo/AniInfo";
-import GMapDemo from "./components/GMap/GMapDemo";
-
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-
-
-
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import GoogleLogin from "./components/GoogleLogin/GoogleLogin";
+import Setting from "./pages/Setting/Setting";
 import "./App.css";
 
 function App() {
@@ -27,15 +23,16 @@ function App() {
   }
 
   return (
-
     <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
       <DndProvider backend={HTML5Backend}>
         <Routes>
           {/* Follow route just for temporary */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<GoogleLogin />} />
           <Route path="/tripplanner" element={<TripPlanner />} />
           <Route path="/locations/search" element={<LocationsSearchPage />} />
           <Route path="/anime/:id" element={<AniDetail />} />
+          <Route path="/setting" element={<Setting />} />
           {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future
