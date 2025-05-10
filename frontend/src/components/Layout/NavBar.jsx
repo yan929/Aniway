@@ -1,44 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import apiClient from "../../util/api.js";
+import { AppContext } from "../../context/AppContext.jsx";
 
 /**
  * NavBar component - Fixed navigation bar for the Aniway application
  * Displays the logo, application name, and user profile navigation
  */
 function NavBar() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, logoutUser } = useContext(AppContext);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await apiClient.get(`/api/user`, {
-          withCredentials: true,
-        });
-        console.log("NavBar: User data fetched:", response.data);
-        setUser(response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // User is not authenticated, this is an expected state.
-          setUser(null);
-        } else {
-          // For other errors (network, server error), log them.
-          console.error("Failed to fetch user:", error);
-          setUser(null);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -70,11 +45,9 @@ function NavBar() {
       // Close dropdown
       setDropdownOpen(false);
 
-      // Clear user state first for immediate UI feedback
-      setUser(null);
-
       // Make an API call to the backend logout endpoint
       await apiClient.get("/api/logout", { withCredentials: true });
+      logoutUser();
 
       // On successful logout, navigate to the homepage
       navigate("/");
@@ -118,16 +91,21 @@ function NavBar() {
             className="cursor-pointer"
             aria-label="User Profile or Login"
           >
-            {loading ? (
-              // Optional: Show a loading spinner or a placeholder while checking auth
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                <FaUser className="text-gray-500 animate-pulse" />
-              </div>
-            ) : user ? (
-              // Show user initial in a blue circle if logged in
-              <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white">
-                {userInitial}
-              </div>
+            {user ? (
+              // User is logged in
+              user.avatar ? (
+                // If avatar URL exists (user.avatar), display it
+                <img
+                  src={user.avatar}
+                  alt={user.name || 'User Avatar'}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                // Otherwise, show user initial in a circle
+                <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white">
+                  {userInitial}
+                </div>
+              )
             ) : (
               // Show "Sign In" text if not logged in
               <span className="text-gray-700 hover:text-blue-500 font-medium">

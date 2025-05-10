@@ -1,6 +1,6 @@
 import React from "react";
 import { useContext } from "react";
-import { AppContext } from "../../AppContextProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 import TripDayPlan from "./TripDayPlan.jsx";
 
 export default function ItinerarySection() {
