@@ -3,7 +3,7 @@ import {
   fetchPlaceInfo,
   fetchPlacePhoto,
   fetchPlaceNearby,
-} from "../controllers/GMapController.js";
+} from "../controllers/GmapController.js";
 import {
   fetchPlacePhotoByPlaceId,
   getPlaceDetails,
