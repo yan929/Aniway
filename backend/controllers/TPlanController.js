@@ -3,8 +3,13 @@ import TripPlan from "../models/TripPlan.js";
 
 const getAllPlans = asyncHandler(async (req, res) => {
   try {
-    // Modify later (need to decide use middleware/ query)
-    const userId = "1";
+    // Add authentication check
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Use authenticated user's ID instead of hardcoded value
+    const userId = req.user.id;
 
     const tripPlansData = await TripPlan.find({ user_id: userId })
       .sort({ search_ranking: -1 })
