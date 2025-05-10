@@ -78,71 +78,64 @@ function HomePage() {
           <NavBar />
         </div>
 
-      {/* Main Content with top margin to account for fixed header */}
-      <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
-        {/* Hero Section with Search */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            PLACE HOLDER PLACE HOLDER PLACE
-          </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-            PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
-            PLACE HOLDER PLACE HOLDER PLACE HOLDER
-          </p>
+        {/* Main Content with top margin to account for fixed header */}
+        <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
+          {/* Hero Section with Search */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              PLACE HOLDER PLACE HOLDER PLACE
+            </h1>
+            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+              PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
+              PLACE HOLDER PLACE HOLDER PLACE HOLDER
+            </p>
 
-          {/* Search Container */}
-          <div className="max-w-4xl mx-auto">
-            {/* Search wrapper with flexbox layout */}
-            <div className="flex rounded-full bg-white shadow-lg border border-gray-200">
-              {/* Search Input - Takes all available space */}
-              <div className="flex-grow relative">
-                <SearchBarCity
-                  placeholder="Search destinations..."
-                  onSelect={handleLocationSelect}
-                  onSearch={handleSearchByText}
-                />
+            {/* Search Container */}
+            <div className="max-w-4xl mx-auto">
+              {/* Search wrapper with flexbox layout */}
+              <div className="flex rounded-full bg-white shadow-lg border border-gray-200">
+                {/* Search Input - Takes all available space */}
+                <div className="flex-grow relative">
+                  <SearchBarCity
+                    placeholder="Search destinations..."
+                    onSelect={handleLocationSelect}
+                    onSearch={handleSearchByText}
+                  />
+                </div>
+
+                {/* Date Picker - Fixed width */}
+                <div className="flex-shrink-0 w-64 border-l border-gray-200">
+                  <DatePicker
+                    selectedDates={selectedDates}
+                    onDateSelect={setSelectedDates}
+                  />
+                </div>
+
+                {/* Plan Button */}
+                <button
+                  className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-medium px-12 h-12 flex items-center justify-center rounded-r-full transition duration-200"
+                  onClick={handleSearch}
+                >
+                  Plan
+                </button>
               </div>
-
-              {/* Date Picker - Fixed width */}
-              <div className="flex-shrink-0 w-64 border-l border-gray-200">
-                <DatePicker
-                  selectedDates={selectedDates}
-                  onDateSelect={setSelectedDates}
-                />
-              </div>
-
-              {/* Plan Button */}
-              <button
-                className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-medium px-12 h-12 flex items-center justify-center rounded-r-full transition duration-200"
-                onClick={handleSearch}
-              >
-                Plan
-              </button>
             </div>
+          </div>
+
+          {/* Popular Destinations and Anime Sections */}
+          <div>
+            <DisplayPopLocInfo
+              sectionTitle="Popular Destinations"
+              locList={locData}
+              onLocationClick={handleLocationCardClick}
+            />
+
+            <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
           </div>
         </div>
 
-        {/* Popular Destinations and Anime Sections */}
-        <div>
-          <DisplayPopLocInfo
-            sectionTitle="Popular Destinations"
-            locList={locData}
-            onLocationClick={handleLocationCardClick}
-          />
-
-          <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
-        </div>
-      </div>
-
-      <div className="mt-4">
-          Testing: <AniSearchBar />
-        </div>
-        <div className="mt-4">
-          Testing: <LocSearchBar />
-        </div>
-
-      {/* Footer Component */}
-      <Footer />
+        {/* Footer Component */}
+        <Footer />
 
         {/* Location Popup */}
         {selectedPopupLocation && (
