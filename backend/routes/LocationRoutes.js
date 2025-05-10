@@ -13,7 +13,7 @@ import {
 const router = express.Router();
 
 router.get("/", getAllLocations);
-router.get("/searchByAnime/:animeName", getLocationByAnime)
+router.get("/searchByAnime", getLocationByAnime)
 router.post("/", addLocation);
 router.put("/:id", updateLocation);
 router.patch("/:id", partialUpdateLocation);

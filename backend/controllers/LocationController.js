@@ -129,7 +129,7 @@ export const getCitiesByCountry = async (req, res) => {
   }
 };
 
-export const getLocationByAnime = async (req, res) => {
+const getLocationByAnime = async (req, res) => {
   const { animeName } = req.params;
   const response = await DatabaseMiddleware.queryForLocationsByAnimeName(animeName);
   return response
