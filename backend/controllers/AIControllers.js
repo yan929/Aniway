@@ -1,5 +1,6 @@
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
+import { searchRawLocationData, enrichLocationsWithAnime } from "../services/locationService.js";
 
 dotenv.config();
 
@@ -36,10 +37,35 @@ const analyzeUserInput = async (req, res) => {
     });
 
     const reply = chatResponse.choices[0].message.content;
-    console.log("✅ Response from ChatGPT");
+    console.log(`✅ Response from ChatGPT`);
+    const parsed = JSON.parse(reply);
 
+    console.log("Parsed JSON:", parsed);
+
+    //fetch the trip data from the database
+    const locations = parsed.locations?.map((l) => l.location) || [];
+    const themes = parsed.themes?.map((t) => t.theme) || [];
+
+
+    console.log("Locations:", locations);
+    console.log("Themes:", themes);
+    // search for anime by location keyword in mongoDB
+
+    const rawLocations = await searchRawLocationData(locations);
+    const enrichedLocations = await enrichLocationsWithAnime(rawLocations);
+
+    console.log("Raw Locations:", rawLocations);
+    console.log("Enriched Locations:", enrichedLocations);
+
+    const result = enrichedLocations;
+
+    // sent back the parsed JSON
     try {
-      res.json(JSON.parse(reply));
+      res.json({
+        parsed, // locations, themes, dates
+        matches: result,
+      });
+
       console.log("✅ Parsed JSON successfully", JSON.parse(reply));
     } catch (e) {
       console.error("❌ Invalid JSON from AI:", e);
