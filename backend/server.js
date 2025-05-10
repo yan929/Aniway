@@ -3,9 +3,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import session from 'express-session';
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import session from "express-session";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 // Location Routes
 import locationRoutes from "./routes/LocationRoutes.js";
@@ -22,7 +22,7 @@ import tPlanRoutes from "./routes/TPlanRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
 // AuthRoute
-import authRoutes from './routes/AuthRoutes.js';
+import authRoutes from "./routes/AuthRoutes.js";
 
 import AIAdviceRoutes from "./routes/AIAdviceRoutes.js";
 
@@ -33,10 +33,12 @@ connectDB();
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173', // your frontend origin
-  credentials: true                // if you’re using cookies
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend origin
+    credentials: true, // if you’re using cookies
+  })
+);
 
 app.use(express.json());
 
@@ -64,28 +66,36 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 
 // === Session Setup ===
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false,
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev_secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
 
 // === OAuth Setup ===
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
-}, (accessToken, refreshToken, profile, done) => {
-  return done(null, profile);
-}));
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    (accessToken, refreshToken, profile, done) => {
+      profile.accessToken = accessToken;
+      return done(null, profile);
+    }
+  )
+);
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -95,8 +105,6 @@ passport.deserializeUser((user, done) => {
 });
 
 app.use(authRoutes);
-
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "::", () => console.log(`Server running on port ${PORT}`));
