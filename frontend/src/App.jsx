@@ -42,7 +42,6 @@ function App() {
 
         {/* <Route path="/" element={<HomePage />} /> */}
         {/* <Route path="/planner" element={<TripPlanner />} /> */}
-
       </Routes>
     </DndProvider>
     </LoadScript>
