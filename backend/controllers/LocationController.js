@@ -162,6 +162,7 @@ const getLocationByAnimeName = async (req, res) => {
     name: location.anime_names,
     name_en: location.anime_en_names,
     images: location.images,
+    addresses: location.addresses,
     lat_precise: location.lat,
     lng_precise: location.lng,
   }));
