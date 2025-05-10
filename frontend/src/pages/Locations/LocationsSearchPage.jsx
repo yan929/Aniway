@@ -3,17 +3,15 @@ import { Link, useSearchParams } from "react-router-dom";
 import HorizontalLocationCard from "../../components/PopularItem/HorizontalLocationCard";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import { FaArrowLeft } from "react-icons/fa";
-import axios from "axios";
+import apiClient from "../../util/api";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q');
+  const searchQuery = searchParams.get("q");
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
-
-  const baseURL = import.meta.env.VITE_BACKEND_API;
 
   const handleLocationClick = (location) => {
     setSelectedLocation(location);
@@ -33,14 +31,14 @@ function LocationsSearchPage() {
 
       try {
         setLoading(true);
-        
-        const response = await axios.get(`${baseURL}/api/home/search/all`, {
-          params: { q: searchQuery }
+
+        const response = await apiClient.get(`/api/home/search/all`, {
+          params: { q: searchQuery },
         });
 
         console.log("Search response data:", response.data);
         console.log("Location sample:", response.data.searchLocations[0]);
-        
+
         setLocations(response.data.searchLocations || []);
         setLoading(false);
       } catch (err) {
@@ -51,7 +49,7 @@ function LocationsSearchPage() {
     };
 
     fetchAllLocations();
-  }, [searchQuery, baseURL]);
+  }, [searchQuery]);
 
   return (
     <div className="p-5 max-w-7xl mx-auto">
@@ -74,9 +72,9 @@ function LocationsSearchPage() {
           <p>Error: {error}</p>
         </div>
       ) : locations.length > 0 ? (
-        <HorizontalLocationCard 
-          sectionTitle="Search Results" 
-          locList={locations} 
+        <HorizontalLocationCard
+          sectionTitle="Search Results"
+          locList={locations}
           onLocationClick={handleLocationClick}
         />
       ) : (
@@ -86,10 +84,7 @@ function LocationsSearchPage() {
       )}
 
       {selectedLocation && (
-        <LocationPopup
-          location={selectedLocation}
-          onClose={handleClosePopup}
-        />
+        <LocationPopup location={selectedLocation} onClose={handleClosePopup} />
       )}
     </div>
   );

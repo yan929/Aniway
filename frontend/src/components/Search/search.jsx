@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import axios from "axios";
+import apiClient from "../util/api";
 
 import SearchLocItem from "./searchLocItem";
 import SearchAniItem from "./searchAniItem";
@@ -26,7 +26,7 @@ function SearchBar({ setSelectedLocation }) {
     }
 
     try {
-      const response = await axios.get(`/api/home/search`, {
+      const response = await apiClient.get(`/api/home/search`, {
         params: { q: keyword },
       });
 
