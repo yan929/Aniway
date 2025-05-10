@@ -1,15 +1,15 @@
-import axios from 'axios';
+import apiClient from "../util/api";
 
 export async function fetchPlaceDetails(placeId) {
-    if (!placeId || placeId.length < 5) {
-        throw new Error('Invalid place ID');
-    }
+  if (!placeId || placeId.length < 5) {
+    throw new Error("Invalid place ID");
+  }
 
-    try {
-        const res = await axios.get(`/api/gmap/${placeId}`);
-        return res.data;
-    } catch (err) {
-        console.error(`❌ fetchPlaceDetails failed for ${placeId}:`, err.message);
-        throw err;
-    }
+  try {
+    const res = await apiClient.get(`/api/gmap/${placeId}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ fetchPlaceDetails failed for ${placeId}:`, err.message);
+    throw err;
+  }
 }

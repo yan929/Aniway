@@ -32,7 +32,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
     const trendingLocationsData = await Location.find({ isValid: true }) // Filter valid locations
       .sort({ search_ranking: -1 }) // Sort by ranking descending
       .limit(limit)
-      .select("_id anitabi_names lat lng addresses images nearby") // Select fields + nearby
+      .select("_id anitabi_names lat lng addresses images")
       .lean(); // Get plain JS objects
 
     // For each location, find related anime
@@ -54,8 +54,6 @@ const getTrendingData = asyncHandler(async (req, res) => {
           addresses: loc.addresses,
           images: loc.images,
           names: loc.anitabi_names,
-          nearby: loc.nearby, // Include nearby field
-          // Include the first related anime's name if available
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
@@ -104,9 +102,7 @@ const searchAllLocations = asyncHandler(async (req, res) => {
         },
       ],
     })
-      .select(
-        "_id anitabi_names anitabi_cn_names lat lng addresses images nearby"
-      ) // Select fields + nearby
+      .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
       .lean();
 
     // For each location, find related anime
@@ -135,8 +131,6 @@ const searchAllLocations = asyncHandler(async (req, res) => {
           lng: loc.lng,
           addresses: loc.addresses || [],
           images: loc.images || [],
-          nearby: loc.nearby, // Include nearby field
-          // Include the first related anime's name if available
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
@@ -203,7 +197,7 @@ const searchData = asyncHandler(async (req, res) => {
       ],
     })
       .limit(limit)
-      .select("_id anitabi_names anitabi_cn_names lat lng addresses nearby")
+      .select("_id anitabi_names anitabi_cn_names lat lng addresses")
       .lean();
 
     // For each location, find related anime
@@ -231,8 +225,6 @@ const searchData = asyncHandler(async (req, res) => {
           lat: loc.lat,
           lng: loc.lng,
           addresses: loc.addresses,
-          nearby: loc.nearby, // Include nearby field
-          // Include the first related anime's name if available
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
@@ -267,19 +259,16 @@ const searchCitiesAndCountries = asyncHandler(async (req, res) => {
     const regex = new RegExp(q, "i"); // Case-insensitive regex
 
     const searchLocationsData = await Location.find({
-      $or: [
-        { city: regex },
-        { country: regex }
-      ]
+      $or: [{ city: regex }, { country: regex }],
     })
-    .select("_id city country")
-    .sort({ searchRanking: -1 })
-    .lean();
+      .select("_id city country")
+      .sort({ searchRanking: -1 })
+      .lean();
 
     let cities = new Set();
     let countries = new Set();
 
-    searchLocationsData.forEach(loc => {
+    searchLocationsData.forEach((loc) => {
       if (loc.city && loc.city.toLowerCase().includes(q.toLowerCase())) {
         cities.add(loc.city);
       }
@@ -293,12 +282,19 @@ const searchCitiesAndCountries = asyncHandler(async (req, res) => {
 
     res.json({
       cities: cityResults,
-      countries: countryResults
+      countries: countryResults,
     });
   } catch (error) {
     console.error("Error searching cities and countries:", error);
-    res.status(500).json({ message: "Server error while searching cities and countries" });
+    res
+      .status(500)
+      .json({ message: "Server error while searching cities and countries" });
   }
 });
 
-export { getTrendingData, searchData, searchAllLocations, searchCitiesAndCountries };
+export {
+  getTrendingData,
+  searchData,
+  searchAllLocations,
+  searchCitiesAndCountries,
+};
