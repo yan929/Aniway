@@ -4,7 +4,7 @@ import { LoadScript } from "@react-google-maps/api";
 import HomePage from "./pages/Home/HomePage";
 import TripPlanner from "./pages/TripPlanner/TripPlanner";
 import LocationsSearchPage from "./pages/Locations/LocationsSearchPage";
-import AniDetail from "./pages/AniInfo/AniInfo";
+import AniDetail from "./pages/Anime/Anime";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Setting from "./pages/Setting/Setting";

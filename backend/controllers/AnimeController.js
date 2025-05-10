@@ -64,7 +64,6 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
   }
 
   const animeData = await Anime.findById(anime_id);
-
   if (!animeData) {
     res.status(404);
     throw new Error("Anime not found");
@@ -75,20 +74,10 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
     name: animeData.name_en || animeData.name || animeData.name_cn,
     images: animeData.images,
     cover: animeData.cover,
+    director: animeData.director,
     description: animeData.overview || animeData.summary,
-    copyright: animeData.copyright,
-    // locations: animeData.locations.map((loc) => ({
-    //   id: loc._id,
-    //   lat: loc.lat,
-    //   lng: loc.lng,
-    //   names: loc.anitabi_names,
-    //   addresses: loc.addresses,
-    //   images: loc.images,
-    //   s: loc.s,
-    //   ep: loc.ep,
-    // })),
-  };
 
+  };
   res.json(animeInfo);
 });
 

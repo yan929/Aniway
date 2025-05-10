@@ -1,6 +1,7 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 function DisplayPopAniInfo({ sectionTitle, aniList }) {
+  const navigate = useNavigate();
   return (
     <>
       <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
@@ -11,6 +12,9 @@ function DisplayPopAniInfo({ sectionTitle, aniList }) {
           <div
             key={data.id}
             className="relative bg-white rounded-lg overflow-hidden shadow-md  object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
+            onClick={() => {
+              navigate(`/anime/${data.id}`);
+            }}
           >
             <img
               src={data.images.large ?? data.cover}
