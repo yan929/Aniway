@@ -72,9 +72,7 @@ function HomePage() {
     <>
       <div className="flex flex-col min-h-screen bg-gray-50">
         {/* Fixed Navigation Bar */}
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <NavBar />
-        </div>
+        <NavBar />
 
         {/* Main Content with top margin to account for fixed header */}
         <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">

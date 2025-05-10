@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
-import axios from "axios";
+import apiClient from "../../util/api.js";
 
 /**
  * NavBar component - Fixed navigation bar for the Aniway application
@@ -13,20 +13,25 @@ function NavBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const API_BASE_URL = 'http://localhost:5050';
 
   // Fetch user data on component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/user`, { 
-          withCredentials: true 
+        const response = await apiClient.get(`/api/user`, {
+          withCredentials: true,
         });
-        console.log('NavBar: User data fetched:', response.data);
+        console.log("NavBar: User data fetched:", response.data);
         setUser(response.data);
       } catch (error) {
-        console.error("Failed to fetch user:", error);
-        setUser(null);
+        if (error.response && error.response.status === 401) {
+          // User is not authenticated, this is an expected state.
+          setUser(null);
+        } else {
+          // For other errors (network, server error), log them.
+          console.error("Failed to fetch user:", error);
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -55,28 +60,28 @@ function NavBar() {
       setDropdownOpen(!dropdownOpen);
     } else {
       // Navigate to login page if not logged in
-      navigate('/login');
+      navigate("/login");
     }
   };
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
       // Close dropdown
       setDropdownOpen(false);
-      
+
       // Clear user state first for immediate UI feedback
       setUser(null);
-      
-      // Redirect to the backend logout endpoint 
-      // This will handle the server-side session termination and redirect back to login
-      window.location.href = `${API_BASE_URL}/api/logout`;
-      
-      // Note: We don't need to navigate here as the backend will handle the redirect
+
+      // Make an API call to the backend logout endpoint
+      await apiClient.get("/api/logout", { withCredentials: true });
+
+      // On successful logout, navigate to the homepage
+      navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
       // Fallback navigation if something goes wrong
-      navigate('/login');
+      navigate("/");
     }
   };
 
@@ -92,39 +97,45 @@ function NavBar() {
   };
 
   // Get user's initial for avatar
-  const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'A';
+  const userInitial =
+    user && user.name ? user.name.charAt(0).toUpperCase() : "A";
 
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <img 
-            src="/aniway.png" 
-            alt="Aniway Logo" 
-            className="w-10 h-10 rounded=full object-contain mr-2"
+          <img
+            src="/aniway.png"
+            alt="Aniway Logo"
+            className="w-10 h-10 rounded-full object-contain mr-2"
           />
           <span className="text-gray-600 font-medium">Aniway</span>
         </Link>
-        
+
         <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
-          <div 
-            onClick={handleProfileClick} 
+          <div
+            onClick={handleProfileClick}
             className="cursor-pointer"
-            aria-label="User Profile"
+            aria-label="User Profile or Login"
           >
-            {!loading && user ? (
+            {loading ? (
+              // Optional: Show a loading spinner or a placeholder while checking auth
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <FaUser className="text-gray-500 animate-pulse" />
+              </div>
+            ) : user ? (
               // Show user initial in a blue circle if logged in
               <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white">
                 {userInitial}
               </div>
             ) : (
-              // Show generic user icon if not logged in
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                <FaUser className="text-gray-500" />
-              </div>
+              // Show "Sign In" text if not logged in
+              <span className="text-gray-700 hover:text-blue-500 font-medium">
+                Sign In
+              </span>
             )}
           </div>
-          
+
           {/* Dropdown menu */}
           {dropdownOpen && user && (
             <div className="absolute right-0 top-10 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
@@ -132,16 +143,16 @@ function NavBar() {
                 <p className="font-medium text-gray-800">{user.name}</p>
                 <p className="text-sm text-gray-500 truncate">{user.email}</p>
               </div>
-              
-              <button 
+
+              <button
                 onClick={goToProfile}
                 className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
               >
                 <FaUser className="mr-2 text-gray-600" />
                 <span>Profile</span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center text-red-500"
               >
