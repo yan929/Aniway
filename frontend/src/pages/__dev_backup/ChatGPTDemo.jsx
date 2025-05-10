@@ -30,7 +30,7 @@ function ChatGPTDemo() {
         endDate,
       });
 
-      setItinerary(res.data.itinerary);
+      // setItinerary(res.data.itinerar);
       setRawJson(JSON.stringify(res.data, null, 2));
     } catch (err) {
       console.error(err);
@@ -86,7 +86,7 @@ function ChatGPTDemo() {
             </div>
           ))}
         </div>
-      )}
+      )} */}
 
       {rawJson && (
         <div style={{ marginTop: "2rem" }}>

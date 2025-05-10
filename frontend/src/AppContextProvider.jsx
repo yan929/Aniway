@@ -1,31 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { extendTripDate } from "./util/extendTripDate.js";
-import dayjs from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isBetween from "dayjs/plugin/isBetween.js";
-
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isBetween);
+import { updateTripDate } from "./util/updateTripDate.js";
+import { updateTripItinerary } from "./util/updateTripItinerary.js";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
 const AppContext = React.createContext({
   tripData: null,
   loading: false,
-  updateTrip: () => {},
-  fetchTrip: () => {},
+  updateTrip: () => { },
+  fetchTrip: () => { },
+  updateItinerary: () => { },
 });
 
-// test data
+// test dummy data
 const testTripData = [
   {
     date: "2025-10-01",
-    index: 9,
+    index: 0,
     itinerary: [
       {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
+        gpPlaceId: "ChIJXSModoWLGGARILWiCfeu2M0",
         order: 1,
         arrivalTime: "12:00",
         note: "Dinner with view",
@@ -40,7 +34,7 @@ const testTripData = [
   },
   {
     date: "2025-10-02",
-    index: 20,
+    index: 1,
     itinerary: [
       {
         gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
@@ -52,7 +46,7 @@ const testTripData = [
   },
   {
     date: "2025-10-03",
-    index: 1,
+    index: 2,
     itinerary: [
       {
         gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
@@ -77,7 +71,7 @@ function AppContextProvider({ children }) {
     }
   });
 
-  const [loading, _] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   //synchronize trip data to local storage
   useEffect(() => {
@@ -85,46 +79,46 @@ function AppContextProvider({ children }) {
       //save new data
       localStorage.setItem("tripData", JSON.stringify(tripData));
       // console.log("locolStorage tripData:", localStorage.getItem('tripData'));
+      //testing code, will be removed after saving to database
     }
   }, [tripData]);
 
   function updateTrip(newRangeTripData) {
-    if (!Array.isArray(newRangeTripData) || newRangeTripData.length === 0)
-      return;
+    const extendedTrip = updateTripDate(newRangeTripData);
+    //setTripData will update the trip data
+    setTripData(extendedTrip);
+  }
 
-    // 强制标准化日期并提取范围
-    const normalizedNewData = newRangeTripData.map((day) => ({
-      ...day,
-      date: dayjs(day.date).format("YYYY-MM-DD"),
-    }));
-    const startDate = normalizedNewData[0].date;
-    const endDate = normalizedNewData[normalizedNewData.length - 1].date;
+  function updateItinerary(tripData, updateItem) {
+    const newTripData = updateTripItinerary(tripData, updateItem);
+    setTripData(newTripData);
+  }
 
-    // 完全重置：仅保留新数据，不依赖旧数据
-    let trimmed = [];
-    normalizedNewData.forEach((newDay) => {
-      if (
-        dayjs(newDay.date).isSameOrAfter(startDate, "day") &&
-        dayjs(newDay.date).isSameOrBefore(endDate, "day")
-      ) {
-        trimmed.push(newDay);
+  function deleteTripItem(deleteTripDay, deleteItem) {
+
+    const newTripData = tripData.map(day => {
+      if (day.date === deleteTripDay.date) {
+        return {
+          ...day,
+          itinerary: day.itinerary.filter(item => item.gpPlaceId !== deleteItem.gpPlaceId && item.order !== deleteItem.order)
+        };
+      } else {
+        return day;
       }
+
     });
 
-    // extendTipDate will fill in the missing dates and reset the index
-    // const sorted = updateTripIndexAndOrder(trimmed);
-    // const extended = extendTripDate(sorted);
-    const extended = extendTripDate(trimmed);
 
-    //setTripData will update the trip data
-    setTripData(extended);
-    // console.log("Updated trip data:", tripData);
+    setTripData(newTripData);
   }
+
 
   const context = {
     tripData,
     loading,
     updateTrip,
+    updateItinerary,
+    deleteTripItem,
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
