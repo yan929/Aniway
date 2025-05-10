@@ -5,7 +5,7 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 import React, { useState } from "react";
-import axios from "axios";
+import apiClient from "../../util/api";
 
 const containerStyle = {
   width: "100%",
@@ -29,7 +29,7 @@ function GMap({ locations }) {
     setSelected(loc);
     setPhotoUrl(null);
     try {
-      const response = await axios.post("/api/gmap/", {
+      const response = await apiClient.post("/api/gmap/", {
         lat: loc.lat,
         lng: loc.lng,
       });
@@ -38,7 +38,7 @@ function GMap({ locations }) {
       setPlaceDetails(data);
 
       if (data.photo_reference) {
-        const photoRes = await axios.post(
+        const photoRes = await apiClient.post(
           "/api/gmap/photo",
           { photo_reference: data.photo_reference },
           { responseType: "blob" }

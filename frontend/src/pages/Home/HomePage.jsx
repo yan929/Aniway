@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBarCity from "../../components/Search/SearchBarCity";
 import NavBar from "../../components/Layout/NavBar";
-import Footer from "../../components/Layout/Footer"; 
+import Footer from "../../components/Layout/Footer";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
+import apiClient from "../../util/api";
 
 /**
  * HomePage component - Main landing page of the Aniway application
@@ -23,7 +23,7 @@ function HomePage() {
   useEffect(() => {
     const fetchDataOnMount = async () => {
       try {
-        const response = await axios.get(`/api/home/trending`);
+        const response = await apiClient.get(`/api/home/trending`);
         const data = response.data;
         setAniData(data.trendingAnime);
         setLocData(data.trendingLocations);
@@ -80,11 +80,11 @@ function HomePage() {
         {/* Hero Section with Search */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            PLACE HOLDER PLACE HOLDER PLACE 
+            PLACE HOLDER PLACE HOLDER PLACE
           </h1>
           <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-            PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
-            PLACE HOLDER PLACE HOLDER
+            PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
+            PLACE HOLDER PLACE HOLDER PLACE HOLDER
           </p>
 
           {/* Search Container */}
@@ -93,23 +93,23 @@ function HomePage() {
             <div className="flex rounded-full bg-white shadow-lg border border-gray-200">
               {/* Search Input - Takes all available space */}
               <div className="flex-grow relative">
-                <SearchBarCity 
+                <SearchBarCity
                   placeholder="Search destinations..."
                   onSelect={handleLocationSelect}
                   onSearch={handleSearchByText}
                 />
               </div>
-              
+
               {/* Date Picker - Fixed width */}
               <div className="flex-shrink-0 w-64 border-l border-gray-200">
-                <DatePicker 
+                <DatePicker
                   selectedDates={selectedDates}
                   onDateSelect={setSelectedDates}
                 />
               </div>
-              
+
               {/* Plan Button */}
-              <button 
+              <button
                 className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-medium px-12 h-12 flex items-center justify-center rounded-r-full transition duration-200"
                 onClick={handleSearch}
               >
@@ -121,12 +121,12 @@ function HomePage() {
 
         {/* Popular Destinations and Anime Sections */}
         <div>
-          <DisplayPopLocInfo 
-            sectionTitle="Popular Destinations" 
+          <DisplayPopLocInfo
+            sectionTitle="Popular Destinations"
             locList={locData}
             onLocationClick={handleLocationCardClick}
           />
-          
+
           <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
         </div>
       </div>

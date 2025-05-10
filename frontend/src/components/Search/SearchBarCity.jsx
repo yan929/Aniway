@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import axios from "axios";
+import apiClient from "../../util/api";
 import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
@@ -8,7 +8,10 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showResult, setShowResult] = useState(false);
-  const [searchResults, setSearchResults] = useState({ cities: [], countries: [] });
+  const [searchResults, setSearchResults] = useState({
+    cities: [],
+    countries: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef(null);
 
@@ -25,15 +28,18 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
 
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/home/search/cities-countries`, {
-        params: { q: keyword }
-      });
+      const response = await apiClient.get(
+        `/api/home/search/cities-countries`,
+        {
+          params: { q: keyword },
+        }
+      );
 
       const data = response.data;
       // Limit the results to DISPLAY_LIMIT items per category
       setSearchResults({
         cities: (data.cities || []).slice(0, DISPLAY_LIMIT),
-        countries: (data.countries || []).slice(0, DISPLAY_LIMIT)
+        countries: (data.countries || []).slice(0, DISPLAY_LIMIT),
       });
       setShowResult(true);
     } catch (err) {
@@ -58,21 +64,29 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
   // Combine cities and countries into a single list for keyboard navigation
   const getAllResults = () => {
     const all = [];
-    searchResults.cities.forEach(city => all.push({ name: city, type: 'city' }));
-    searchResults.countries.forEach(country => all.push({ name: country, type: 'country' }));
+    searchResults.cities.forEach((city) =>
+      all.push({ name: city, type: "city" })
+    );
+    searchResults.countries.forEach((country) =>
+      all.push({ name: country, type: "country" })
+    );
     return all;
   };
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
     const allResults = getAllResults();
-    
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < allResults.length - 1 ? prev + 1 : -1));
+      setSelectedIndex((prev) =>
+        prev < allResults.length - 1 ? prev + 1 : -1
+      );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev > -1 ? prev - 1 : allResults.length - 1));
+      setSelectedIndex((prev) =>
+        prev > -1 ? prev - 1 : allResults.length - 1
+      );
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (selectedIndex >= 0 && allResults[selectedIndex]) {
@@ -138,21 +152,24 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (input.trim() && (searchResults.cities.length > 0 || searchResults.countries.length > 0)) {
+            if (
+              input.trim() &&
+              (searchResults.cities.length > 0 ||
+                searchResults.countries.length > 0)
+            ) {
               setShowResult(true);
             }
           }}
           className="bg-transparent border-none h-full text-lg w-full focus:outline-none text-gray-800 placeholder-gray-500 font-normal"
         />
       </div>
-      
+
       {showResult && (
         <div className="absolute top-full w-full rounded-lg shadow-lg border border-gray-200 flex flex-col items-start z-50 h-auto mt-1 bg-white">
           {isLoading ? (
-            <div className="w-full px-6 py-3 text-gray-500">
-              Searching...
-            </div>
-          ) : (searchResults.cities.length > 0 || searchResults.countries.length > 0) ? (
+            <div className="w-full px-6 py-3 text-gray-500">Searching...</div>
+          ) : searchResults.cities.length > 0 ||
+            searchResults.countries.length > 0 ? (
             <div className="w-full max-h-[400px] overflow-y-auto">
               {/* Cities Section */}
               {searchResults.cities.length > 0 && (
@@ -168,16 +185,20 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
                         className={`flex items-start px-4 py-2 w-full border-b border-gray-100 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${
                           selectedIndex === currentIndex ? "bg-gray-50" : ""
                         }`}
-                        onClick={() => handleSelect({ name: city, type: 'city' })}
+                        onClick={() =>
+                          handleSelect({ name: city, type: "city" })
+                        }
                       >
                         <FaLocationDot />
-                        <p className="font-semibold m-0 text-sm text-left">{city}</p>
+                        <p className="font-semibold m-0 text-sm text-left">
+                          {city}
+                        </p>
                       </div>
                     );
                   })}
                 </>
               )}
-              
+
               {/* Countries Section */}
               {searchResults.countries.length > 0 && (
                 <>
@@ -192,18 +213,22 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
                         className={`flex items-start px-4 py-2 w-full border-b border-gray-100 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${
                           selectedIndex === currentIndex ? "bg-gray-50" : ""
                         }`}
-                        onClick={() => handleSelect({ name: country, type: 'country' })}
+                        onClick={() =>
+                          handleSelect({ name: country, type: "country" })
+                        }
                       >
                         <FaLocationDot />
-                        <p className="font-semibold m-0 text-sm text-left">{country}</p>
+                        <p className="font-semibold m-0 text-sm text-left">
+                          {country}
+                        </p>
                       </div>
                     );
                   })}
                 </>
               )}
             </div>
-          ) : !isLoading && (
-            <p className="noResult">No result found</p>
+          ) : (
+            !isLoading && <p className="noResult">No result found</p>
           )}
         </div>
       )}

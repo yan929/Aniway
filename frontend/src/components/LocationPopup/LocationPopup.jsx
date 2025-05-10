@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../util/api";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { IoClose } from "react-icons/io5";
 
@@ -49,7 +49,7 @@ const LocationPopup = ({ location, onClose }) => {
         setError(null);
 
         // Get place details from Google Maps
-        const response = await axios.post("/api/gmap/", {
+        const response = await apiClient.post("/api/gmap/", {
           lat: location.lat,
           lng: location.lng,
         });
@@ -115,7 +115,7 @@ const LocationPopup = ({ location, onClose }) => {
                   mapTypeControl: true,
                   fullscreenControl: true,
                   fullscreenControlOptions: {
-                    position: google.maps.ControlPosition.TOP_LEFT,
+                    position: window.google.maps.ControlPosition.TOP_LEFT,
                   },
                 }}
               >
@@ -178,7 +178,6 @@ const LocationPopup = ({ location, onClose }) => {
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
                   >
-                    
                     <p className="text-base font-semibold text-gray-900">
                       {anime.en_name}
                     </p>
