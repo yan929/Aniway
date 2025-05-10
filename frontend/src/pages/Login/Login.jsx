@@ -1,31 +1,29 @@
-import React from 'react';
-
 const LoginPage = () => {
-  const API_BASE_URL = 'http://localhost:5050';
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img 
-            src="/aniway.png" 
-            alt="Aniway Logo" 
-            className="h-16"
-          />
+          <img src="/aniway.png" alt="Aniway Logo" className="h-16" />
         </div>
-        
+
         {/* Welcome Text */}
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-10">
-          Welcome Placeholder
+          Welcome to Aniway
         </h1>
-        
+
         {/* Google Sign In Button */}
-        <a 
-          href={`${API_BASE_URL}/auth/google`}
+        <a
+          href={`${backendUrl}/auth/google`}
           className="flex items-center justify-center w-full border border-gray-300 rounded-lg py-3 px-4 mb-4 hover:bg-gray-50 transition-colors duration-200"
         >
-          <svg viewBox="0 0 24 24" className="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-6 w-6 mr-3"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -44,15 +42,9 @@ const LoginPage = () => {
             />
             <path d="M1 1h22v22H1z" fill="none" />
           </svg>
-          <span className="text-gray-600 font-medium">Continue with Google</span>
-        </a>
-        
-        {/* Sign In Button */}
-        <a 
-          href={`${API_BASE_URL}/auth/google`}
-          className="block w-full bg-green-500 hover:bg-green-600 transition-colors duration-200 text-gray-700 font-medium py-3 px-4 rounded-lg text-center mt-6"
-        >
-          Sign in
+          <span className="text-gray-600 font-medium">
+            Continue with Google
+          </span>
         </a>
       </div>
     </div>
