@@ -7,8 +7,6 @@ import Footer from "../../components/Layout/Footer";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import apiClient from "../../util/api";
-import LocSearchBar from "../../components/Search/locSearch";
-import AniSearchBar from "../../components/Search/aniSearch";
 
 /**
  * HomePage component - Main landing page of the Aniway application
