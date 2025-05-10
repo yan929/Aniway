@@ -5,7 +5,6 @@ import axios from "axios";
 import SearchInput from "./searchInput";
 import SearchLocItem from "./searchLocItem";
 
-import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import "../../layout/SearchBar.css";
 
@@ -63,7 +62,7 @@ function LocSearchBar({ setSelectedLocation }) {
   return (
     <>
       <div
-        className="search mt-4"
+        className="relative flex flex-col items-center"
         tabIndex={0}
         onFocus={() => {
           if (locResults.length > 0) {
@@ -83,7 +82,7 @@ function LocSearchBar({ setSelectedLocation }) {
         />
 
         {showResult && (
-          <div className="resultListContainer">
+          <div className="absolute top-full bg-white w-1/2 rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-10">
             <SearchLocItem
               icon={FaLocationDot}
               title={"Location"}

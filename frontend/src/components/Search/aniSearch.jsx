@@ -75,7 +75,7 @@ function AniSearchBar() {
           onInputChange={(value) => setInput(value)}
         />
         {showResult && (
-          <div className="resultListContainer">
+          <div className="absolute top-full bg-white w-1/2 rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-10">
             <SearchAniItem
               icon={MdMovie}
               title={"Anime"}
