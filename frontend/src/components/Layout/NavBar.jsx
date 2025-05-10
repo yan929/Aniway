@@ -1,16 +1,103 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
+import axios from "axios";
 
 /**
  * NavBar component - Fixed navigation bar for the Aniway application
- * Displays the logo, application name, and user profile placeholder
+ * Displays the logo, application name, and user profile navigation
  */
 function NavBar() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+  const API_BASE_URL = 'http://localhost:5050';
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/user`, { 
+          withCredentials: true 
+        });
+        console.log('NavBar: User data fetched:', response.data);
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle profile icon click
+  const handleProfileClick = () => {
+    if (user) {
+      setDropdownOpen(!dropdownOpen);
+    } else {
+      // Navigate to login page if not logged in
+      navigate('/login');
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    try {
+      // Close dropdown
+      setDropdownOpen(false);
+      
+      // Clear user state first for immediate UI feedback
+      setUser(null);
+      
+      // Redirect to the backend logout endpoint 
+      // This will handle the server-side session termination and redirect back to login
+      window.location.href = `${API_BASE_URL}/api/logout`;
+      
+      // Note: We don't need to navigate here as the backend will handle the redirect
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Fallback navigation if something goes wrong
+      navigate('/login');
+    }
+  };
+
+  // Navigate to profile page
+  const goToProfile = () => {
+    if (user) {
+      const userId = user.id || user._id || user.google_id;
+      if (userId) {
+        setDropdownOpen(false);
+        navigate(`/profile/${userId}`);
+      }
+    }
+  };
+
+  // Get user's initial for avatar
+  const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'A';
+
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-      <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center">
           <img 
             src="/aniway.png" 
             alt="Aniway Logo" 
@@ -18,8 +105,51 @@ function NavBar() {
           />
           <span className="text-gray-600 font-medium">Aniway</span>
         </Link>
-        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
-          <FaUser className="text-gray-500" />
+        
+        <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
+          <div 
+            onClick={handleProfileClick} 
+            className="cursor-pointer"
+            aria-label="User Profile"
+          >
+            {!loading && user ? (
+              // Show user initial in a blue circle if logged in
+              <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white">
+                {userInitial}
+              </div>
+            ) : (
+              // Show generic user icon if not logged in
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <FaUser className="text-gray-500" />
+              </div>
+            )}
+          </div>
+          
+          {/* Dropdown menu */}
+          {dropdownOpen && user && (
+            <div className="absolute right-0 top-10 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+              <div className="px-4 py-2 border-b border-gray-100">
+                <p className="font-medium text-gray-800">{user.name}</p>
+                <p className="text-sm text-gray-500 truncate">{user.email}</p>
+              </div>
+              
+              <button 
+                onClick={goToProfile}
+                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
+              >
+                <FaUser className="mr-2 text-gray-600" />
+                <span>Profile</span>
+              </button>
+              
+              <button 
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center text-red-500"
+              >
+                <FaSignOutAlt className="mr-2" />
+                <span>Log out</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
