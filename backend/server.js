@@ -36,9 +36,14 @@ connectDB();
 
 const app = express();
 
+// Determine allowed origin based on environment
+const allowedOrigin = process.env.NODE_ENV === 'production'
+  ? process.env.FRONTEND_URL
+  : 'http://localhost:5173';
+
 app.use(cors({
-  origin: 'http://localhost:5173', // your frontend origin
-  credentials: true                // if you're using cookies
+  origin: allowedOrigin,
+  credentials: true
 }));
 
 app.use(express.json());
