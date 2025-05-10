@@ -1,6 +1,7 @@
 // controllers/LocationController.js
 import asyncHandler from "express-async-handler";
 import Location from "../models/Location.js";
+import { DatabaseMiddleware } from "../middleware/databaseMiddleware.js";
 
 const getAllLocations = asyncHandler(async (req, res) => {
   const locations = await Location.find({ isValid: true }); // Filter only valid locations
@@ -128,8 +129,15 @@ export const getCitiesByCountry = async (req, res) => {
   }
 };
 
+const getLocationByAnime = async (req, res) => {
+  const { animeName } = req.params;
+  const response = await DatabaseMiddleware.queryForLocationsByAnimeName(animeName);
+  return response
+}
+
 export {
   getAllLocations,
+  getLocationByAnime,
   addLocation,
   updateLocation,
   partialUpdateLocation,
