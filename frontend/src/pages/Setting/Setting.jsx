@@ -1,7 +1,5 @@
 import { useState } from "react";
-import NavBar from "../../components/Navbar/NavBar";
 import UserModification from "../../components/Setting/userModi";
-import PreferenceModifi from "../../components/Setting/preferenceModi";
 
 function Setting() {
   const [activeTab, setActiveTab] = useState("account");
