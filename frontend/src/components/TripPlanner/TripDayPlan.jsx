@@ -11,7 +11,8 @@ import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
 
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
-  const { tripData, updateItinerary, deleteTripItem, selectDay } = useContext(AppContext);
+  const { currentTrip, updateItinerary, deleteTripItem, selectDay } =
+    useContext(AppContext);
   const [tripItems, setTripItems] = useState(day.itinerary);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -40,15 +41,31 @@ export default function TripDayPlan({ day, index }) {
   // Function to add a new location to the day's itinerary
   const handleAddLocationToDay = async (loc) => {
     try {
-      const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
-      
-      const updateItem = {
-        date: day.date,
+      const newPlaceData = await fetchPlaceByLatLng(
+        loc.label,
+        loc.lat,
+        loc.lng
+      );
+
+      // Find the current day's data from currentTrip to get the most up-to-date itinerary
+      // This is important if other operations might have modified it in context
+      const currentDayData =
+        currentTrip && currentTrip.content
+          ? currentTrip.content.find((d) => d.date === day.date)
+          : day;
+      const currentItinerary = currentDayData ? currentDayData.itinerary : [];
+
+      const newItem = {
+        // date: day.date, // date is part of the day object, not needed in item for new model
         gpPlaceId: newPlaceData.place_id,
-        order: day.itinerary.length,
+        order: currentItinerary.length, // Order based on the current length of items for the day
+        // arrivalTime and note can be added here if defaults are desired or they come from newPlaceData
+        arrivalTime: "12:00", // Example default
+        note: "", // Example default
       };
-      
-      updateItinerary(tripData, updateItem);
+
+      const newItemsArray = [...currentItinerary, newItem];
+      updateItinerary(day.date, newItemsArray); // Call with day.date and the new full array of items
     } catch (error) {
       console.error("Error adding location to day:", error);
     }
@@ -93,8 +110,8 @@ export default function TripDayPlan({ day, index }) {
       </div>
       <div className="mt-6 w-full max-w-2xl">
         {/* Pass the current day index to SearchBar */}
-        <SearchBar 
-          onLocationSelected={handleAddLocationToDay} 
+        <SearchBar
+          onLocationSelected={handleAddLocationToDay}
           dayIndex={index}
         />
       </div>
