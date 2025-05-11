@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 function UserDropdown({ user, onLogout }) {
@@ -35,7 +36,10 @@ function UserDropdown({ user, onLogout }) {
             </Link>
           </li>
           <li>
-            <Link to="/api/logout" >Logout</Link>
+            <Link to="/api/logout" onClick={onLogout}>
+              <FaSignOutAlt className="mr-2" />
+              Logout
+            </Link>
           </li>
         </ul>
       )}
