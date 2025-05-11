@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import apiClient from "../../util/api";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { IoClose } from "react-icons/io5";
+import { FaCheck } from "react-icons/fa";
 
-const LocationPopup = ({ location, onClose }) => {
+const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   const [placeDetails, setPlaceDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,14 +82,14 @@ const LocationPopup = ({ location, onClose }) => {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
     >
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl">
         {/* Header */}
         <div className="relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-10 h-10 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition shadow-md flex items-center justify-cente"
+            className="absolute top-4 right-4 z-10 w-10 h-10 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition shadow-md flex items-center justify-center"
           >
             <IoClose className="text-3xl text-gray-700" />
           </button>
@@ -154,18 +155,39 @@ const LocationPopup = ({ location, onClose }) => {
           className="p-6 overflow-y-auto"
           style={{ maxHeight: "calc(90vh - 400px - 2rem)" }}
         >
-          {/* Location title */}
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {location.names || placeDetails?.name || location.city}
-            </h2>
+          {/* Location title and Add button */}
+          <div className="mb-6 flex justify-between items-start">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {location.names || placeDetails?.name || location.city}
+              </h2>
 
-            {/* Address */}
-            <p className="text-lg text-gray-600">
-              {placeDetails?.address ||
-                location.addresses?.[0] ||
-                "Address not available"}
-            </p>
+              {/* Address */}
+              <p className="text-lg text-gray-600">
+                {placeDetails?.address ||
+                  location.addresses?.[0] ||
+                  "Address not available"}
+              </p>
+            </div>
+
+            {/* Add to itinerary checkbox */}
+            {onToggleInItinerary && (
+              <div 
+                className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-md hover:bg-gray-50"
+                onClick={() => onToggleInItinerary(location)}
+              >
+                <div className={`w-5 h-5 border rounded flex items-center justify-center ${
+                  isAdded 
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-gray-300 bg-white'
+                }`}>
+                  {isAdded && <FaCheck size={12} className="text-green-500" />}
+                </div>
+                <span className={`font-medium ${isAdded ? 'text-green-600' : 'text-gray-700'}`}>
+                  {isAdded ? 'Added to Itinerary' : 'Add to Itinerary'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Related Anime */}

@@ -12,6 +12,8 @@ const AppContext = React.createContext({
   user: null,
   loginUser: () => {},
   logoutUser: () => {},
+  selectedDay: null,  // Added for location search functionality
+  selectDay: () => {}, // Added for location search functionality
 });
 
 // test dummy data (can be removed if not needed for initial state)
@@ -65,12 +67,15 @@ function AppContextProvider({ children }) {
     try {
       // const saved = localStorage.getItem('tripData');
       // return saved ? JSON.parse(saved) : testTripData;
-      return testTripData; //testing
+      return testTripData; // testing
     } catch (e) {
       console.error("Failed to load localStorage tripData:", e);
       return testTripData;
     }
   });
+
+  // Added selectedDay state for location search functionality
+  const [selectedDay, setSelectedDay] = useState(null);
 
   const [user, setUser] = useState(() => {
     try {
@@ -81,6 +86,14 @@ function AppContextProvider({ children }) {
       return null;
     }
   });
+
+  // Set default selected day on initial load
+  useEffect(() => {
+    if (tripData && tripData.length > 0 && !selectedDay) {
+      console.log("Initially setting selected day to:", tripData[0]);
+      setSelectedDay(tripData[0]);
+    }
+  }, [tripData, selectedDay]);
 
   useEffect(() => {
     if (tripData) {
@@ -123,49 +136,113 @@ function AppContextProvider({ children }) {
             // Other errors (network, server issue)
             console.error("AppContext: Error checking user session:", error);
           }
-          // Ensure user is null if API check fails or returns no data
-          // setUser(null); // Handled by loginUser if data, or remains null if error
         }
       }
     };
 
     checkUserSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount. 'user' is intentionally omitted to prevent re-running on user state changes.
-
-  useEffect(() => {
-    if (tripData) {
-      localStorage.setItem("tripData", JSON.stringify(tripData));
-    }
-  }, [tripData]);
+  }, []); // Empty dependency array means this runs once on mount
 
   function updateTrip(newRangeTripData) {
+    console.log("Updating trip with new range data:", newRangeTripData);
     const extendedTrip = updateTripDate(newRangeTripData);
     setTripData(extendedTrip);
   }
 
   function updateItinerary(currentTripData, updateItem) {
-    const newTripData = updateTripItinerary(currentTripData, updateItem);
-    setTripData(newTripData);
+    console.log("Updating itinerary with item:", updateItem);
+    
+    // Ensure we have valid data
+    if (!currentTripData || !Array.isArray(currentTripData) || !updateItem || !updateItem.date) {
+      console.error("Invalid data for updateItinerary:", { currentTripData, updateItem });
+      return;
+    }
+    
+    try {
+      // Create a direct copy to avoid reference issues
+      const newTripData = JSON.parse(JSON.stringify(currentTripData));
+      
+      // Find the day to update
+      const dayIndex = newTripData.findIndex(day => day.date === updateItem.date);
+      
+      if (dayIndex === -1) {
+        console.error("Day not found in tripData:", updateItem.date);
+        return;
+      }
+      
+      // Ensure itinerary array exists
+      if (!newTripData[dayIndex].itinerary) {
+        newTripData[dayIndex].itinerary = [];
+      }
+      
+      // Create a new item with all necessary fields
+      const newItem = {
+        gpPlaceId: updateItem.gpPlaceId,
+        order: updateItem.order || newTripData[dayIndex].itinerary.length,
+        arrivalTime: updateItem.arrivalTime || "12:00", // Default value
+        note: updateItem.note || ""
+      };
+      
+      // Add the new item
+      newTripData[dayIndex].itinerary.push(newItem);
+      
+      console.log("Updated trip data:", newTripData);
+      setTripData(newTripData);
+      
+      // Update the selected day if it's the same day we're adding to
+      if (selectedDay && selectedDay.date === updateItem.date) {
+        const updatedSelectedDay = newTripData[dayIndex];
+        console.log("Updating selected day:", updatedSelectedDay);
+        setSelectedDay(updatedSelectedDay);
+      }
+      
+      return newTripData;
+    } catch (error) {
+      console.error("Error in updateItinerary:", error);
+    }
   }
 
   function deleteTripItem(deleteTripDay, deleteItem) {
-    const newTripData = tripData.map((day) => {
-      if (day.date === deleteTripDay.date) {
-        return {
-          ...day,
-          itinerary: day.itinerary.filter(
-            (item) =>
-              !(
-                item.gpPlaceId === deleteItem.gpPlaceId &&
-                item.order === deleteItem.order
-              )
-          ),
-        };
+    console.log("Deleting trip item:", { deleteTripDay, deleteItem });
+    
+    try {
+      const newTripData = tripData.map((day) => {
+        if (day.date === deleteTripDay.date) {
+          return {
+            ...day,
+            itinerary: day.itinerary.filter(
+              (item) =>
+                !(
+                  item.gpPlaceId === deleteItem.gpPlaceId &&
+                  item.order === deleteItem.order
+                )
+            ),
+          };
+        }
+        return day;
+      });
+      
+      console.log("After deletion:", newTripData);
+      setTripData(newTripData);
+      
+      // If we're deleting from the currently selected day, also update selectedDay
+      if (selectedDay && selectedDay.date === deleteTripDay.date) {
+        const updatedSelectedDay = newTripData.find(day => day.date === selectedDay.date);
+        if (updatedSelectedDay) {
+          console.log("Updating selected day after deletion:", updatedSelectedDay);
+          setSelectedDay(updatedSelectedDay);
+        }
       }
-      return day;
-    });
-    setTripData(newTripData);
+    } catch (error) {
+      console.error("Error in deleteTripItem:", error);
+    }
+  }
+
+  // Added function to select a specific day
+  function selectDay(day) {
+    console.log("Selecting day:", day);
+    setSelectedDay(day);
   }
 
   function loginUser(userData) {
@@ -184,6 +261,8 @@ function AppContextProvider({ children }) {
     user,
     loginUser,
     logoutUser,
+    selectedDay,  // Added for location search functionality
+    selectDay,    // Added for location search functionality
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;

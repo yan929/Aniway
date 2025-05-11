@@ -9,7 +9,7 @@ import { FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdMovie } from "react-icons/md";
 
-function SearchBar({ onLocationSelected }) {
+function SearchBar({ onLocationSelected, onInputChange, dayIndex }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [resultLength, setResultLength] = useState(0);
@@ -80,10 +80,14 @@ function SearchBar({ onLocationSelected }) {
     setInput(keyword);
     debouncedFetch(keyword);
     setSelectedIndex(-1);
+    
+    // Pass the input value to parent component if callback exists
+    if (typeof onInputChange === "function") {
+      onInputChange(keyword);
+    }
   };
 
   const handleSelectLocation = (loc) => {
-    // setSelectedLocation(loc);
     setInput("");
     setShowResult(false);
     if (typeof onLocationSelected === "function") {
@@ -93,7 +97,7 @@ function SearchBar({ onLocationSelected }) {
 
   return (
     <>
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center w-full">
         <div className="flex items-center bg-white w-full rounded-l-full h-10 px-4">
           <FaSearch id="search-icon" />
           <input
@@ -117,6 +121,7 @@ function SearchBar({ onLocationSelected }) {
               selectedIndex={selectedIndex}
               onSelectLocation={(loc) => handleSelectLocation(loc)}
               searchTerm={input}
+              dayIndex={dayIndex} // Pass current day index to SearchLocItem
             />
             <SearchAniItem
               icon={MdMovie}
