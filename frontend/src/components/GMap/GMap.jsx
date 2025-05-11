@@ -4,8 +4,7 @@ import apiClient from "../../util/api";
 
 const containerStyle = {
   width: "100%",
-  height: "400px",
-  margin: "auto",
+  height: "100%",
 };
 
 const defaultCenter = {
@@ -56,7 +55,7 @@ function GMap({ locations }) {
   const center = locations?.length > 0 ? locations[0] : defaultCenter;
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
         {locations?.map((loc, index) => (
           <Marker
