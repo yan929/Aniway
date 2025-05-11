@@ -55,7 +55,9 @@ const GoogleLogin = () => {
     <div className="text-center mt-16">
       {user ? (
         <div>
-          <h2 className="mb-2 text-xl font-semibold">Welcome, {user.name}</h2>
+          <h2 className="mb-2 text-xl font-semibold">
+            Welcome, {user.displayName}
+          </h2>
           <img
             src={user.avatar}
             alt="Profile"
