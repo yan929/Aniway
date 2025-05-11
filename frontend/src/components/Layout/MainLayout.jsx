@@ -1,9 +1,12 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 
 const MainLayout = () => {
+  const location = useLocation();
+  const showFooter = location.pathname !== "/tripplanner";
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <NavBar />
@@ -12,7 +15,7 @@ const MainLayout = () => {
       <main className="flex-grow pt-16">
         <Outlet />
       </main>
-      <Footer />
+      {showFooter && <Footer />}
     </div>
   );
 };
