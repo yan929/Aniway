@@ -36,7 +36,7 @@ function App() {
             <Route path="/tripplanner" element={<TripPlanner />} />
             <Route path="/locations/search" element={<LocationsSearchPage />} />
             <Route path="/anime/:id" element={<AniDetail />} />
-            <Route path="/setting" element={<Setting />} />
+            <Route path="/profile/:userId/setting" element={<Setting />} />
             <Route path="/create-trip" element={<TripPlanner />} />
             <Route path="/trip/:tripId" element={<TripPlanner />} />
           </Route>
