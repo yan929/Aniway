@@ -8,15 +8,15 @@ const AppContext = React.createContext({
   // eslint-disable-next-line no-unused-vars
   updateCurrentTripDetails: (_details) => {},
   saveCurrentTripToDb: async () => {},
-  updateTrip: () => { },
-  fetchTrip: () => { },
-  updateItinerary: () => { },
-  deleteTripItem: () => { },
+  updateTrip: () => {},
+  fetchTrip: () => {},
+  updateItinerary: () => {},
+  deleteTripItem: () => {},
   user: null,
-  loginUser: () => { },
-  logoutUser: () => { },
+  loginUser: () => {},
+  logoutUser: () => {},
   selectedDay: null,
-  selectDay: () => { },
+  selectDay: () => {},
   isAuthenticated: false,
   isAuthLoading: true,
   tripTitle: "",
@@ -75,7 +75,7 @@ function AppContextProvider({ children }) {
   // Added for destination and trip details from HomePage
   const [tripTitle, setTripTitle] = useState(() => {
     try {
-      const saved = localStorage.getItem('tripTitle');
+      const saved = localStorage.getItem("tripTitle");
       return saved || "My Trip";
     } catch (e) {
       console.error("Failed to load localStorage tripTitle:", e);
@@ -86,7 +86,7 @@ function AppContextProvider({ children }) {
   // Store the selected destination location
   const [tripLocation, setTripLocation] = useState(() => {
     try {
-      const saved = localStorage.getItem('tripLocation');
+      const saved = localStorage.getItem("tripLocation");
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       console.error("Failed to load localStorage tripLocation:", e);
@@ -259,59 +259,65 @@ function AppContextProvider({ children }) {
     [currentTrip, updateCurrentTripDetails]
   );
 
-  function updateItinerary(currentTripData, updateItem) {
-    console.log("Updating itinerary with item:", updateItem);
+  // Refactored function to update itinerary for a specific day
+  function updateItinerary(dayDate, newItemsArray) {
+    console.log(
+      `Updating itinerary for date: ${dayDate} with items:`,
+      newItemsArray
+    );
 
-    if (
-      !currentTripData ||
-      !Array.isArray(currentTripData) ||
-      !updateItem ||
-      !updateItem.date
-    ) {
-      console.error("Invalid data for updateItinerary:", {
-        currentTripData,
-        updateItem,
+    if (!currentTrip || !currentTrip.content) {
+      console.error(
+        "AppContext: currentTrip is not initialized, cannot update itinerary.",
+        { currentTrip }
+      );
+      // Optionally, initialize to initialTestTrip if it's a desired fallback here
+      // setCurrentTrip(initialTestTrip);
+      // console.log("AppContext: Initialized currentTrip with initialTestTrip.");
+      // return; // Or proceed if initialized
+      return;
+    }
+
+    if (!dayDate || !Array.isArray(newItemsArray)) {
+      console.error("Invalid arguments for updateItinerary:", {
+        dayDate,
+        newItemsArray,
       });
       return;
     }
 
     try {
-      const newTripData = JSON.parse(JSON.stringify(currentTripData));
+      const updatedContent = currentTrip.content.map((day) => {
+        if (day.date === dayDate) {
+          // Ensure order is maintained if newItemsArray isn't pre-sorted or doesn't have order
+          // For now, assuming newItemsArray is the complete, ordered list for the day.
+          return { ...day, itinerary: newItemsArray };
+        }
+        return day;
+      });
 
-      const dayIndex = newTripData.findIndex(
-        (day) => day.date === updateItem.date
+      const newCurrentTrip = { ...currentTrip, content: updatedContent };
+      setCurrentTrip(newCurrentTrip);
+      console.log(
+        "AppContext: Itinerary updated, new currentTrip:",
+        newCurrentTrip
       );
 
-      if (dayIndex === -1) {
-        console.error("Day not found in tripData:", updateItem.date);
-        return;
+      // If the updated day is the selected day, update selectedDay state
+      if (selectedDay && selectedDay.date === dayDate) {
+        const updatedSelectedDayObject = updatedContent.find(
+          (day) => day.date === dayDate
+        );
+        if (updatedSelectedDayObject) {
+          setSelectedDay(updatedSelectedDayObject);
+          console.log(
+            "AppContext: Selected day was updated:",
+            updatedSelectedDayObject
+          );
+        }
       }
-
-      if (!newTripData[dayIndex].itinerary) {
-        newTripData[dayIndex].itinerary = [];
-      }
-
-      const newItem = {
-        gpPlaceId: updateItem.gpPlaceId,
-        order: updateItem.order || newTripData[dayIndex].itinerary.length,
-        arrivalTime: updateItem.arrivalTime || "12:00",
-        note: updateItem.note || "",
-      };
-
-      newTripData[dayIndex].itinerary.push(newItem);
-
-      console.log("Updated trip data:", newTripData);
-      updateCurrentTripDetails({ content: newTripData });
-
-      if (selectedDay && selectedDay.date === updateItem.date) {
-        const updatedSelectedDay = newTripData[dayIndex];
-        console.log("Updating selected day:", updatedSelectedDay);
-        setSelectedDay(updatedSelectedDay);
-      }
-
-      return newTripData;
     } catch (error) {
-      console.error("Error in updateItinerary:", error);
+      console.error("AppContext: Error in updateItinerary:", error);
     }
   }
 
@@ -358,35 +364,35 @@ function AppContextProvider({ children }) {
   // Function to set trip details from HomePage
   function setTripDetails(location, title, dates) {
     console.log("Setting trip details:", { location, title, dates });
-    
+
     // Update location and title
     if (location) setTripLocation(location);
     if (title) setTripTitle(title);
-    
+
     // If dates are provided, update the trip data
     if (dates && dates.start && dates.end) {
       // Create date range from the selected dates
       const startDate = new Date(dates.start);
       const endDate = new Date(dates.end);
-      
+
       // Format dates to YYYY-MM-DD
       const formatDate = (date) => {
-        return date.toISOString().split('T')[0];
+        return date.toISOString().split("T")[0];
       };
-      
+
       // Generate array of dates
       const dateArray = [];
       let currentDate = new Date(startDate);
-      
+
       while (currentDate <= endDate) {
         dateArray.push({
           date: formatDate(currentDate),
           index: dateArray.length,
-          itinerary: []
+          itinerary: [],
         });
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       // Update trip with new date range
       if (dateArray.length > 0) {
         updateTrip(dateArray);
