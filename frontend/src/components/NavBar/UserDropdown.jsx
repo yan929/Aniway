@@ -3,42 +3,10 @@ import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { Link } from "react-router-dom";
 
-function UserDropdown({ user, onLogout, isOpen }) {
-//   const [isOpen, setIsOpen] = useState(false);
+function UserDropdown({ user, onLogout, isOpen, setIsOpen }) {
+
   const dropdownRef = useRef(null);
-
-  const toggleDropdown = () => {
-    console.log("Test user id: ", user.id);
-    if (user) {
-      setIsOpen(!isOpen);
-    } else {
-      // Navigate to login page if not logged in
-      navigate("/login");
-    }  
-  };
-
-    const goToProfile = () => {
-    if (user) {
-      const userId = user.id || user._id || user.google_id;
-      if (userId) {
-        setIsOpen(false);
-        navigate(`/profile/${userId}`);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
+  
   return (
     <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
 

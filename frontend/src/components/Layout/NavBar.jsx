@@ -10,7 +10,6 @@ import UserDropdown from "../NavBar/UserDropdown.jsx";
  */
 function NavBar() {
   const { user, logoutUser } = useContext(AppContext);
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -58,17 +57,7 @@ function NavBar() {
     }
   };
 
-  // Navigate to profile page
-  const goToProfile = () => {
-    if (user) {
-      const userId = user.id || user._id || user.google_id;
-      if (userId) {
-        setDropdownOpen(false);
-        navigate(`/profile/${userId}`);
-      }
-    }
-  };
-
+  
   // Get user's initial for avatar
   const userInitial =
     user && user.name ? user.name.charAt(0).toUpperCase() : "A";
@@ -114,7 +103,7 @@ function NavBar() {
             )}
             
           </div>
-            {user&&(<UserDropdown user={user} onLogout={handleLogout} isOpen={dropdownOpen}/>)}
+            {user&&(<UserDropdown user={user} onLogout={handleLogout} isOpen={dropdownOpen} setIsOpen={setDropdownOpen}/>)}
 
         </div>
       </div>
