@@ -1,10 +1,10 @@
 import apiClient from "../../util/api";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../UserContext";
+
 
 function DeleteAccountSection() {
   const navigate = useNavigate();
-  const { userDelete } = useUser();
+
 
   const handleUserDelete = async () => {
     console.log("Test deletion");
@@ -13,7 +13,6 @@ function DeleteAccountSection() {
       const response = await apiClient.post(`/api/user/delete`);
 
       if (response.status === 200) {
-        userDelete();
         navigate("/");
       }
     } catch (error) {
