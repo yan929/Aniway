@@ -13,9 +13,12 @@ const AppContext = React.createContext({
   logoutUser: () => {},
   selectedDay: null, // Added for location search functionality
   selectDay: () => {}, // Added for location search functionality
+  tripTitle: "",
+  tripLocation: null,
+  setTripDetails: () => {},
 });
 
-// test dummy data (can be removed if not needed for initial state)
+// Test dummy data (can be removed if not needed for initial state)
 const testTripData = [
   {
     date: "2025-10-01",
@@ -62,6 +65,7 @@ const testTripData = [
 ];
 
 function AppContextProvider({ children }) {
+  // Initial trip data state
   const [tripData, setTripData] = useState(() => {
     try {
       // const saved = localStorage.getItem('tripData');
@@ -70,6 +74,28 @@ function AppContextProvider({ children }) {
     } catch (e) {
       console.error("Failed to load localStorage tripData:", e);
       return testTripData;
+    }
+  });
+
+  // Added for destination and trip details from HomePage
+  const [tripTitle, setTripTitle] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tripTitle');
+      return saved || "My Trip";
+    } catch (e) {
+      console.error("Failed to load localStorage tripTitle:", e);
+      return "My Trip";
+    }
+  });
+
+  // Store the selected destination location
+  const [tripLocation, setTripLocation] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tripLocation');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Failed to load localStorage tripLocation:", e);
+      return null;
     }
   });
 
@@ -94,11 +120,23 @@ function AppContextProvider({ children }) {
     }
   }, [tripData, selectedDay]);
 
+  // Synchronize trip data to local storage
   useEffect(() => {
     if (tripData) {
       localStorage.setItem("tripData", JSON.stringify(tripData));
     }
   }, [tripData]);
+
+  // Synchronize trip title and location to local storage
+  useEffect(() => {
+    localStorage.setItem("tripTitle", tripTitle);
+  }, [tripTitle]);
+
+  useEffect(() => {
+    if (tripLocation) {
+      localStorage.setItem("tripLocation", JSON.stringify(tripLocation));
+    }
+  }, [tripLocation]);
 
   useEffect(() => {
     if (user) {
@@ -253,6 +291,45 @@ function AppContextProvider({ children }) {
     }
   }
 
+  // Function to set trip details from HomePage
+  function setTripDetails(location, title, dates) {
+    console.log("Setting trip details:", { location, title, dates });
+    
+    // Update location and title
+    if (location) setTripLocation(location);
+    if (title) setTripTitle(title);
+    
+    // If dates are provided, update the trip data
+    if (dates && dates.start && dates.end) {
+      // Create date range from the selected dates
+      const startDate = new Date(dates.start);
+      const endDate = new Date(dates.end);
+      
+      // Format dates to YYYY-MM-DD
+      const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
+      };
+      
+      // Generate array of dates
+      const dateArray = [];
+      let currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        dateArray.push({
+          date: formatDate(currentDate),
+          index: dateArray.length,
+          itinerary: []
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Update trip with new date range
+      if (dateArray.length > 0) {
+        updateTrip(dateArray);
+      }
+    }
+  }
+
   // Added function to select a specific day
   function selectDay(day) {
     console.log("Selecting day:", day);
@@ -275,8 +352,11 @@ function AppContextProvider({ children }) {
     user,
     loginUser,
     logoutUser,
-    selectedDay, // Added for location search functionality
-    selectDay, // Added for location search functionality
+    selectedDay,
+    selectDay,
+    tripTitle,
+    tripLocation,
+    setTripDetails,
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
