@@ -1,9 +1,9 @@
-import axios from "axios";
+import apiClient from "../util/api";
 
-export async function fetchPlaceByLatLng(keyword,lat, lng) {
+export async function fetchPlaceByLatLng(keyword, lat, lng) {
   try {
-    const res = await axios.get("/api/gmap/place_by_nearby", {
-      params: {keyword, lat, lng },
+    const res = await apiClient.get("/api/gmap/place_by_nearby", {
+      params: { keyword, lat, lng },
     });
     return res.data;
   } catch (err) {
