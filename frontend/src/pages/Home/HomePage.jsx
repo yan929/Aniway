@@ -19,6 +19,7 @@ function HomePage() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPopupLocation, setSelectedPopupLocation] = useState(null);
 
+  // Access the context for transferring data to TripPlanner
   const { setTripDetails } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -43,16 +44,18 @@ function HomePage() {
     fetchDataOnMount();
   }, []);
 
-  // Handle search submission
+  // Handle search submission and transfer data to TripPlanner
   const handleSearch = () => {
     if (selectedLocation && selectedDates) {
-      // Save selected destination and dates to Context
+      // Generate trip title based on selected location
       const tripTitle = `Trip to ${
         selectedLocation.name || selectedLocation.description || "Destination"
       }`;
+      
+      // Transfer data to AppContext for use in TripPlanner
       setTripDetails(selectedLocation, tripTitle, selectedDates);
-
-      // Navigate to trip planner page
+      
+      // Navigate to the trip planner page
       navigate("/tripplanner");
     } else {
       // Prompt user to select destination and dates

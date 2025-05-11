@@ -22,8 +22,12 @@ export default function Sidebar({ onToggleChat }) {
   return (
     <aside className="bg-gray-800 text-white w-64 p-4 flex flex-col gap-6 h-screen shrink-0">
       <div className="flex items-center gap-2 text-lg font-bold">
-        <div className="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
-          Logo
+        <div className="w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden bg-white">
+          <img 
+            src="/aniway.png" 
+            alt="Aniway Logo" 
+            className="w-9 h-9 object-contain"
+          />
         </div>
         <span className="text-xl">Aniway</span>
       </div>

@@ -1,17 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
 import ItinerarySection from "../../components/TripPlanner/ItinerarySection.jsx";
 import ChatWindow from "../../components/AIChat/ChatWindow.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
-// import DaySection from './components/DaySection';
-// import MapPanel from './components/MapPanel';
-
-export default function ItineraryPage() {
+export default function TripPlanner() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { tripData, tripTitle, tripLocation } = useContext(AppContext);
+  const navigate = useNavigate();
 
+  // Check if trip data exists when component mounts
+  useEffect(() => {
+    // If tripData or tripLocation is missing, you might want to redirect or show a message
+    if (!tripData || !tripLocation) {
+      console.warn("Missing trip data or location. Consider selecting destination and dates from the homepage.");
+      
+      // Optional: Uncomment to redirect back to homepage if no data
+      // navigate('/');
+    }
+  }, [tripData, tripLocation, navigate]);
+
+  // Toggle chat window visibility
   const toggleChatWindow = () => {
     setIsChatOpen(!isChatOpen);
+  };
+
+  // Handle suggestions from the AI chat
+  const handleApplySuggestion = (suggestion) => {
+    console.log("Applying suggestion to trip plan:", suggestion);
+    // Implement suggestion application logic here
   };
 
   return (
@@ -23,6 +42,7 @@ export default function ItineraryPage() {
       </main>
       {/* <MapPanel /> */}
 
+      {/* Chat window with slide-in animation */}
       <div
         className={`
           absolute inset-0 z-50 
@@ -31,14 +51,10 @@ export default function ItineraryPage() {
           ${isChatOpen ? "pointer-events-auto" : "pointer-events-none"} 
         `}
       >
-        {/* Render ChatWindow inside the fixed container, maybe give it a width */}
         <div className="w-full h-full bg-white shadow-xl">
           <ChatWindow
             onClose={toggleChatWindow}
-            onApplySuggestion={(suggestion) => {
-              console.log("Applying suggestion:", suggestion);
-              /* Define actual handler later */
-            }}
+            onApplySuggestion={handleApplySuggestion}
           />
         </div>
       </div>
