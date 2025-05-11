@@ -31,7 +31,7 @@ function DatePicker({ selectedDates, onDateSelect }) {
   // Set up initial selected dates - use props if provided, otherwise use default
   const [showCalendar, setShowCalendar] = useState(false);
   const [localSelectedDates, setLocalSelectedDates] = useState(
-    selectedDates || getDefaultDateRange()
+    null // Initialize as null instead of default date range
   );
   const [hoveredDate, setHoveredDate] = useState(null);
   const datePickerRef = useRef(null);
@@ -114,7 +114,7 @@ function DatePicker({ selectedDates, onDateSelect }) {
     const newDate = `${formattedMonth}/${formattedDay}`;
     
     // Handle date range selection
-    if (!localSelectedDates.start || (localSelectedDates.start && localSelectedDates.end)) {
+    if (!localSelectedDates?.start || (localSelectedDates?.start && localSelectedDates?.end)) {
       const updatedDates = { start: newDate, end: null };
       setLocalSelectedDates(updatedDates);
       if (onDateSelect) onDateSelect(updatedDates);
@@ -144,9 +144,9 @@ function DatePicker({ selectedDates, onDateSelect }) {
 
   // Format display date
   const formatDisplayDate = () => {
-    if (localSelectedDates.start && localSelectedDates.end) {
+    if (localSelectedDates?.start && localSelectedDates?.end) {
       return `${formatDate(localSelectedDates.start)} - ${formatDate(localSelectedDates.end)}`;
-    } else if (localSelectedDates.start) {
+    } else if (localSelectedDates?.start) {
       return formatDate(localSelectedDates.start);
     }
     return "Select dates";
@@ -175,7 +175,7 @@ function DatePicker({ selectedDates, onDateSelect }) {
 
   // Check if a date is within the selection range
   const isInRange = (day) => {
-    if (!localSelectedDates.start || !day) return false;
+    if (!localSelectedDates?.start || !day) return false;
     
     const currentMonth = displayMonth + 1;
     const currentDate = `${currentMonth.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
@@ -207,7 +207,7 @@ function DatePicker({ selectedDates, onDateSelect }) {
 
   // Handle mouse enter on a date
   const handleMouseEnter = (day) => {
-    if (!localSelectedDates.start || localSelectedDates.end) return;
+    if (!localSelectedDates?.start || localSelectedDates?.end) return;
     
     const month = displayMonth + 1;
     const formattedDay = day.toString().padStart(2, '0');
@@ -261,9 +261,9 @@ function DatePicker({ selectedDates, onDateSelect }) {
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
               {calendarDays.map((day, index) => {
-                const isStartDate = localSelectedDates.start && 
+                const isStartDate = localSelectedDates?.start && 
                   localSelectedDates.start === `${(displayMonth + 1).toString().padStart(2, '0')}/${day?.toString().padStart(2, '0')}`;
-                const isEndDate = localSelectedDates.end && 
+                const isEndDate = localSelectedDates?.end && 
                   localSelectedDates.end === `${(displayMonth + 1).toString().padStart(2, '0')}/${day?.toString().padStart(2, '0')}`;
                 const isInRangeDay = isInRange(day);
                 
