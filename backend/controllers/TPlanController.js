@@ -5,14 +5,14 @@ const getAllPlans = asyncHandler(async (req, res) => {
   try {
     // Add authentication check
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     // Use authenticated user's ID instead of hardcoded value
     const userId = req.user.id;
 
     const tripPlansData = await TripPlan.find({ user_id: userId })
-      .sort({ search_ranking: -1 })
+      .sort({ updatedAt: -1 })
       .select("title content user_id");
 
     const tripPlans = tripPlansData.map((plan) => ({
@@ -32,8 +32,7 @@ const getAllPlans = asyncHandler(async (req, res) => {
 
 const addPlan = asyncHandler(async (req, res) => {
   try {
-    
-const data = req.body;
+    const data = req.body;
 
     const newPlan = new TripPlan(data);
     const savedPlan = await newPlan.save();

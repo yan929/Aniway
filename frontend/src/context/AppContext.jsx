@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { updateTripDate } from "../util/updateTripDate.js";
-import { updateTripItinerary } from "../util/updateTripItinerary.js";
 import apiClient from "../util/api.js";
 
 const AppContext = React.createContext({
-  tripData: null,
+  currentTrip: null,
+  loadCurrentTrip: async () => {},
+  // eslint-disable-next-line no-unused-vars
+  updateCurrentTripDetails: (_details) => {},
+  saveCurrentTripToDb: async () => {},
   updateTrip: () => {},
   fetchTrip: () => {},
   updateItinerary: () => {},
@@ -12,71 +15,87 @@ const AppContext = React.createContext({
   user: null,
   loginUser: () => {},
   logoutUser: () => {},
-  selectedDay: null,  // Added for location search functionality
-  selectDay: () => {}, // Added for location search functionality
+  selectedDay: null,
+  selectDay: () => {},
+  isAuthenticated: false,
+  isAuthLoading: true,
+  tripTitle: "",
+  tripLocation: null,
+  setTripDetails: () => {},
 });
 
-// test dummy data (can be removed if not needed for initial state)
-const testTripData = [
-  {
-    date: "2025-10-01",
-    index: 0,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJXSModoWLGGARILWiCfeu2M0",
-        order: 1,
-        arrivalTime: "12:00",
-        note: "Dinner with view",
-      },
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 2,
-        arrivalTime: "22:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
-  {
-    date: "2025-10-02",
-    index: 1,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 1,
-        arrivalTime: "10:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
-  {
-    date: "2025-10-03",
-    index: 2,
-    itinerary: [
-      {
-        gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-        order: 1,
-        arrivalTime: "10:00",
-        note: "Dinner with view",
-      },
-    ],
-  },
-];
+const initialTestTrip = {
+  _id: "681013239a49bb4d4b06de53",
+  title: "My Amazing Test Trip",
+  content: [
+    {
+      date: "2025-10-01",
+      index: 0,
+      itinerary: [
+        {
+          gpPlaceId: "ChIJXSModoWLGGARILWiCfeu2M0",
+          order: 1,
+          arrivalTime: "12:00",
+          note: "Dinner with view",
+        },
+        {
+          gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
+          order: 2,
+          arrivalTime: "22:00",
+          note: "Dinner with view",
+        },
+      ],
+    },
+    {
+      date: "2025-10-02",
+      index: 1,
+      itinerary: [
+        {
+          gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
+          order: 1,
+          arrivalTime: "10:00",
+          note: "Dinner with view",
+        },
+      ],
+    },
+  ],
+};
 
 function AppContextProvider({ children }) {
-  const [tripData, setTripData] = useState(() => {
+  const [currentTrip, setCurrentTrip] = useState(() => {
     try {
-      // const saved = localStorage.getItem('tripData');
-      // return saved ? JSON.parse(saved) : testTripData;
-      return testTripData; // testing
+      const savedTrip = localStorage.getItem("currentTrip");
+      return savedTrip ? JSON.parse(savedTrip) : initialTestTrip;
     } catch (e) {
-      console.error("Failed to load localStorage tripData:", e);
-      return testTripData;
+      console.error("Failed to load currentTrip from localStorage:", e);
+      return initialTestTrip;
+    }
+  });
+
+  // Added for destination and trip details from HomePage
+  const [tripTitle, setTripTitle] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tripTitle');
+      return saved || "My Trip";
+    } catch (e) {
+      console.error("Failed to load localStorage tripTitle:", e);
+      return "My Trip";
+    }
+  });
+
+  // Store the selected destination location
+  const [tripLocation, setTripLocation] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tripLocation');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Failed to load localStorage tripLocation:", e);
+      return null;
     }
   });
 
   // Added selectedDay state for location search functionality
   const [selectedDay, setSelectedDay] = useState(null);
-
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem("user");
@@ -87,19 +106,33 @@ function AppContextProvider({ children }) {
     }
   });
 
-  // Set default selected day on initial load
-  useEffect(() => {
-    if (tripData && tripData.length > 0 && !selectedDay) {
-      console.log("Initially setting selected day to:", tripData[0]);
-      setSelectedDay(tripData[0]);
-    }
-  }, [tripData, selectedDay]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
-    if (tripData) {
-      localStorage.setItem("tripData", JSON.stringify(tripData));
+    if (currentTrip && currentTrip.content.length > 0 && !selectedDay) {
+      console.log("Initially setting selected day to:", currentTrip.content[0]);
+      setSelectedDay(currentTrip.content[0]);
     }
-  }, [tripData]);
+  }, [currentTrip, selectedDay]);
+
+  // Synchronize trip data to local storage
+  useEffect(() => {
+    if (currentTrip) {
+      localStorage.setItem("currentTrip", JSON.stringify(currentTrip));
+    }
+  }, [currentTrip]);
+
+  // Synchronize trip title and location to local storage
+  useEffect(() => {
+    localStorage.setItem("tripTitle", tripTitle);
+  }, [tripTitle]);
+
+  useEffect(() => {
+    if (tripLocation) {
+      localStorage.setItem("tripLocation", JSON.stringify(tripLocation));
+    }
+  }, [tripLocation]);
 
   useEffect(() => {
     if (user) {
@@ -109,94 +142,173 @@ function AppContextProvider({ children }) {
     }
   }, [user]);
 
-  // Initial check for active session if not found in localStorage
   useEffect(() => {
     const checkUserSession = async () => {
-      if (!user) {
-        // Only check if user is not already loaded from localStorage
-        try {
+      try {
+        console.log("AppContext: Checking API for session...");
+        const response = await apiClient.get("/api/user", {
+          withCredentials: true,
+        });
+        if (response.data) {
           console.log(
-            "AppContext: No user in localStorage, checking API for session..."
+            "AppContext: User session found via API, logging in:",
+            response.data
           );
-          const response = await apiClient.get("/api/user", {
-            withCredentials: true,
-          });
-          if (response.data) {
-            console.log(
-              "AppContext: User session found via API, logging in:",
-              response.data
-            );
-            loginUser(response.data);
-          }
-        } catch (error) {
-          if (error.response && error.response.status === 401) {
-            // Expected: No active session or cookie is invalid/expired
-            console.log("AppContext: No active API session found (401).");
-          } else {
-            // Other errors (network, server issue)
-            console.error("AppContext: Error checking user session:", error);
-          }
+          setUser(response.data);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setUser(null);
+        setIsAuthenticated(false);
+        if (error.response && error.response.status === 401) {
+          console.log("AppContext: No active API session found (401).");
+        } else {
+          console.error("AppContext: Error checking user session:", error);
         }
       }
+      setIsAuthLoading(false);
     };
 
     checkUserSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
-  function updateTrip(newRangeTripData) {
-    console.log("Updating trip with new range data:", newRangeTripData);
-    const extendedTrip = updateTripDate(newRangeTripData);
-    setTripData(extendedTrip);
-  }
+  const updateCurrentTripDetails = useCallback((detailsToUpdate) => {
+    setCurrentTrip((prevTrip) => {
+      if (!prevTrip) {
+        console.warn(
+          "updateCurrentTripDetails called when prevTrip is null. detailsToUpdate:",
+          detailsToUpdate
+        );
+        return { ...prevTrip, ...detailsToUpdate };
+      }
+      return { ...prevTrip, ...detailsToUpdate };
+    });
+    console.log("AppContext: Local currentTrip updated with:", detailsToUpdate);
+  }, []);
+
+  const saveCurrentTripToDb = useCallback(async () => {
+    if (!currentTrip) {
+      console.error("saveCurrentTripToDb: No currentTrip to save.");
+      alert("No trip data to save.");
+      return;
+    }
+
+    const { _id, title, content } = currentTrip;
+    const payload = { title, content };
+
+    if (!_id) {
+      console.log("AppContext: Creating new trip with payload:", payload);
+      try {
+        const response = await apiClient.post("/api/tplan", payload);
+        setCurrentTrip(response.data);
+        console.log(
+          "AppContext: New trip created successfully.",
+          response.data
+        );
+        alert("Trip created and saved successfully!");
+      } catch (error) {
+        console.error(
+          "AppContext: Error creating new trip:",
+          error.response ? error.response.data : error.message
+        );
+        alert(
+          "Error creating trip. " +
+            (error.response?.data?.message || error.message)
+        );
+        throw error;
+      }
+    } else {
+      console.log(
+        `AppContext: Updating existing trip ${_id} with payload:`,
+        payload
+      );
+      try {
+        const response = await apiClient.patch(`/api/tplan/${_id}`, payload);
+        setCurrentTrip((prevTrip) => ({ ...prevTrip, ...response.data }));
+        console.log("AppContext: Trip updated successfully.", response.data);
+        alert("Trip updated successfully!");
+      } catch (error) {
+        console.error(
+          `AppContext: Error updating trip ${_id}:`,
+          error.response ? error.response.data : error.message
+        );
+        alert(
+          "Error updating trip. " +
+            (error.response?.data?.message || error.message)
+        );
+        throw error;
+      }
+    }
+  }, [currentTrip, setCurrentTrip]);
+
+  const updateTrip = useCallback(
+    (newDayPlanArray) => {
+      if (!currentTrip) {
+        console.warn(
+          "AppContext: Cannot update trip content, currentTrip is null."
+        );
+        return;
+      }
+      console.log("Updating trip with new range data:", newDayPlanArray);
+      const extendedContent = updateTripDate(newDayPlanArray);
+      updateCurrentTripDetails({ content: extendedContent });
+    },
+    [currentTrip, updateCurrentTripDetails]
+  );
 
   function updateItinerary(currentTripData, updateItem) {
     console.log("Updating itinerary with item:", updateItem);
-    
-    // Ensure we have valid data
-    if (!currentTripData || !Array.isArray(currentTripData) || !updateItem || !updateItem.date) {
-      console.error("Invalid data for updateItinerary:", { currentTripData, updateItem });
+
+    if (
+      !currentTripData ||
+      !Array.isArray(currentTripData) ||
+      !updateItem ||
+      !updateItem.date
+    ) {
+      console.error("Invalid data for updateItinerary:", {
+        currentTripData,
+        updateItem,
+      });
       return;
     }
-    
+
     try {
-      // Create a direct copy to avoid reference issues
       const newTripData = JSON.parse(JSON.stringify(currentTripData));
-      
-      // Find the day to update
-      const dayIndex = newTripData.findIndex(day => day.date === updateItem.date);
-      
+
+      const dayIndex = newTripData.findIndex(
+        (day) => day.date === updateItem.date
+      );
+
       if (dayIndex === -1) {
         console.error("Day not found in tripData:", updateItem.date);
         return;
       }
-      
-      // Ensure itinerary array exists
+
       if (!newTripData[dayIndex].itinerary) {
         newTripData[dayIndex].itinerary = [];
       }
-      
-      // Create a new item with all necessary fields
+
       const newItem = {
         gpPlaceId: updateItem.gpPlaceId,
         order: updateItem.order || newTripData[dayIndex].itinerary.length,
-        arrivalTime: updateItem.arrivalTime || "12:00", // Default value
-        note: updateItem.note || ""
+        arrivalTime: updateItem.arrivalTime || "12:00",
+        note: updateItem.note || "",
       };
-      
-      // Add the new item
+
       newTripData[dayIndex].itinerary.push(newItem);
-      
+
       console.log("Updated trip data:", newTripData);
-      setTripData(newTripData);
-      
-      // Update the selected day if it's the same day we're adding to
+      updateCurrentTripDetails({ content: newTripData });
+
       if (selectedDay && selectedDay.date === updateItem.date) {
         const updatedSelectedDay = newTripData[dayIndex];
         console.log("Updating selected day:", updatedSelectedDay);
         setSelectedDay(updatedSelectedDay);
       }
-      
+
       return newTripData;
     } catch (error) {
       console.error("Error in updateItinerary:", error);
@@ -205,9 +317,9 @@ function AppContextProvider({ children }) {
 
   function deleteTripItem(deleteTripDay, deleteItem) {
     console.log("Deleting trip item:", { deleteTripDay, deleteItem });
-    
+
     try {
-      const newTripData = tripData.map((day) => {
+      const newTripData = currentTrip.content.map((day) => {
         if (day.date === deleteTripDay.date) {
           return {
             ...day,
@@ -222,20 +334,63 @@ function AppContextProvider({ children }) {
         }
         return day;
       });
-      
+
       console.log("After deletion:", newTripData);
-      setTripData(newTripData);
-      
-      // If we're deleting from the currently selected day, also update selectedDay
+      updateCurrentTripDetails({ content: newTripData });
+
       if (selectedDay && selectedDay.date === deleteTripDay.date) {
-        const updatedSelectedDay = newTripData.find(day => day.date === selectedDay.date);
+        const updatedSelectedDay = newTripData.find(
+          (day) => day.date === selectedDay.date
+        );
         if (updatedSelectedDay) {
-          console.log("Updating selected day after deletion:", updatedSelectedDay);
+          console.log(
+            "Updating selected day after deletion:",
+            updatedSelectedDay
+          );
           setSelectedDay(updatedSelectedDay);
         }
       }
     } catch (error) {
       console.error("Error in deleteTripItem:", error);
+    }
+  }
+
+  // Function to set trip details from HomePage
+  function setTripDetails(location, title, dates) {
+    console.log("Setting trip details:", { location, title, dates });
+    
+    // Update location and title
+    if (location) setTripLocation(location);
+    if (title) setTripTitle(title);
+    
+    // If dates are provided, update the trip data
+    if (dates && dates.start && dates.end) {
+      // Create date range from the selected dates
+      const startDate = new Date(dates.start);
+      const endDate = new Date(dates.end);
+      
+      // Format dates to YYYY-MM-DD
+      const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
+      };
+      
+      // Generate array of dates
+      const dateArray = [];
+      let currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        dateArray.push({
+          date: formatDate(currentDate),
+          index: dateArray.length,
+          itinerary: []
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Update trip with new date range
+      if (dateArray.length > 0) {
+        updateTrip(dateArray);
+      }
     }
   }
 
@@ -245,24 +400,65 @@ function AppContextProvider({ children }) {
     setSelectedDay(day);
   }
 
-  function loginUser(userData) {
-    setUser(userData);
-  }
+  const loadCurrentTrip = useCallback(async (tripId) => {
+    if (!tripId) {
+      console.log(
+        "AppContext: No tripId provided, cannot load trip. Setting to null or initial."
+      );
+      return;
+    }
+    try {
+      console.log(`AppContext: Loading trip with ID: ${tripId}`);
+      const response = await apiClient.get(`/api/tplan/${tripId}`);
+      if (response.data) {
+        setCurrentTrip(response.data);
+        console.log("AppContext: Trip loaded successfully:", response.data);
+      } else {
+        console.warn(`AppContext: No data returned for trip ID ${tripId}.`);
+      }
+    } catch (error) {
+      console.error(`AppContext: Error loading trip ${tripId}:`, error);
+    }
+  }, []);
 
-  function logoutUser() {
+  const loginUser = useCallback((userData) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+    console.log("AppContext: User logged in, isAuthenticated set to true.");
+  }, []);
+
+  const logoutUser = useCallback(async () => {
+    try {
+      await apiClient.post("/auth/logout");
+      console.log("AppContext: Logout successful on backend.");
+    } catch (error) {
+      console.error("AppContext: Error during backend logout:", error);
+      // Still proceed with frontend logout
+    }
     setUser(null);
-  }
+    setIsAuthenticated(false);
+    setSelectedDay(null);
+    console.log("AppContext: User logged out, isAuthenticated set to false.");
+  }, []);
 
   const context = {
-    tripData,
+    currentTrip,
+    loadCurrentTrip,
+    updateCurrentTripDetails,
+    saveCurrentTripToDb,
     updateTrip,
     updateItinerary,
     deleteTripItem,
+    selectedDay,
+    selectDay,
     user,
     loginUser,
     logoutUser,
-    selectedDay,  // Added for location search functionality
-    selectDay,    // Added for location search functionality
+    tripTitle,
+    tripLocation,
+    setTripDetails,
+    isAuthenticated,
+    isAuthLoading,
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
