@@ -1,5 +1,6 @@
 import express from "express";
 import passport from "passport";
+import axios from "axios";
 
 const router = express.Router();
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -73,40 +74,74 @@ router.get("/api/logout", (req, res, next) => {
 });
 
 router.post("/api/user/delete", async (req, res) => {
-  console.log("Test req.isAuth: ", req.isAuthenticated());
+  console.log("Test cookies: ", req.session);
+    console.log("Test req.isAuth: ", req.isAuthenticated());
 
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  const user = req.user;
-  const accessToken = user?.accessToken;
+    const user = req.user;
+    const accessToken = user?.accessToken;
 
-  if (!accessToken) {
-    return res.status(400).json({ message: "Access token is missing" });
-  }
+    if (!accessToken) {
+      return res.status(400).json({ message: "Access token is missing" });
+    }
 
-  try {
-    const revokeUrl = `https://oauth2.googleapis.com/revoke?token=${accessToken}`;
+    try {
+      const revokeUrl = `https://oauth2.googleapis.com/revoke?token=${accessToken}`;
 
-    await axios.post(revokeUrl, null, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-    console.log(
-      `Google token successfully revoked for user: ${
-        user.id || user.displayName
-      }`
-    );
+      await axios.post(revokeUrl, null, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      console.log(
+        `Google token successfully revoked for user: ${
+          user.id || user.displayName
+        }`
+      );
 
     req.logout((err) => {
-      if (err) return res.status(500).send("Logout failed");
-      req.session.destroy(() => {
-        res.clearCookie("connect.sid");
-        res.redirect("http://localhost:5173/login");
-      });
+    if (err) {
+      if (
+        req.xhr ||
+        (req.headers.accept && req.headers.accept.includes("json"))
+      ) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      return next(err);
+    }
+    req.session.destroy((destroyErr) => {
+      if (destroyErr) {
+        if (
+          req.xhr ||
+          (req.headers.accept && req.headers.accept.includes("json"))
+        ) {
+          return res
+            .status(500)
+            .json({ message: "Session destruction failed" });
+        }
+        return next(destroyErr);
+      }
+      res.clearCookie("connect.sid");
+      if (
+        req.xhr ||
+        (req.headers.accept && req.headers.accept.includes("json"))
+      ) {
+        res.status(200).json({ message: "Logged out successfully" });
+      } else {
+        const logoutRedirectUrl =
+          (process.env.NODE_ENV === "production"
+            ? process.env.FRONTEND_URL
+            : "http://localhost:5173") + "/login";
+        res.redirect(logoutRedirectUrl);
+      }
     });
+  });
+
+
+    
   } catch (error) {
     console.log("Error with revoking process: ", error.message);
   }
