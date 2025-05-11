@@ -30,10 +30,12 @@ function UserDropdown({ user, onLogout }) {
         <ul className="dropdown-menu">
           <li>{username}</li>
           <li>
-            <Link to="/tripplanner">My Trips</Link>
+            <Link to={`/profile/${userId}`} onClick={() => setIsOpen(false)}>
+              My Trips
+            </Link>
           </li>
           <li>
-            <Link to="/api/logout">Logout</Link>
+            <Link to="/api/logout" >Logout</Link>
           </li>
         </ul>
       )}
