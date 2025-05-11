@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../AniInfo/AniLoc";
+import { AppContext } from "../../context/AppContext";
 
 export default function SmartAdvice({ isOpen, onClose, day }) {
+    const { updateItinerary, currentTrip } = useContext(AppContext);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [userInput, setUserInput] = useState("");
@@ -29,13 +32,13 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
         setSuggestions([]);
 
         try {
-            console.log("day", day);
+            console.log("day for advice:", day);
             const res = await apiClient.post(`/api/ai/advice`, {
                 prompt: prompt,
                 currentItinerary: day,
             });
 
-            console.log("Response Data from API:", res.data);
+            console.log("Response Data from API (suggestions):", res.data);
             if (Array.isArray(res.data)) {
                 const transformedSuggestions = res.data.map(item => ({
                     id: item.id,
@@ -43,20 +46,100 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     image: item.image,
                     addresses: item.addresses,
                     ep: item.ep,
+                    lat: item.lat,
+                    lng: item.lng,
+                    gpPlaceId: item.gpPlaceId
                 }));
                 setSuggestions(transformedSuggestions);
             } else {
-                console.error("API did not return an array:", res.data);
-                setError("Received invalid data from server.");
+                console.error("API did not return an array for suggestions:", res.data);
+                setError("Received invalid data for suggestions from server.");
                 setSuggestions([]);
             }
         } catch (err) {
-            console.error(err);
+            console.error("Error fetching suggestions:", err);
             setError("Failed to fetch suggestions.");
             setSuggestions([]);
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleAddSuggestionToItinerary = async (clickedSuggestion) => {
+        if (!currentTrip || !currentTrip.content || !day || !day.date) {
+            setError("Cannot add to itinerary: essential trip data is missing.");
+            console.error("Missing currentTrip, currentTrip.content, or day.date");
+            return;
+        }
+        console.log("Attempting to add to itinerary:", clickedSuggestion);
+
+        try {
+            console.log("Calling /api/gmap/place_by_nearby with params:", {
+                keyword: clickedSuggestion.locationName,
+                lat: clickedSuggestion.lat,
+                lng: clickedSuggestion.lng,
+            });
+
+            const apiClientResponse = await apiClient.get("/api/gmap/place_by_nearby", {
+                params: {
+                    keyword: clickedSuggestion.locationName,
+                    lat: clickedSuggestion.lat,
+                    lng: clickedSuggestion.lng,
+                }
+            });
+
+            const enrichedLocationDataFromAPI = apiClientResponse.data;
+            console.log("Received enrichedLocationData from API:", enrichedLocationDataFromAPI);
+
+            if (!enrichedLocationDataFromAPI || !enrichedLocationDataFromAPI.place_id) {
+                setError("Failed to get complete location details or Google Place ID from the server.");
+                console.error("API response missing place_id:", enrichedLocationDataFromAPI);
+                return;
+            }
+
+            // Construct image URL using photo_reference
+            let imageUrl = clickedSuggestion.image; // Default to the image from the suggestion list (e.g., anitabi image)
+            if (enrichedLocationDataFromAPI.photo_reference) {
+                // ASSUMPTION: Your backend route for fetchPlacePhotoByPlaceId is /api/gmap/photo_by_reference
+                // This URL will point to your backend, which then serves the image from Google.
+                imageUrl = `/api/gmap/photo_by_reference?photo_reference=${enrichedLocationDataFromAPI.photo_reference}`;
+                console.log("Constructed Google Place photo URL (via backend):", imageUrl);
+            } else {
+                console.log("No photo_reference from Google, using existing image:", imageUrl);
+            }
+
+            const targetDayItinerary = currentTrip.content.find(d => d.date === day.date)?.itinerary || [];
+            const newItemOrder = targetDayItinerary.length + 1;
+
+            const newItemToAdd = {
+                date: day.date,
+                gpPlaceId: enrichedLocationDataFromAPI.place_id,
+                name: enrichedLocationDataFromAPI.name,
+                lat: enrichedLocationDataFromAPI.location?.lat,
+                lng: enrichedLocationDataFromAPI.location?.lng,
+                address: enrichedLocationDataFromAPI.address,
+                image: imageUrl, // Store the determined image URL
+                order: newItemOrder,
+                arrivalTime: "12:00",
+                note: "Added from Smart Advice",
+            };
+
+            if (newItemToAdd.lat === undefined || newItemToAdd.lng === undefined) {
+                setError("Location latitude or longitude is missing after fetching details.");
+                console.error("Missing lat/lng in newItemToAdd:", newItemToAdd);
+                return;
+            }
+
+            console.log("New item to add to itinerary:", newItemToAdd);
+            updateItinerary(currentTrip.content, newItemToAdd);
+            console.log("Item added to itinerary via AppContext.");
+            onClose();
+
+        } catch (err) {
+            console.error("Error adding suggestion to itinerary or fetching details:", err);
+            setError(err.response?.data?.message || err.message || "Could not add location to itinerary.");
+        }
+        // finally { setLoading(false); } // Ensure loading state is handled correctly if re-enabled
     };
 
     return (
@@ -93,7 +176,7 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     </button>
 
                     {!loading && suggestions.length > 0 && (
-                        <p className="text-x text-gray-600 mt-0 text-left">
+                        <p className="text-xs text-gray-600 mt-0 text-left">
                             Found {suggestions.length} location(s).
                         </p>
                     )}
@@ -106,10 +189,8 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                                 <DisplayAniLoc
                                     aniLocList={suggestions}
                                     cardClassName="h-32"
-                                    showListTitle={false}
-                                    onLocationClick={(location) => {
-                                        console.log("Suggested location clicked from SmartAdviceWindow:", location);
-                                    }}
+                                    showListTitle={true}
+                                    onLocationClick={handleAddSuggestionToItinerary}
                                 />
                             </div>
                         </div>
