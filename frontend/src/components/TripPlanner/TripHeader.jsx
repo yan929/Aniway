@@ -8,6 +8,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import dayjs from "dayjs";
+import DatePicker from "../../components/DatePicker/DatePicker"; // Import DatePicker
 
 export default function TripHeader() {
   const { currentTrip, updateCurrentTripDetails, updateTrip } =
@@ -17,14 +18,15 @@ export default function TripHeader() {
   const [editableTitle, setEditableTitle] = useState(() =>
     currentTrip && currentTrip.title ? currentTrip.title : "Trip Title"
   );
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  // Store dates as Date objects or null
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     if (currentTrip && currentTrip.title) {
       setEditableTitle(currentTrip.title);
     } else {
-      setEditableTitle("Trip Title");
+      setEditableTitle("Trip Title"); // Default title if none exists
     }
 
     if (
@@ -33,51 +35,83 @@ export default function TripHeader() {
       Array.isArray(currentTrip.content) &&
       currentTrip.content.length > 0
     ) {
-      setStartDate(currentTrip.content[0].date);
-      setEndDate(currentTrip.content[currentTrip.content.length - 1].date);
+      const firstDate = currentTrip.content[0].date;
+      const lastDate = currentTrip.content[currentTrip.content.length - 1].date;
+      setStartDate(firstDate ? dayjs(firstDate).toDate() : null);
+      setEndDate(lastDate ? dayjs(lastDate).toDate() : null);
     } else {
-      setStartDate("");
-      setEndDate("");
+      // If no content, or content is empty, reset dates or set to a default range
+      // For now, resetting to null, DatePicker might handle default display
+      setStartDate(null);
+      setEndDate(null);
     }
   }, [currentTrip]);
 
-  // Update local title when tripTitle changes
-  useEffect(() => {
-    setEditableTitle(currentTrip.title || "My Trip");
-  }, [currentTrip]);
+  // This useEffect seems redundant if the one above handles title from currentTrip
+  // useEffect(() => {
+  //   setEditableTitle(currentTrip?.title || "My Trip");
+  // }, [currentTrip]);
 
-  // Handle date range boundary changes
-  const handleBoundaryDateChange = (type, value) => {
-    if (
-      !currentTrip ||
-      !currentTrip.content ||
-      !Array.isArray(currentTrip.content) ||
-      currentTrip.content.length === 0
-    )
+  const handleDatesChange = (selection) => {
+    const { startDate: newStartJSDate, endDate: newEndJSDate } = selection;
+
+    // Always update the local state to reflect DatePicker's current selection
+    setStartDate(newStartJSDate || null);
+    setEndDate(newEndJSDate || null);
+
+    // Only proceed to update the trip if both dates are selected
+    if (!newStartJSDate || !newEndJSDate) {
+      // If only a start date is selected, or dates are cleared,
+      // we've updated local state. DatePicker shows this.
+      // We might not want to modify the actual trip days yet, or we might.
+      // For now, let's assume we wait for a full range to update the trip days.
+      // If you wanted to clear the trip when dates are cleared, you could call updateTrip([]) here.
       return;
+    }
 
-    const tripContent = currentTrip.content;
-    const newStart = type === "start" ? value : tripContent[0].date;
-    const newEnd =
-      type === "end" ? value : tripContent[tripContent.length - 1].date;
+    // Both startDate and endDate are now available (newStartJSDate and newEndJSDate)
+    // Proceed with formatting and updating the trip content
+    const newStartString = dayjs(newStartJSDate).format("YYYY-MM-DD");
+    const newEndString = dayjs(newEndJSDate).format("YYYY-MM-DD");
 
-    const start = dayjs(newStart);
-    const end = dayjs(newEnd);
+    const startDayjs = dayjs(newStartString);
+    const endDayjs = dayjs(newEndString);
+
+    if (startDayjs.isAfter(endDayjs, "day")) {
+      alert("Start date cannot be after end date!");
+      // Revert to previous valid dates from currentTrip if possible, or do nothing
+      if (
+        currentTrip &&
+        currentTrip.content &&
+        currentTrip.content.length > 0
+      ) {
+        const firstDate = currentTrip.content[0].date;
+        const lastDate =
+          currentTrip.content[currentTrip.content.length - 1].date;
+        setStartDate(firstDate ? dayjs(firstDate).toDate() : null);
+        setEndDate(lastDate ? dayjs(lastDate).toDate() : null);
+      } else {
+        setStartDate(null);
+        setEndDate(null);
+      }
+      return;
+    }
+
     const newRange = [];
-    let current = start;
+    let currentDayIter = startDayjs;
+    const tripContent =
+      currentTrip && currentTrip.content && Array.isArray(currentTrip.content)
+        ? currentTrip.content
+        : [];
 
-    if (dayjs(newStart).isAfter(newEnd, "day")) {
-      alert(" Start date cannot be after end date!");
-      return;
+    while (currentDayIter.isSameOrBefore(endDayjs, "day")) {
+      const currentDateStr = currentDayIter.format("YYYY-MM-DD");
+      const existingDay = tripContent.find(
+        (day) => day.date === currentDateStr
+      );
+      newRange.push(existingDay || { date: currentDateStr, itinerary: [] });
+      currentDayIter = currentDayIter.add(1, "day");
     }
-
-    while (current.isSameOrBefore(end, "day")) {
-      const currentDate = current.format("YYYY-MM-DD");
-      const existingDay = tripContent.find((day) => day.date === currentDate);
-      newRange.push(existingDay || { date: currentDate, itinerary: [] });
-      current = current.add(1, "day");
-    }
-
     updateTrip(newRange);
   };
 
@@ -93,7 +127,6 @@ export default function TripHeader() {
     }
     updateCurrentTripDetails({ title: editableTitle });
     setIsEditingTitle(false);
-    console.log("TripHeader: Title update sent to AppContext for local state.");
   };
 
   const handleCancelEditTitle = () => {
@@ -148,28 +181,14 @@ export default function TripHeader() {
           </div>
         </div>
 
-        {/* Bottom Row: Date Selector (Centered) */}
+        {/* Bottom Row: Date Picker (Centered) */}
         <div className="flex items-center justify-center text-gray-600 text-sm gap-2 mt-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <FaCalendarAlt className="" />
-            <input
-              type="date"
-              className="border rounded px-2 py-1"
-              value={startDate}
-              onChange={(e) =>
-                handleBoundaryDateChange("start", e.target.value)
-              }
+          <div className="relative">
+            <DatePicker
+              selectedDates={{ startDate, endDate }}
+              onDateSelect={handleDatesChange}
             />
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <span>-</span>
-            <input
-              type="date"
-              className="border rounded px-2 py-1"
-              value={endDate}
-              onChange={(e) => handleBoundaryDateChange("end", e.target.value)}
-            />
-          </label>
+          </div>
         </div>
       </div>
     </div>
