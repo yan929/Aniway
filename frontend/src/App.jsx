@@ -11,6 +11,9 @@ import Setting from "./pages/Setting/Setting";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import LoginPage from "./pages/Login/Login";
 import MainLayout from "./components/Layout/MainLayout";
+import AboutPage from "./pages/About/About"
+import ReferencePage from "./pages/Reference/Reference";
+import ContactPage from "./pages/Contact/Contact";
 
 import "./App.css";
 
@@ -39,6 +42,10 @@ function App() {
             <Route path="/setting" element={<Setting />} />
             <Route path="/create-trip" element={<TripPlanner />} />
             <Route path="/trip/:tripId" element={<TripPlanner />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="reference" element={<ReferencePage />} />
+            <Route path="contact" element={<ContactPage />} />
+
           </Route>
 
           {/* Routes without NavBar and Footer (e.g., LoginPage) */}
