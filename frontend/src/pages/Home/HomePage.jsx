@@ -18,7 +18,7 @@ function HomePage() {
   const [selectedDates, setSelectedDates] = useState(null); // Initialize as null instead of default date range
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPopupLocation, setSelectedPopupLocation] = useState(null);
-  
+
   const { setTripDetails } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -47,9 +47,11 @@ function HomePage() {
   const handleSearch = () => {
     if (selectedLocation && selectedDates) {
       // Save selected destination and dates to Context
-      const tripTitle = `Trip to ${selectedLocation.name || selectedLocation.description || "Destination"}`;
+      const tripTitle = `Trip to ${
+        selectedLocation.name || selectedLocation.description || "Destination"
+      }`;
       setTripDetails(selectedLocation, tripTitle, selectedDates);
-      
+
       // Navigate to trip planner page
       navigate("/tripplanner");
     } else {
@@ -81,16 +83,16 @@ function HomePage() {
   };
 
   return (
-        <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
-          {/* Hero Section with Search */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              PLACE HOLDER PLACE HOLDER PLACE
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-              PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
-              PLACE HOLDER PLACE HOLDER PLACE HOLDER
-            </p>
+    <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
+      {/* Hero Section with Search */}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+          PLACE HOLDER PLACE HOLDER PLACE
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+          PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE
+          HOLDER PLACE HOLDER PLACE HOLDER
+        </p>
 
         {/* Search Container - Fixed position and z-index issues */}
         <div className="max-w-4xl mx-auto px-4 relative">
