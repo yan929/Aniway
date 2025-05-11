@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
-import { searchRawLocationData, enrichLocationsWithAnime } from "../services/locationService.js";
+import { searchRawLocationData, enrichLocationsWithAnime, searchRawLocationDataByLocateAnime } from "../services/locationService.js";
+import { replanSingleDayItinerary } from "./itineraryReplanController.js"; 
 
 dotenv.config();
 
@@ -9,18 +10,27 @@ const openai = new OpenAI({
 });
 
 const analyzeUserInput = async (req, res) => {
-  const { prompt, startDate, endDate } = req.body;
+  const { prompt, currentItinerary } = req.body;
   console.log("🟢 Prompt received:", prompt);
-  console.log("📆 Start:", startDate, "End:", endDate);
+  console.log("🗓️ Current Itinerary received:", currentItinerary);
 
-  if (!prompt || !startDate || !endDate) {
-    return res
-      .status(400)
-      .json({ error: "Missing prompt, startDate, or endDate" });
+  // Validate essential inputs from req.body
+  if (!prompt) {
+    return res.status(400).json({ error: "Missing 'prompt' in request body." });
+  }
+  if (!currentItinerary) {
+    return res.status(400).json({ error: "Missing 'currentItinerary' in request body." });
+  }
+  if (!currentItinerary.date) {
+    return res.status(400).json({ error: "The 'currentItinerary' must include a 'date'." });
   }
 
+  const itineraryDate = currentItinerary.date;
+  console.log("ℹ️ Itinerary Date for AI prompt:", itineraryDate);
+
   try {
-    const chatResponse = await openai.chat.completions.create({
+    // Step 1: Initial AI call to extract locations and themes from the user's prompt
+    const initialChatResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
@@ -30,56 +40,80 @@ const analyzeUserInput = async (req, res) => {
         },
         {
           role: "user",
-          content: buildUserQueryPrompt(prompt, startDate, endDate), // response in JSON format which defines the itinerary
+          // Note: buildUserQueryPrompt was simplified in previous steps to only take prompt, startDate, endDate
+          // We are using itineraryDate for both start and end as it's a single day context
+          content: buildUserQueryPrompt(prompt, itineraryDate, itineraryDate), 
         },
       ],
-      temperature: 0.3, // Adjust the creativity of the response
+      temperature: 0.3,
     });
 
-    const reply = chatResponse.choices[0].message.content;
-    console.log(`✅ Response from ChatGPT`);
-    const parsed = JSON.parse(reply);
-
-    console.log("Parsed JSON:", parsed);
-
-    //fetch the trip data from the database
-    const locations = parsed.locations?.map((l) => l.location) || [];
-    const themes = parsed.themes?.map((t) => t.theme) || [];
-
-
-    console.log("Locations:", locations);
-    console.log("Themes:", themes);
-    // search for anime by location keyword in mongoDB
-
-    const rawLocations = await searchRawLocationData(locations);
-    const enrichedLocations = await enrichLocationsWithAnime(rawLocations);
-
-    console.log("Raw Locations:", rawLocations);
-    console.log("Enriched Locations:", enrichedLocations);
-
-    const result = enrichedLocations;
-
-    // sent back the parsed JSON
+    const initialReply = initialChatResponse.choices[0].message.content;
+    console.log(`✅ Response from initial ChatGPT for location/theme extraction`);
+    let initialAIResponse;
     try {
-      res.json({
-        parsed, // locations, themes, dates
-        matches: result,
-      });
-
-      console.log("✅ Parsed JSON successfully", JSON.parse(reply));
+        initialAIResponse = JSON.parse(initialReply);
     } catch (e) {
-      console.error("❌ Invalid JSON from AI:", e);
-      res.status(500).json({ error: "AI returned invalid JSON", raw: reply });
+        console.error("❌ Invalid JSON from initial AI for location/theme extraction:", e);
+        console.error("Raw AI reply:", initialReply);
+        return res.status(500).json({ error: "Initial AI (location/theme extraction) returned invalid JSON", raw: initialReply });
     }
+    console.log("Parsed JSON from initial AI:", initialAIResponse);
+
+    const locations = initialAIResponse.locations?.map((l) => l.location) || [];
+    const themes = initialAIResponse.themes?.map((t) => t.theme) || [];
+
+    console.log("Extracted Locations:", locations);
+    console.log("Extracted Themes:", themes);
+
+    // Step 2: Search for raw location data based on extracted locations/themes
+    // This data will be the 'newlyAddedLocation' for the replanning step
+    const rawLocations = await searchRawLocationDataByLocateAnime(locations, themes);
+    console.log("Raw Locations from DB search:", rawLocations);
+
+    const newlyAddedLocationData = rawLocations && rawLocations.length > 0 ? rawLocations[0] : null;
+
+    if (!newlyAddedLocationData) {
+        // If no relevant location is found from the user's prompt to add/replan,
+        // you might want to return the initial AI response or a specific message.
+        // For now, let's assume we proceed to replan even if newlyAddedLocationData is null,
+        // as replanSingleDayItinerary might handle this (e.g., just re-optimizing existing).
+        // Or, you could return an error/specific response here:
+        console.warn("⚠️ No new location data found from prompt to use for replanning. Proceeding with current itinerary and original request.");
+        // Potentially, if newlyAddedLocationData is crucial, you might return an error or a different response:
+        // return res.status(404).json({ error: "No relevant new location found based on your request to add to the itinerary." });
+    }
+
+    // Step 3: Call the replanning function
+    // Parameters for replanSingleDayItinerary:
+    // 1. newlyAddedLocation: The first item from rawLocations (or null)
+    // 2. existingDayItinerary: The currentItinerary from req.body
+    // 3. originalUserRequest: The original prompt from req.body
+
+    const replannedItinerary = await replanSingleDayItinerary(
+        newlyAddedLocationData, 
+        currentItinerary, 
+        prompt 
+    );
+
+    // Step 4: Send the successful response with the replanned itinerary
+    res.json(replannedItinerary);
+    console.log("✅ Successfully replanned itinerary sent to client.");
+
   } catch (err) {
-    console.error("❌ ChatGPT Error:", err);
-    res
-      .status(500)
-      .json({ error: "Failed to generate itinerary from ChatGPT." });
+    console.error("❌ Error in analyzeUserInput processing pipeline:", err.message);
+    // Check if the error is from our known error types (e.g., from replanSingleDayItinerary)
+    // or a general error. This helps in sending a more specific error message.
+    if (err.message.includes("AI returned invalid JSON") || err.message.includes("Failed to generate the replanned day itinerary")) {
+        res.status(500).json({ error: "Failed to process itinerary replan with AI.", details: err.message });
+    } else {
+        res.status(500).json({ error: "An unexpected error occurred while analyzing user input and replanning.", details: err.message });
+    }
   }
 };
 
-// Helper function to build prompt
+// Helper function to build prompt (ensure it matches the expected parameters)
+// This was previously modified to take (prompt, startDate, endDate)
 function buildUserQueryPrompt(prompt, startDate, endDate) {
   return `You are a travel request analyzer.
 

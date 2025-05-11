@@ -32,10 +32,10 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
         setRawJson('');
 
         try {
+            console.log("day", day);
             const res = await axios.post(`${apiBase}/api/ai/advice`, {
                 prompt: prompt,
-                startDate: day.date,
-                endDate: day.date,
+                currentItinerary: day, // Corrected colon here
             });
 
             // setItinerary(res.data.itinerar);

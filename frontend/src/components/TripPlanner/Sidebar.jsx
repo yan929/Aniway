@@ -29,12 +29,6 @@ export default function Sidebar({ onToggleChat }) {
 
   return (
     <aside className="bg-gray-800 text-white w-64 p-4 flex flex-col gap-6 h-screen shrink-0">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-orange-500 rounded-full">
-          {/* Placeholder for an icon or image */}
-        </div>
-        <span className="text-xl">Aniway</span>
-      </div>
       <nav className="flex flex-col gap-2">
         <button className="text-left py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
           ➤ Overview

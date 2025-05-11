@@ -4,6 +4,7 @@ import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
 import ItinerarySection from "../../components/TripPlanner/ItinerarySection.jsx";
 import ChatWindow from "../../components/AIChat/ChatWindow.jsx";
+import TripMapDisplay from "../../components/TripPlanner/TripMapDisplay.jsx"; // Added import
 import { AppContext } from "../../context/AppContext.jsx";
 
 export default function TripPlanner() {
@@ -17,8 +18,7 @@ export default function TripPlanner() {
     if (!tripData || !tripLocation) {
       console.warn(
         "Missing trip data or location. Consider selecting destination and dates from the homepage."
-      );
-
+);
       // Optional: Uncomment to redirect back to homepage if no data
       // navigate('/');
     }
@@ -38,11 +38,14 @@ export default function TripPlanner() {
   return (
     <div className="flex h-screen overflow-hidden relative">
       <Sidebar onToggleChat={toggleChatWindow} />
-      <main className="flex-1 overflow-y-auto bg-gray-100">
+      <main className="flex-1 overflow-y-auto bg-gray-100"> {/* Added padding for ItinerarySection */}
         <TripHeader />
         <ItinerarySection />
       </main>
-      {/* <MapPanel /> */}
+      <div className="w-1/3 bg-gray-200 overflow-y-auto"> {/* Added a container for the map */}
+        <TripMapDisplay />
+        {/* Replaced commented out MapPanel with TripMapDisplay */}
+      </div>
 
       {/* Chat window with slide-in animation */}
       <div
