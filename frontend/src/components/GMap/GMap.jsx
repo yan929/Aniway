@@ -1,9 +1,4 @@
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  InfoWindow,
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import React, { useState } from "react";
 import apiClient from "../../util/api";
 
@@ -17,8 +12,6 @@ const defaultCenter = {
   lat: 35.652832,
   lng: 139.839478,
 };
-
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 function GMap({ locations }) {
   const [selected, setSelected] = useState(null);
@@ -63,86 +56,84 @@ function GMap({ locations }) {
   const center = locations?.length > 0 ? locations[0] : defaultCenter;
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
-      <div className="w-full">
-        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
-          {locations?.map((loc, index) => (
-            <Marker
-              key={index}
-              position={{ lat: loc.lat, lng: loc.lng }}
-              title={`${index + 1}`}
-              label={`${index + 1}`}
-              onClick={() => handleMarkerClick(loc)}
-            />
-          ))}
+    <div className="w-full">
+      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
+        {locations?.map((loc, index) => (
+          <Marker
+            key={index}
+            position={{ lat: loc.lat, lng: loc.lng }}
+            title={`${index + 1}`}
+            label={`${index + 1}`}
+            onClick={() => handleMarkerClick(loc)}
+          />
+        ))}
 
-          {selected && placeDetails && (
-            <InfoWindow
-              position={{ lat: selected.lat, lng: selected.lng }}
-              onCloseClick={() => {
-                setSelected(null);
-                setPlaceDetails(null);
-              }}
-            >
-              <div style={{ maxWidth: "400px" }}>
-                <h3>{placeDetails.name || selected.label}</h3>
+        {selected && placeDetails && (
+          <InfoWindow
+            position={{ lat: selected.lat, lng: selected.lng }}
+            onCloseClick={() => {
+              setSelected(null);
+              setPlaceDetails(null);
+            }}
+          >
+            <div style={{ maxWidth: "400px" }}>
+              <h3>{placeDetails.name || selected.label}</h3>
+              <p>
+                <strong>Address:</strong> {placeDetails.address}
+              </p>
+              {placeDetails.phone && (
                 <p>
-                  <strong>Address:</strong> {placeDetails.address}
+                  <strong>Phone:</strong> {placeDetails.phone}
                 </p>
-                {placeDetails.phone && (
-                  <p>
-                    <strong>Phone:</strong> {placeDetails.phone}
-                  </p>
-                )}
-                {placeDetails.rating && (
-                  <p>
-                    <strong>Rating:</strong> {placeDetails.rating} (
-                    {placeDetails.total_ratings} reviews)
-                  </p>
-                )}
-                {placeDetails.website && (
-                  <p>
-                    <strong>Website:</strong>{" "}
-                    <a
-                      href={placeDetails.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visit Site
-                    </a>
-                  </p>
-                )}
+              )}
+              {placeDetails.rating && (
                 <p>
-                  <strong>Open Now:</strong>{" "}
-                  {placeDetails.open_now ? "Yes" : "No"}
+                  <strong>Rating:</strong> {placeDetails.rating} (
+                  {placeDetails.total_ratings} reviews)
                 </p>
-                {placeDetails.opening_hours?.length > 0 && (
-                  <div>
-                    <strong>Opening Hours:</strong>
-                    <ul style={{ paddingLeft: "1.2em" }}>
-                      {placeDetails.opening_hours.map((hour, idx) => (
-                        <li key={idx}>{hour}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {photoUrl && (
-                  <img
-                    src={photoUrl}
-                    alt={placeDetails.name}
-                    style={{
-                      width: "100%",
-                      marginTop: "10px",
-                      borderRadius: "8px",
-                    }}
-                  />
-                )}
-              </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </div>
-    </LoadScript>
+              )}
+              {placeDetails.website && (
+                <p>
+                  <strong>Website:</strong>{" "}
+                  <a
+                    href={placeDetails.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Visit Site
+                  </a>
+                </p>
+              )}
+              <p>
+                <strong>Open Now:</strong>{" "}
+                {placeDetails.open_now ? "Yes" : "No"}
+              </p>
+              {placeDetails.opening_hours?.length > 0 && (
+                <div>
+                  <strong>Opening Hours:</strong>
+                  <ul style={{ paddingLeft: "1.2em" }}>
+                    {placeDetails.opening_hours.map((hour, idx) => (
+                      <li key={idx}>{hour}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {photoUrl && (
+                <img
+                  src={photoUrl}
+                  alt={placeDetails.name}
+                  style={{
+                    width: "100%",
+                    marginTop: "10px",
+                    borderRadius: "8px",
+                  }}
+                />
+              )}
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+    </div>
   );
 }
 

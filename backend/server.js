@@ -3,10 +3,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import session from 'express-session';
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import User from './models/User.js';
+import session from "express-session";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import User from "./models/User.js";
 
 // Location Routes
 import locationRoutes from "./routes/LocationRoutes.js";
@@ -23,9 +23,9 @@ import tPlanRoutes from "./routes/TPlanRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
 // AuthRoute
-import authRoutes from './routes/AuthRoutes.js';
+import authRoutes from "./routes/AuthRoutes.js";
 // User Routes
-import userRoutes from './routes/UserRoutes.js';
+import userRoutes from "./routes/UserRoutes.js";
 
 import AIAdviceRoutes from "./routes/AIAdviceRoutes.js";
 
@@ -36,64 +36,78 @@ connectDB();
 
 const app = express();
 
-// Determine allowed origin based on environment
-const allowedOrigin = process.env.NODE_ENV === 'production'
-  ? process.env.FRONTEND_URL
-  : 'http://localhost:5173';
+// Trust proxy headers (e.g., X-Forwarded-Proto) to correctly determine protocol
+// This is important for services like Render where the app is behind a reverse proxy
+app.set("trust proxy", 1);
 
-app.use(cors({
-  origin: allowedOrigin,
-  credentials: true
-}));
+// Determine allowed origin based on environment
+const allowedOrigin =
+  process.env.NODE_ENV === "production"
+    ? process.env.FRONTEND_URL
+    : "http://localhost:5173";
+
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 // === Session Setup ===
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production', // Enable secure in production
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev_secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Enable secure in production
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+  })
+);
 
 // === OAuth Setup ===
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    // Find or create user in the database
-    let user = await User.findOne({ google_id: profile.id });
-    
-    if (!user) {
-      user = new User({
-        google_id: profile.id,
-        name: profile.displayName,
-        avatar: profile.photos?.[0]?.value || '',
-        email: profile.emails?.[0]?.value || '',
-      });
-      await user.save();
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Find or create user in the database
+        let user = await User.findOne({ google_id: profile.id });
+
+        if (!user) {
+          user = new User({
+            google_id: profile.id,
+            name: profile.displayName,
+            avatar: profile.photos?.[0]?.value || "",
+            email: profile.emails?.[0]?.value || "",
+          });
+          await user.save();
+        }
+
+        // Return user data to passport
+        return done(null, {
+          id: profile.id,
+          displayName: profile.displayName,
+          photos: profile.photos,
+          emails: profile.emails,
+        });
+      } catch (error) {
+        return done(error, null);
+      }
     }
-    
-    // Return user data to passport
-    return done(null, {
-      id: profile.id,
-      displayName: profile.displayName,
-      photos: profile.photos,
-      emails: profile.emails
-    });
-  } catch (error) {
-    return done(error, null);
-  }
-}));
+  )
+);
 
 passport.serializeUser((user, done) => {
   done(null, user);

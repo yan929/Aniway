@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
 import SearchBar from "../Search/search.jsx";
-import { AppContext } from "../../AppContextProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
 import ItineraryItem from "./ItineraryItem.jsx";

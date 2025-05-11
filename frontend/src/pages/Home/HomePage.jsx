@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBarCity from "../../components/Search/SearchBarCity";
-import NavBar from "../../components/Layout/NavBar";
-import Footer from "../../components/Layout/Footer";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import apiClient from "../../util/api";
@@ -69,81 +67,68 @@ function HomePage() {
   };
 
   return (
-    <>
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        {/* Fixed Navigation Bar */}
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <NavBar />
-        </div>
+    <div className="container mx-auto px-4 pb-8 flex-grow">
+      {/* Hero Section with Search */}
+      <div className="text-center mb-16">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          PLACE HOLDER PLACE HOLDER PLACE
+        </h1>
+        <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+          PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE
+          HOLDER PLACE HOLDER PLACE HOLDER
+        </p>
 
-        {/* Main Content with top margin to account for fixed header */}
-        <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
-          {/* Hero Section with Search */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              PLACE HOLDER PLACE HOLDER PLACE
-            </h1>
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-              PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER
-              PLACE HOLDER PLACE HOLDER PLACE HOLDER
-            </p>
-
-            {/* Search Container */}
-            <div className="max-w-4xl mx-auto">
-              {/* Search wrapper with flexbox layout */}
-              <div className="flex rounded-full bg-white shadow-lg border border-gray-200">
-                {/* Search Input - Takes all available space */}
-                <div className="flex-grow relative">
-                  <SearchBarCity
-                    placeholder="Search destinations..."
-                    onSelect={handleLocationSelect}
-                    onSearch={handleSearchByText}
-                  />
-                </div>
-
-                {/* Date Picker - Fixed width */}
-                <div className="flex-shrink-0 w-64 border-l border-gray-200">
-                  <DatePicker
-                    selectedDates={selectedDates}
-                    onDateSelect={setSelectedDates}
-                  />
-                </div>
-
-                {/* Plan Button */}
-                <button
-                  className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-medium px-12 h-12 flex items-center justify-center rounded-r-full transition duration-200"
-                  onClick={handleSearch}
-                >
-                  Plan
-                </button>
-              </div>
+        {/* Search Container */}
+        <div className="max-w-4xl mx-auto">
+          {/* Search wrapper with flexbox layout */}
+          <div className="flex rounded-full bg-white shadow-lg border border-gray-200">
+            {/* Search Input - Takes all available space */}
+            <div className="flex-grow relative">
+              <SearchBarCity
+                placeholder="Search destinations..."
+                onSelect={handleLocationSelect}
+                onSearch={handleSearchByText}
+              />
             </div>
-          </div>
 
-          {/* Popular Destinations and Anime Sections */}
-          <div>
-            <DisplayPopLocInfo
-              sectionTitle="Popular Destinations"
-              locList={locData}
-              onLocationClick={handleLocationCardClick}
-            />
+            {/* Date Picker - Fixed width */}
+            <div className="flex-shrink-0 w-64 border-l border-gray-200">
+              <DatePicker
+                selectedDates={selectedDates}
+                onDateSelect={setSelectedDates}
+              />
+            </div>
 
-            <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
+            {/* Plan Button */}
+            <button
+              className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-medium px-12 h-12 flex items-center justify-center rounded-r-full transition duration-200"
+              onClick={handleSearch}
+            >
+              Plan
+            </button>
           </div>
         </div>
-
-        {/* Footer Component */}
-        <Footer />
-
-        {/* Location Popup */}
-        {selectedPopupLocation && (
-          <LocationPopup
-            location={selectedPopupLocation}
-            onClose={handleClosePopup}
-          />
-        )}
       </div>
-    </>
+
+      {/* Popular Destinations and Anime Sections */}
+      <div>
+        <DisplayPopLocInfo
+          sectionTitle="Popular Destinations"
+          locList={locData}
+          onLocationClick={handleLocationCardClick}
+        />
+
+        <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
+      </div>
+
+      {/* Location Popup, ensure it's within a positioned context if needed or portal it */}
+      {selectedPopupLocation && (
+        <LocationPopup
+          location={selectedPopupLocation}
+          onClose={handleClosePopup}
+        />
+      )}
+    </div>
   );
 }
 

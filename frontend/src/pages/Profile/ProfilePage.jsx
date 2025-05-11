@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../../components/Layout/NavBar";
 import apiClient from "../../util/api";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AppContext);
   const [trips, setTrips] = useState([]);
   const [completedTrips, setCompletedTrips] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,19 +13,16 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
 
-  // Fetch user data and trips
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) {
+        setLoading(false);
+        console.log("ProfilePage: No user in context, cannot fetch trips.");
+        return;
+      }
+
       try {
-        // Fetch user data
-        const userResponse = await apiClient.get("/api/user", {
-          withCredentials: true,
-        });
-
-        const userData = userResponse.data;
-        setUser(userData);
-
-        // Fetch user trips
+        setLoading(true);
         const tripsResponse = await apiClient.get("/api/tplan", {
           withCredentials: true,
         });
@@ -32,13 +30,11 @@ const ProfilePage = () => {
         const tripsData = tripsResponse.data;
         console.log("Fetched trips:", tripsData);
 
-        // Separate active and completed trips
         const now = new Date();
         const active = [];
         const completed = [];
 
         tripsData.forEach((trip) => {
-          // Determine if trip is completed based on end date
           if (trip.content && trip.content.length > 0) {
             const lastDay = trip.content[trip.content.length - 1].date;
             const endDate = new Date(lastDay);
@@ -49,7 +45,6 @@ const ProfilePage = () => {
               active.push(trip);
             }
           } else {
-            // If no dates, put in active trips
             active.push(trip);
           }
         });
@@ -72,10 +67,9 @@ const ProfilePage = () => {
     };
 
     fetchData();
-  }, [navigate, userId]);
+  }, [user, navigate, userId]);
 
-  // Loading state
-  if (loading) {
+  if (loading && !user) {
     return (
       <>
         <NavBar />
@@ -86,7 +80,6 @@ const ProfilePage = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <>

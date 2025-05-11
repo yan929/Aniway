@@ -10,6 +10,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Setting from "./pages/Setting/Setting";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import LoginPage from "./pages/Login/Login";
+import MainLayout from "./components/Layout/MainLayout";
 
 import "./App.css";
 
@@ -28,24 +29,28 @@ function App() {
     <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
       <DndProvider backend={HTML5Backend}>
         <Routes>
-          {/* Follow route just for temporary */}
-          <Route path="/" element={<HomePage />} />
+          {/* Routes that should have NavBar and Footer, wrapped by MainLayout */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/tripplanner" element={<TripPlanner />} />
+            <Route path="/locations/search" element={<LocationsSearchPage />} />
+            <Route path="/anime/:id" element={<AniDetail />} />
+            <Route path="/setting" element={<Setting />} />
+            <Route path="/create-trip" element={<TripPlanner />} />
+            <Route path="/trip/:tripId" element={<TripPlanner />} />
+          </Route>
+
+          {/* Routes without NavBar and Footer (e.g., LoginPage) */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/profile/:userId" element={<ProfilePage />} />
-          <Route path="/tripplanner" element={<TripPlanner />} />
-          <Route path="/locations/search" element={<LocationsSearchPage />} />
-          <Route path="/anime/:id" element={<AniDetail />} />
-          <Route path="/setting" element={<Setting />} />
+
           {/*
           Temporarily disabled the following routes while focusing on TripPlanner.
           - HomePage: planned for homepage in future
           - /planner: planned dedicated route for trip planner
         */}
-          <Route path="/create-trip" element={<TripPlanner />} />
-
           {/* <Route path="/" element={<HomePage />} /> */}
           {/* <Route path="/planner" element={<TripPlanner />} /> */}
-          <Route path="/trip/:tripId" element={<TripPlanner />} />
         </Routes>
       </DndProvider>
     </LoadScript>
