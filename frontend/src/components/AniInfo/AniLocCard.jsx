@@ -1,8 +1,8 @@
-function AniLocCard({ ani }) {
+function AniLocCard({ locList, onLocationClick }) {
   return (
     <>
       <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
-        {sectionTitle}
+        Locations
       </h2>
       <div className="flex flex-col gap-4 pb-8">
         {locList.map((data) => (
@@ -14,8 +14,8 @@ function AniLocCard({ ani }) {
             {/* Left side - Image */}
             <div className="w-1/4 h-48">
               <img
-                src={(data.images && data.images[0]) || "/default-image.jpg"}
-                alt={data.names}
+                src={data.image || "/default-image.jpg"}
+                alt={data.locationName}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
@@ -28,41 +28,20 @@ function AniLocCard({ ani }) {
             <div className="w-3/4 p-4 flex flex-col justify-between">
               <div>
                 <h3 className="text-xl font-bold mb-2 text-left">
-                  {data.names}
+                  {data.locationName.length > 0
+                    ? data.locationName
+                    : "Unknown Specific Location"}
                 </h3>
                 <p className="text-gray-600 mb-4 line-clamp-2 text-left">
                   {data.addresses?.[0] || "No address available"}
                 </p>
-              </div>
-
-              <div>
-                <h4 className="text-md font-semibold text-gray-700 mb-2 text-left">
-                  Related Anime:
-                </h4>
-                {data.animeName ||
-                (data.anime_en_names && data.anime_en_names.length > 0) ? (
-                  <div className="flex flex-wrap gap-2">
-                    {getAnimeNames(data).map((anime, index) => (
-                      <div
-                        key={index}
-                        className="border border-gray-200 rounded-lg p-2 hover:shadow-sm transition-shadow bg-white"
-                      >
-                        <p className="text-sm font-semibold text-gray-900">
-                          {anime.en_name}
-                        </p>
-                        {anime.jp_name && (
-                          <p className="text-xs text-gray-600 mt-1">
-                            {anime.jp_name}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    No related anime information available
-                  </p>
-                )}
+                <div>
+                  {data.ep && (
+                    <h4 className="text-md font-semibold text-gray-700 mb-2 text-left">
+                      Related Episode and Second: EP {data.ep} in {data.s}{" "}
+                    </h4>
+                  )}
+                </div>
               </div>
             </div>
           </div>

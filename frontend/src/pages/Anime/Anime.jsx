@@ -38,7 +38,7 @@ function AniDetail() {
 
     try {
       const response = await apiClient.get(
-        `/api/locations/searchByAnimeName/${encodedName}`
+        `/api/anime/locations/${encodedName}`
       );
 
       if (!response) {

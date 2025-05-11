@@ -76,9 +76,56 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
     cover: animeData.cover,
     director: animeData.director,
     description: animeData.overview || animeData.summary,
-
   };
   res.json(animeInfo);
 });
 
-export { searchAnimeByLocation, getAnimeInfo };
+const getAnimeLocation = async (req, res) => {
+  const animeName = req.params.animeName;
+  console.log("Test animeName:", animeName);
+
+  const animation = await Anime.find({
+    $or: [{ name_en: animeName }, { name_cn: animeName }],
+  });
+
+  const locationData = animation[0].locations;
+  // console.log("Test locationData:", locationData);
+
+  if (locationData.length === 0) {
+    console.log("Test locations:", animation.locations);
+
+    return res
+      .status(404)
+      .json({ message: "No locations found for this anime" });
+  }
+
+  locationData.forEach((location, index) => {
+    console.log(`Location ${index}:`, location);
+  });
+
+  const locationList = locationData.map((location) => {
+    console.log("Test location object:", location);
+
+    return {
+      id: location.id,
+      locationName: location.name,
+      image: location.image,
+      addresses: location.addresses,
+      ep: location.ep,
+      s: location.s, // have bug
+      lat_precise: location.lat,
+      lng_precise: location.lng,
+    };
+  });
+
+  console.log("Test locationList:", locationList);
+
+  if (locationList && locationList.length > 0) {
+    return res.status(200).json(locationList);
+  } else {
+    return res
+      .status(404)
+      .json({ message: "No locations found for this anime" });
+  }
+};
+export { searchAnimeByLocation, getAnimeInfo, getAnimeLocation };
