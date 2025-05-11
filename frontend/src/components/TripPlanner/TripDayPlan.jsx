@@ -28,11 +28,13 @@ export default function TripDayPlan({ day, index }) {
   // Function to handle drag-and-drop reordering of itinerary items
   const moveItem = (from, to) => {
     if (from === to) return;
-    const updated = [...tripItems];
-    const [moved] = updated.splice(from, 1);
-    updated.splice(to, 0, moved);
-    setTripItems(updated);
-    // Optionally update global state here
+    const updatedItems = [...tripItems]; // Use a new name to avoid confusion with component state 'tripItems'
+    const [moved] = updatedItems.splice(from, 1);
+    updatedItems.splice(to, 0, moved);
+    setTripItems(updatedItems); // Update local state for immediate UI feedback
+
+    // Update global state via AppContext
+    updateItinerary(day.date, updatedItems); // Persist the reordered items
   };
 
   // Function to add a new location to the day's itinerary

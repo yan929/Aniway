@@ -8,15 +8,17 @@ import { AppContext } from "../../context/AppContext.jsx";
 
 export default function TripPlanner() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { tripData, tripTitle, tripLocation } = useContext(AppContext);
+  const { tripData, tripLocation } = useContext(AppContext);
   const navigate = useNavigate();
 
   // Check if trip data exists when component mounts
   useEffect(() => {
     // If tripData or tripLocation is missing, you might want to redirect or show a message
     if (!tripData || !tripLocation) {
-      console.warn("Missing trip data or location. Consider selecting destination and dates from the homepage.");
-      
+      console.warn(
+        "Missing trip data or location. Consider selecting destination and dates from the homepage."
+      );
+
       // Optional: Uncomment to redirect back to homepage if no data
       // navigate('/');
     }
