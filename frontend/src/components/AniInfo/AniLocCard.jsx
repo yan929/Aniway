@@ -1,0 +1,54 @@
+function AniLocCard({ locList, onLocationClick }) {
+  return (
+    <>
+      <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
+        Locations ({locList.length})
+      </h2>
+      <div className="flex flex-col gap-4 pb-8">
+        {locList.map((data) => (
+          <div
+            key={data.id}
+            className="flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer"
+            onClick={() => onLocationClick && onLocationClick(data)}
+          >
+            {/* Left side - Image */}
+            <div className="w-1/4 h-48">
+              <img
+                src={data.image || "/default-image.jpg"}
+                alt={data.locationName}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/default-image.jpg";
+                }}
+              />
+            </div>
+
+            {/* Right side - Information */}
+            <div className="w-3/4 p-4 flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-left">
+                  {data.locationName.length > 0
+                    ? data.locationName
+                    : "Unknown Specific Location"}
+                </h3>
+                <p className="text-gray-600 mb-4 line-clamp-2 text-left">
+                  {data.addresses?.[0] || "No address available"}
+                </p>
+                <div>
+                  {data.ep && (
+                    <h4 className="text-md font-semibold text-gray-700 mb-2 text-left">
+                      Related Episode and Second: EP {data.ep}
+                    </h4>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export default AniLocCard;
