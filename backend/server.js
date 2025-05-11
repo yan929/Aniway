@@ -65,6 +65,7 @@ app.use(
       secure: process.env.NODE_ENV === "production", // Enable secure in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     },
   })
 );
