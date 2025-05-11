@@ -101,8 +101,8 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
                     {!loading && !error && suggestions.length > 0 && (
-                        <div className="mt-4 pt-4 p-4 border-t border-gray-200">
-                            <div className="max-h-96 overflow-y-auto">
+                        <div className="mt-4 pt-4  border-t border-gray-200">
+                            <div className="max-h-96 p-4 overflow-y-auto">
                                 <DisplayAniLoc
                                     aniLocList={suggestions}
                                     cardClassName="h-32"
