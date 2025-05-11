@@ -1,9 +1,14 @@
-function AniLocCard({ locList, onLocationClick, cardClassName }) {
+function AniLocCard({ locList, onLocationClick, cardClassName, showMainListTitle }) {
+  // Default to true if showMainListTitle is not explicitly passed (though SmartAdviceWindow always passes it now)
+  const shouldShowTitle = showMainListTitle === undefined ? true : showMainListTitle;
+
   return (
     <>
-      <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
-        Locations ({locList.length})
-      </h2>
+      {shouldShowTitle && (
+        <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
+          Locations ({locList ? locList.length : 0})
+        </h2>
+      )}
       <div className="flex flex-col gap-4 pb-8">
         {locList.map((data) => (
           <div

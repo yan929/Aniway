@@ -92,18 +92,26 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                         {loading ? "Generating..." : "Itinerary Advice"}
                     </button>
 
+                    {!loading && suggestions.length > 0 && (
+                        <p className="text-sm text-gray-600 mt-2 text-left">
+                            Found {suggestions.length} location(s).
+                        </p>
+                    )}
+
                     {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
                     {!loading && !error && suggestions.length > 0 && (
-                        <div className="mt-4 pt-4 p-4 border-t border-gray-200 max-h-100 overflow-y-auto">
-                            <h3 className="text-lg font-semibold mb-3 text-gray-700">Suggested Locations:</h3>
-                            <DisplayAniLoc
-                                aniLocList={suggestions}
-                                cardClassName="h-30"
-                                onLocationClick={(location) => {
-                                    console.log("Suggested location clicked from SmartAdviceWindow:", location);
-                                }}
-                            />
+                        <div className="mt-4 pt-4 p-4 border-t border-gray-200">
+                            <div className="max-h-96 overflow-y-auto">
+                                <DisplayAniLoc
+                                    aniLocList={suggestions}
+                                    cardClassName="h-32"
+                                    showListTitle={false}
+                                    onLocationClick={(location) => {
+                                        console.log("Suggested location clicked from SmartAdviceWindow:", location);
+                                    }}
+                                />
+                            </div>
                         </div>
                     )}
                     {!loading && !error && suggestions.length === 0 && userInput && (
