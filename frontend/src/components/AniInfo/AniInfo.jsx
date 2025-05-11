@@ -1,14 +1,56 @@
-
-
 function DisplayDetailAniInfo({ aniData }) {
   return (
-    <div className="ani-info">
-      <h2>This is detail info</h2>
-      <h2>{aniData.name}</h2>
-      <p>{aniData.description}</p>
+    <>
+      {/* Top Section */}
+      <div className="relative w-full h-auto overflow-hidden">
+        {/* section bg */}
+        <img
+          src={aniData.images.small ?? aniData.cover}
+          alt={aniData.name}
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-50"
+        />
 
-      <img src={aniData.images.small} alt={aniData.name} />
-    </div>
+        {/* Content */}
+        <div className="relative z-10 flex items-start gap-10 px-10 py-8">
+          <img
+            src={aniData.images.small ?? aniData.cover}
+            alt={aniData.name}
+            className="rounded-xl border-[6px] border-white shadow-lg w-48 h-auto"
+          />
+          <div className="bg-white/10 dark:bg-black/10 backdrop-blur-md p-6 rounded-md text-gray-900 dark:text-gray-100 text-left max-w-3xl h-full">
+            <h1 className="text-3xl font-bold mb-4">{aniData.name}</h1>
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-1">Description</h4>
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                {aniData.description}
+              </p>
+            </div>
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-1">
+                Production Information
+              </h4>
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                Director: {aniData["director"]}
+              </p>
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                Site:{" "}
+                <a
+                  href={aniData["site"]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {aniData["site"]}
+                </a>
+              </p>
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                {/* {aniData["Copyrights"]} */}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

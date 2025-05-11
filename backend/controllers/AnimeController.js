@@ -69,13 +69,17 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
     throw new Error("Anime not found");
   }
 
+  console.log("Test animeData:", animeData);
+
   const animeInfo = {
     id: animeData._id,
     name: animeData.name_en || animeData.name || animeData.name_cn,
     images: animeData.images,
     cover: animeData.cover,
-    director: animeData.director,
     description: animeData.overview || animeData.summary,
+    director: animeData.director,
+    site: animeData.site,
+    // copyrights: animeData.info.copyrights,
   };
   res.json(animeInfo);
 });
@@ -84,27 +88,32 @@ const getAnimeLocation = async (req, res) => {
   const animeName = req.params.animeName;
   console.log("Test animeName:", animeName);
 
-  const animation = await Anime.find({
+  const anime = await Anime.find({
     $or: [{ name_en: animeName }, { name_cn: animeName }],
   });
 
-  const locationData = animation[0].locations;
+  if (!anime || anime.length === 0) {
+    console.log("Test anime:", anime);
+    return res.status(404).json({ message: "Anime not found" });
+  }
+
+  const locationData = anime[0].locations;
   // console.log("Test locationData:", locationData);
 
   if (locationData.length === 0) {
-    console.log("Test locations:", animation.locations);
+    console.log("Test locations:", anime.locations);
 
     return res
       .status(404)
       .json({ message: "No locations found for this anime" });
   }
 
-  locationData.forEach((location, index) => {
-    console.log(`Location ${index}:`, location);
-  });
-
   const locationList = locationData.map((location) => {
-    console.log("Test location object:", location);
+    console.log("Test location object:", location, {
+      id: location.id,
+      ed: location.ep,
+      s: location["s"],
+    });
 
     return {
       id: location.id,
@@ -113,12 +122,12 @@ const getAnimeLocation = async (req, res) => {
       addresses: location.addresses,
       ep: location.ep,
       s: location.s, // have bug
-      lat_precise: location.lat,
-      lng_precise: location.lng,
+      lat: location.lat,
+      lng: location.lng,
     };
   });
 
-  console.log("Test locationList:", locationList);
+  // console.log("Test locationList:", locationList);
 
   if (locationList && locationList.length > 0) {
     return res.status(200).json(locationList);

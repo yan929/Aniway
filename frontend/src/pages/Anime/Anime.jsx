@@ -10,20 +10,11 @@ function AniDetail() {
   const [animeData, setAnimeData] = useState(null);
   const [animeLocData, setAnimeLocData] = useState(null);
 
-  console.log("Test id:", id);
-
   const fetchAniInfo = async () => {
-    console.log("Test fetchAniInfo");
-
     try {
-      // const response = await apiClient.get(`/api/anime/${id}`);
-
       const response = await apiClient.get(`/api/anime/${id}`);
 
-      console.log("Test response:", response);
-
       const data = await response.data;
-      console.log("Test data:", data);
 
       setAnimeData(data);
     } catch (error) {
@@ -32,9 +23,7 @@ function AniDetail() {
   };
 
   const fetchAniLoc = async () => {
-    console.log("Test fetchAniLoc");
     const encodedName = encodeURIComponent(animeData.name);
-    console.log("Test encodedName:", encodedName);
 
     try {
       const response = await apiClient.get(
@@ -46,7 +35,6 @@ function AniDetail() {
       }
       const data = await response.data;
       setAnimeLocData(data);
-      console.log("Test data:", data);
     } catch (error) {
       console.error("Error fetching anime locations:", error);
     }
@@ -57,31 +45,22 @@ function AniDetail() {
   //   fetchAniInfo();
   // }, [id]);
 
-  console.log("Test animeData:", animeData);
-
   return (
     <>
-      <div>
-        <Link to={"/"}>Back to home</Link>
-        <br />
-        <h2>This is anime</h2>
-        <br />
-        <button onClick={fetchAniInfo}>Fetch Anime Info</button>
-        {animeData ? (
-          <DisplayDetailAniInfo aniData={animeData} />
-        ) : (
-          <p>Loading...</p>
-        )}
+      <Link to={"/"}>Back to home</Link>
+      <button onClick={fetchAniInfo}>Fetch Anime Info</button>
+      {animeData ? (
+        <DisplayDetailAniInfo aniData={animeData} />
+      ) : (
+        <p>Loading...</p>
+      )}
 
-        <button onClick={fetchAniLoc}>Fetch Location Info</button>
-        {animeLocData ? (
-          <DisplayAniLoc aniLocList={animeLocData} />
-        ) : (
-          <p>Loading...</p>
-        )}
-
-        {/* More info will be added after api is added~ */}
-      </div>
+      <button onClick={fetchAniLoc}>Fetch Location Info</button>
+      {animeLocData ? (
+        <DisplayAniLoc aniLocList={animeLocData} />
+      ) : (
+        <p>Loading...</p>
+      )}
     </>
   );
 }

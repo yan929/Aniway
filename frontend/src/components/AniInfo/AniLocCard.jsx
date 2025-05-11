@@ -2,7 +2,7 @@ function AniLocCard({ locList, onLocationClick }) {
   return (
     <>
       <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
-        Locations
+        Locations ({locList.length})
       </h2>
       <div className="flex flex-col gap-4 pb-8">
         {locList.map((data) => (
@@ -38,7 +38,7 @@ function AniLocCard({ locList, onLocationClick }) {
                 <div>
                   {data.ep && (
                     <h4 className="text-md font-semibold text-gray-700 mb-2 text-left">
-                      Related Episode and Second: EP {data.ep} in {data.s}{" "}
+                      Related Episode and Second: EP {data.ep}
                     </h4>
                   )}
                 </div>
