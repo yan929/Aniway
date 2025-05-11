@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import { FaCalendarAlt, FaMapMarkerAlt, FaEdit, FaSave, FaTimes } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaEdit,
+  FaSave,
+  FaTimes,
+} from "react-icons/fa";
 import dayjs from "dayjs";
 
 export default function TripHeader() {
-  const {
-    currentTrip,
-    updateCurrentTripDetails,
-    updateTrip,
-  } = useContext(AppContext);
+  const { currentTrip, updateCurrentTripDetails, updateTrip } =
+    useContext(AppContext);
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editableTitle, setEditableTitle] = useState(() =>
@@ -40,8 +43,8 @@ export default function TripHeader() {
 
   // Update local title when tripTitle changes
   useEffect(() => {
-    setEditedTitle(tripTitle || "My Trip");
-  }, [tripTitle]);
+    setEditableTitle(currentTrip.title || "My Trip");
+  }, [currentTrip]);
 
   // Handle date range boundary changes
   const handleBoundaryDateChange = (type, value) => {
