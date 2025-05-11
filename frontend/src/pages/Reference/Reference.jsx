@@ -10,11 +10,11 @@ const ReferencePage = () => {
     <div className="bg-gradient-to-b from-green-50 to-white">
       {/* Header Section */}
       <div className="relative bg-gray-800 text-white">
-        <div className="container mx-auto px-6 py-20 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">References & Resources</h1>
-          <p className="text-xl md:text-2xl max-w-3xl">
+        <div className="container mx-auto px-6 py-20 relative z-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">References & Resources</h1>
+            <p className="text-xl md:text-2xl mx-auto max-w-3xl">
             The building blocks and inspirations behind AniWay
-          </p>
+            </p>
         </div>
       </div>
 
