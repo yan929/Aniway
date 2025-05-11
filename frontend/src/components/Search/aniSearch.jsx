@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../util/api";
 
 import SearchInput from "./searchInput";
 import SearchAniItem from "./searchAniItem";
@@ -25,7 +25,7 @@ function AniSearchBar() {
     }
 
     try {
-      const response = await axios.get(`/api/home/search`, {
+      const response = await apiClient.get(`/api/home/search`, {
         params: { q: keyword },
       });
 
@@ -68,7 +68,7 @@ function AniSearchBar() {
           fetchKeyword={debouncedFetch}
           selectedIndexChange={(index) => setSelectedIndex(index)}
           selectedIndex={selectedIndex}
-          onSelecItem={(item) => {
+          onSelectItem={(item) => {
             navigate(`/anime/${item.id}`);
           }}
           inputValue={input}

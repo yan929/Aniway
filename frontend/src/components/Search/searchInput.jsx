@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 
 function SearchInput({
@@ -6,7 +5,7 @@ function SearchInput({
   fetchKeyword,
   selectedIndexChange,
   selectedIndex,
-  onSelecItem,
+  onSelectItem,
   inputValue,
   onInputChange,
 }) {
@@ -23,7 +22,7 @@ function SearchInput({
     } else if (e.key === "Enter" && selectedIndex >= 0) {
       const selectedItem = resultList[selectedIndex];
       if (selectedItem) {
-        onSelecItem(selectedItem);
+        onSelectItem(selectedItem);
       }
     }
   };

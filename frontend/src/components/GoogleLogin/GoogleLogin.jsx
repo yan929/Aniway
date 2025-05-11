@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import apiClient from "../../util/api";
 
 const GoogleLogin = () => {
   const [user, setUser] = useState(null);
@@ -9,43 +9,43 @@ const GoogleLogin = () => {
 
   useEffect(() => {
     // Add console logs for debugging
-    console.log('GoogleLogin component mounted');
-    
-    axios
+    console.log("GoogleLogin component mounted");
+
+    apiClient
       .get(`/api/user`, { withCredentials: true })
-      .then(res => {
-        console.log('User data received:', res.data);
+      .then((res) => {
+        console.log("User data received:", res.data);
         setUser(res.data);
-        
+
         // Extract the user ID correctly
         const userId = res.data?.id || res.data?._id || res.data?.google_id;
-        
+
         if (userId) {
-          console.log('User ID found, navigating to:', `/profile/${userId}`);
+          console.log("User ID found, navigating to:", `/profile/${userId}`);
           // Use a small timeout to ensure state update completes
           setTimeout(() => {
             navigate(`/profile/${userId}`);
           }, 100);
         } else {
-          console.error('No user ID found in response data:', res.data);
+          console.error("No user ID found in response data:", res.data);
         }
       })
       .catch((err) => {
-        console.error('Login error:', err);
+        console.error("Login error:", err);
         setUser(null);
       })
       .finally(() => setLoading(false));
   }, [navigate]);
 
   const handleLogout = () => {
-    axios
+    apiClient
       .get(`/api/logout`, { withCredentials: true })
       .then(() => {
         setUser(null);
-        navigate('/login');
+        navigate("/login");
       })
-      .catch(err => {
-        console.error('Logout error:', err);
+      .catch((err) => {
+        console.error("Logout error:", err);
       });
   };
 
@@ -62,7 +62,7 @@ const GoogleLogin = () => {
             className="w-20 h-20 rounded-full mb-4 mx-auto"
           />
           <p className="text-sm text-gray-500 mb-2">
-            User ID: {user.id || user._id || user.google_id || 'Unknown'}
+            User ID: {user.id || user._id || user.google_id || "Unknown"}
           </p>
           <button
             onClick={handleLogout}
@@ -73,9 +73,7 @@ const GoogleLogin = () => {
         </div>
       ) : (
         <a href={`/auth/google`}>
-          <button
-            className="px-6 py-3 text-white bg-green-600 hover:bg-blue-700 rounded-md text-lg"
-          >
+          <button className="px-6 py-3 text-white bg-green-600 hover:bg-blue-700 rounded-md text-lg">
             Login with Google
           </button>
         </a>
