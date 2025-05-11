@@ -1,24 +1,42 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import { FaCalendarAlt, FaMapMarkerAlt, FaEdit } from "react-icons/fa";
+import { FaCalendarAlt, FaMapMarkerAlt, FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import dayjs from "dayjs";
 
 export default function TripHeader() {
-  const { tripData, updateTrip, tripTitle, tripLocation } = useContext(AppContext);
+  const {
+    currentTrip,
+    updateCurrentTripDetails,
+    updateTrip,
+  } = useContext(AppContext);
 
-  // Initialize state
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editableTitle, setEditableTitle] = useState(() =>
+    currentTrip && currentTrip.title ? currentTrip.title : "Trip Title"
+  );
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(tripTitle || "My Trip");
 
-  // Monitor tripData changes and update date range
   useEffect(() => {
-    if (Array.isArray(tripData) && tripData.length > 0) {
-      setStartDate(tripData[0].date);
-      setEndDate(tripData[tripData.length - 1].date);
+    if (currentTrip && currentTrip.title) {
+      setEditableTitle(currentTrip.title);
+    } else {
+      setEditableTitle("Trip Title");
     }
-  }, [tripData]); // Depend on tripData changes
+
+    if (
+      currentTrip &&
+      currentTrip.content &&
+      Array.isArray(currentTrip.content) &&
+      currentTrip.content.length > 0
+    ) {
+      setStartDate(currentTrip.content[0].date);
+      setEndDate(currentTrip.content[currentTrip.content.length - 1].date);
+    } else {
+      setStartDate("");
+      setEndDate("");
+    }
+  }, [currentTrip]);
 
   // Update local title when tripTitle changes
   useEffect(() => {
@@ -27,98 +45,108 @@ export default function TripHeader() {
 
   // Handle date range boundary changes
   const handleBoundaryDateChange = (type, value) => {
-    if (!Array.isArray(tripData) || tripData.length === 0) return;
+    if (
+      !currentTrip ||
+      !currentTrip.content ||
+      !Array.isArray(currentTrip.content) ||
+      currentTrip.content.length === 0
+    )
+      return;
 
-    // Construct new range data, instead of modifying old data
-    const newStart = type === "start" ? value : tripData[0].date;
-    const newEnd = type === "end" ? value : tripData[tripData.length - 1].date;
+    const tripContent = currentTrip.content;
+    const newStart = type === "start" ? value : tripContent[0].date;
+    const newEnd =
+      type === "end" ? value : tripContent[tripContent.length - 1].date;
 
-    // Generate new range data
     const start = dayjs(newStart);
     const end = dayjs(newEnd);
     const newRange = [];
-    let current = start.clone();
+    let current = start;
 
-    // Validate date range
     if (dayjs(newStart).isAfter(newEnd, "day")) {
-      alert("Start date cannot be after end date!");
+      alert(" Start date cannot be after end date!");
       return;
     }
 
-    // Fill in the new range
     while (current.isSameOrBefore(end, "day")) {
-      // Format the current date to YYYY-MM-DD
       const currentDate = current.format("YYYY-MM-DD");
-      // Check if the current date exists in the trip data
-      const existingDay = tripData.find((day) => day.date === currentDate);
-      // If it exists, use the existing day data; otherwise, create a new day object
+      const existingDay = tripContent.find((day) => day.date === currentDate);
       newRange.push(existingDay || { date: currentDate, itinerary: [] });
-      // Increment the current date by one day
       current = current.add(1, "day");
     }
 
-    // Update the trip data
     updateTrip(newRange);
   };
 
-  // Toggle title editing mode
   const handleEditTitle = () => {
     setIsEditingTitle(true);
   };
 
-  // Save edited title
   const handleSaveTitle = () => {
-    // Here you would add the logic to save the title to context
-    // For example: setTripTitle(editedTitle);
+    if (!currentTrip) {
+      console.error("Cannot save title: currentTrip is not available.");
+      alert("Error: Could not save trip title. Trip data is missing.");
+      return;
+    }
+    updateCurrentTripDetails({ title: editableTitle });
     setIsEditingTitle(false);
+    console.log("TripHeader: Title update sent to AppContext for local state.");
+  };
+
+  const handleCancelEditTitle = () => {
+    setIsEditingTitle(false);
+    if (currentTrip && currentTrip.title) {
+      setEditableTitle(currentTrip.title);
+    } else {
+      setEditableTitle("Trip Title");
+    }
   };
 
   return (
     <div className="bg-green-700 px-6 py-4 shadow-md w-full">
       <div className="bg-white rounded-lg px-6 py-4 max-w-3xl mx-auto">
-        {/* Trip Title with Edit Functionality */}
-        <div className="flex items-center justify-between mb-2">
-          {isEditingTitle ? (
-            <div className="flex items-center">
-              <input
-                type="text"
-                className="border rounded px-2 py-1 mr-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                autoFocus
-              />
-              <button
-                onClick={handleSaveTitle}
-                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold mr-2">{tripTitle || "My Trip"}</h1>
-              <button
-                onClick={handleEditTitle}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <FaEdit size={16} />
-              </button>
-            </div>
-          )}
+        {/* Top Row: Title and Save Button */}
+        <div className="flex items-center w-full mb-2">
+          {/* Trip Title Section (Left) */}
+          <div className="flex-grow flex items-center justify-center">
+            {isEditingTitle ? (
+              <>
+                <input
+                  type="text"
+                  value={editableTitle}
+                  onChange={(e) => setEditableTitle(e.target.value)}
+                  className="text-xl font-bold border-b-2 border-green-500 focus:outline-none"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveTitle}
+                  className="p-1 text-green-600 hover:text-green-800 ml-2"
+                >
+                  <FaSave size={18} />
+                </button>
+                <button
+                  onClick={handleCancelEditTitle}
+                  className="p-1 text-red-500 hover:text-red-700 ml-1"
+                >
+                  <FaTimes size={18} />
+                </button>
+              </>
+            ) : (
+              <>
+                <h1 className="text-xl font-bold truncate">{editableTitle}</h1>
+                <button
+                  onClick={handleEditTitle}
+                  className="p-1 text-gray-500 hover:text-gray-700 ml-2"
+                >
+                  <FaEdit size={18} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Trip Location Display */}
-        {tripLocation && (
-          <div className="flex items-center mb-3 text-gray-600">
-            <FaMapMarkerAlt className="mr-2" />
-            <span>
-              {tripLocation.name || tripLocation.description || "Selected Destination"}
-            </span>
-          </div>
-        )}
-
-        {/* Date Range Selection */}
-        <div className="flex items-center text-gray-600 text-sm gap-2">
+        {/* Bottom Row: Date Selector (Centered) */}
+        <div className="flex items-center justify-center text-gray-600 text-sm gap-2 mt-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <FaCalendarAlt className="" />
             <input

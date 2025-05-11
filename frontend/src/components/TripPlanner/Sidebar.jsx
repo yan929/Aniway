@@ -1,33 +1,37 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { IoSparklesOutline } from "react-icons/io5";
+import { FaSave } from "react-icons/fa";
 
 export default function Sidebar({ onToggleChat }) {
-  const { tripData } = useContext(AppContext);
+  const { currentTrip, saveCurrentTripToDb, selectDay } =
+    useContext(AppContext);
 
-  //may refactor later
-  const dates = Array.isArray(tripData)
-    ? tripData.map((day) => {
-      const date = new Date(day.date);
-      const dayLabel = date.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "numeric",
-        day: "numeric",
-      });
-      return dayLabel;
-    })
+  const handleSave = () => {
+    if (!currentTrip) {
+      alert("No trip data to save.");
+      return;
+    }
+    saveCurrentTripToDb();
+  };
+
+  const dates = Array.isArray(currentTrip.content)
+    ? currentTrip.content.map((day) => {
+        const date = new Date(day.date);
+        const dayLabel = date.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "numeric",
+          day: "numeric",
+        });
+        return dayLabel;
+      })
     : [];
 
   return (
     <aside className="bg-gray-800 text-white w-64 p-4 flex flex-col gap-6 h-screen shrink-0">
-      <div className="flex items-center gap-2 text-lg font-bold">
-        <div className="w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden bg-white">
-          <img 
-            src="/aniway.png" 
-            alt="Aniway Logo" 
-            className="w-9 h-9 object-contain"
-          />
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-orange-500 rounded-full">
+          {/* Placeholder for an icon or image */}
         </div>
         <span className="text-xl">Aniway</span>
       </div>
@@ -47,14 +51,26 @@ export default function Sidebar({ onToggleChat }) {
         </button>
       </nav>
       <div className="flex flex-col gap-1 text-sm text-gray-300">
-        {dates.map((label, index) => (
-          <div key={index} className="hover:text-white cursor-pointer">
-            {label}
-          </div>
-        ))}
+        {dates.length > 0 ? (
+          dates.map((dayLabel, index) => (
+            <div
+              key={index}
+              className="hover:text-white cursor-pointer p-1 rounded hover:bg-gray-700"
+              onClick={() => selectDay(dayLabel)}
+            >
+              {dayLabel}
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-400 italic">No dates in trip.</p>
+        )}
       </div>
-      <button className="mt-auto bg-orange-400 text-black rounded-full py-2 px-4 font-semibold hover:bg-orange-300">
-        Send this plan via email
+      <button
+        onClick={handleSave}
+        className="flex mt-auto items-center justify-center gap-2 text-left py-2 px-3 rounded bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors"
+      >
+        <FaSave size={16} />
+        Save Trip
       </button>
     </aside>
   );
