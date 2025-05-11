@@ -112,33 +112,10 @@ function NavBar() {
                 Sign In
               </span>
             )}
+            
           </div>
+            {user&&(<UserDropdown user={user} onLogout={handleLogout} isOpen={dropdownOpen}/>)}
 
-          {/* Dropdown menu */}
-          {dropdownOpen && user && (
-            <div className="absolute right-0 top-10 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
-              <div className="px-4 py-2 border-b border-gray-100">
-                <p className="font-medium text-gray-800">{user.name}</p>
-                <p className="text-sm text-gray-500 truncate">{user.email}</p>
-              </div>
-
-              <button
-                onClick={goToProfile}
-                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
-              >
-                <FaUser className="mr-2 text-gray-600" />
-                <span>Profile</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center text-red-500"
-              >
-                <FaSignOutAlt className="mr-2" />
-                <span>Log out</span>
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </nav>
