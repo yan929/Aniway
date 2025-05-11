@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import apiClient from "../../util/api.js";
 import { AppContext } from "../../context/AppContext.jsx";
-
+import UserDropdown from "../NavBar/UserDropdown.jsx";
 /**
  * NavBar component - Fixed navigation bar for the Aniway application
  * Displays the logo, application name, and user profile navigation
@@ -97,7 +97,7 @@ function NavBar() {
                 // If avatar URL exists (user.avatar), display it
                 <img
                   src={user.avatar}
-                  alt={user.name || 'User Avatar'}
+                  alt={user.name || "User Avatar"}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
