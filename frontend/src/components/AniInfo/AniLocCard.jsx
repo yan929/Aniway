@@ -1,4 +1,4 @@
-function AniLocCard({ locList, onLocationClick }) {
+function AniLocCard({ locList, onLocationClick, cardClassName }) {
   return (
     <>
       <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
@@ -8,11 +8,11 @@ function AniLocCard({ locList, onLocationClick }) {
         {locList.map((data) => (
           <div
             key={data.id}
-            className="flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer"
+            className={`flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer ${cardClassName || "h-48"}`}
             onClick={() => onLocationClick && onLocationClick(data)}
           >
             {/* Left side - Image */}
-            <div className="w-1/4 h-48">
+            <div className="w-1/4 aspect-video">
               <img
                 src={data.image || "/default-image.jpg"}
                 alt={data.locationName}
