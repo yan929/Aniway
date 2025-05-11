@@ -93,7 +93,7 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     </button>
 
                     {!loading && suggestions.length > 0 && (
-                        <p className="text-sm text-gray-600 mt-2 text-left">
+                        <p className="text-x text-gray-600 mt-0 text-left">
                             Found {suggestions.length} location(s).
                         </p>
                     )}
