@@ -2,17 +2,18 @@ import express from "express";
 import passport from "passport";
 
 const router = express.Router();
-const FRONTEND_URL = 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: `${FRONTEND_URL}/login` }),
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: `${FRONTEND_URL}/login` }),
   (req, res) => {
-    const userId = req.user.id || req.user._id || '';
+    const userId = req.user.id || req.user._id || "";
     res.redirect(`${FRONTEND_URL}/profile/${userId}`);
   }
 );
@@ -23,12 +24,52 @@ router.get("/api/user", (req, res) => {
     res.json({
       id: req.user.id,
       name: req.user.displayName,
-      avatar: req.user.photos?.[0]?.value || '',
-      email: req.user.emails?.[0]?.value || ''
+      avatar: req.user.photos?.[0]?.value || "",
+      email: req.user.emails?.[0]?.value || "",
     });
   } else {
     res.status(401).json({ message: "Unauthorized" });
   }
+});
+
+router.get("/api/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      if (
+        req.xhr ||
+        (req.headers.accept && req.headers.accept.includes("json"))
+      ) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      return next(err);
+    }
+    req.session.destroy((destroyErr) => {
+      if (destroyErr) {
+        if (
+          req.xhr ||
+          (req.headers.accept && req.headers.accept.includes("json"))
+        ) {
+          return res
+            .status(500)
+            .json({ message: "Session destruction failed" });
+        }
+        return next(destroyErr);
+      }
+      res.clearCookie("connect.sid");
+      if (
+        req.xhr ||
+        (req.headers.accept && req.headers.accept.includes("json"))
+      ) {
+        res.status(200).json({ message: "Logged out successfully" });
+      } else {
+        const logoutRedirectUrl =
+          (process.env.NODE_ENV === "production"
+            ? process.env.FRONTEND_URL
+            : "http://localhost:5173") + "/login";
+        res.redirect(logoutRedirectUrl);
+      }
+    });
+  });
 });
 
 router.post("/api/user/delete", async (req, res) => {
@@ -58,27 +99,13 @@ router.post("/api/user/delete", async (req, res) => {
         user.id || user.displayName
       }`
     );
-
-    req.logout((err) => {
-      if (err) return res.status(500).send("Logout failed");
-      req.session.destroy(() => {
-        res.clearCookie("connect.sid");
-        res.redirect("http://localhost:5173/login");
-      });
-    });
   } catch (error) {
-    console.log("Error with revoking process: ", error.message);
+    console.error(
+      `Error revoking Google token for user: ${user.id || user.displayName}`,
+      error
+    );
+    return res.status(500).json({ message: "Failed to revoke token" });
   }
-});
-
-router.get("/api/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) return res.status(500).send("Logout failed");
-    req.session.destroy(() => {
-      res.clearCookie('connect.sid');
-      res.redirect(`${FRONTEND_URL}/login`);
-    });
-  });
 });
 
 export default router;

@@ -1,10 +1,9 @@
 import React from "react";
 import dayjs from "dayjs";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
 import SearchBar from "../Search/search.jsx";
-import { AppContext } from "../../AppContextProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
 import ItineraryItem from "./ItineraryItem.jsx";
@@ -12,14 +11,21 @@ import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
 
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
-  const { tripData, updateItinerary, deleteTripItem } = useContext(AppContext);
+  const { tripData, updateItinerary, deleteTripItem, selectDay } = useContext(AppContext);
   const [tripItems, setTripItems] = useState(day.itinerary);
   const [isOpen, setIsOpen] = useState(false);
 
+  // When this component mounts, set this day as the selected day in context
+  useEffect(() => {
+    selectDay(day);
+  }, [day, selectDay]);
+
+  // Update local state when day itinerary changes
   useEffect(() => {
     setTripItems(day.itinerary);
   }, [day.itinerary]);
 
+  // Function to handle drag-and-drop reordering of itinerary items
   const moveItem = (from, to) => {
     if (from === to) return;
     const updated = [...tripItems];
@@ -29,18 +35,24 @@ export default function TripDayPlan({ day, index }) {
     // Optionally update global state here
   };
 
+  // Function to add a new location to the day's itinerary
   const handleAddLocationToDay = async (loc) => {
-    const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
-    console.log("day", day);
-    //not finished yet
-    const UpdateItem = {
-      date: day.date,
-      gpPlaceId: newPlaceData.place_id,
-      order: day.itinerary.length,
-    };
-    updateItinerary(tripData, UpdateItem);
+    try {
+      const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
+      
+      const updateItem = {
+        date: day.date,
+        gpPlaceId: newPlaceData.place_id,
+        order: day.itinerary.length,
+      };
+      
+      updateItinerary(tripData, updateItem);
+    } catch (error) {
+      console.error("Error adding location to day:", error);
+    }
   };
 
+  // Function to delete an itinerary item
   const handleDelete = (item) => {
     deleteTripItem(day, item);
   };
@@ -54,7 +66,7 @@ export default function TripDayPlan({ day, index }) {
           className="mt-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300"
           onClick={() => setIsOpen(true)}
         >
-          Smart advice{" "}
+          Smart advice
         </button>
         <SmartAdviceWindow
           isOpen={isOpen}
@@ -78,7 +90,11 @@ export default function TripDayPlan({ day, index }) {
         })}
       </div>
       <div className="mt-6 w-full max-w-2xl">
-        <SearchBar onLocationSelected={handleAddLocationToDay} />
+        {/* Pass the current day index to SearchBar */}
+        <SearchBar 
+          onLocationSelected={handleAddLocationToDay} 
+          dayIndex={index}
+        />
       </div>
     </>
   );

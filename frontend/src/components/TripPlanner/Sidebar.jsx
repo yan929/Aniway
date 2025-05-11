@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../AppContextProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { IoSparklesOutline } from "react-icons/io5";
 

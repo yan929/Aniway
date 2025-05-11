@@ -16,10 +16,14 @@ function SearchAniItem({ icon, title, resultList, selectedIndex }) {
               className={`flex items-start px-4 py-2 w-full border-b border-gray-100 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${
                 selectedIndex === id ? "bg-gray-50" : ""
               }`}
-              onClick={() => navigate(`/anime/${result.id}`)}
+              onClick={() => {
+                navigate(`/anime/${result.id}`);
+              }}
             >
               {icon && React.createElement(icon)}
-              <p className="font-semibold m-0 text-sm text-left">{result.name}</p>
+              <p className="font-semibold m-0 text-sm text-left">
+                {result.name}
+              </p>
             </div>
           ))}
         </div>

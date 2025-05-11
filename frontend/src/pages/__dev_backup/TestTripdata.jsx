@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../AppContextProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 export default function TestSaveTrip() {
   const { tripData } = useContext(AppContext);
