@@ -10,11 +10,9 @@ const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <NavBar />
-      {/* Main content area, Outlet renders the current page */}
-      {/* pt-16 to offset content below fixed NavBar */}
-      <main className="flex-grow pt-6">
-        <Outlet />
-      </main>
+      {/* The same height as the NavBar */}
+      <div className="flex-col flex-shrink-0 h-14" />
+      <Outlet />
       {showFooter && <Footer />}
     </div>
   );

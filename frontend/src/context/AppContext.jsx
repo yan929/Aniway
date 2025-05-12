@@ -243,8 +243,24 @@ function AppContextProvider({ children }) {
       return;
     }
 
-    const { _id, title, content } = currentTrip;
-    const payload = { title, content };
+    if (!user || !user.id) {
+      console.error(
+        "saveCurrentTripToDb: User not logged in or user.id is missing. User object was:",
+        JSON.stringify(user, null, 2)
+      );
+      alert("You must be logged in to save a trip.");
+      return;
+    }
+
+    console.log(" ---> Save currentTrip", currentTrip);
+    const { _id, title, content, image } = currentTrip;
+    // Add userId to the payload, using user.id as per the logged object structure
+    const payload = {
+      title,
+      content,
+      image,
+      userId: user.id,
+    };
 
     if (!_id) {
       console.log("AppContext: Creating new trip with payload:", payload);
@@ -289,7 +305,7 @@ function AppContextProvider({ children }) {
         throw error;
       }
     }
-  }, [currentTrip, setCurrentTrip]);
+  }, [currentTrip, setCurrentTrip, user]);
 
   const updateTrip = useCallback(
     (newDayPlanArray) => {
