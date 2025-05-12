@@ -37,12 +37,11 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete }) => {
   return (
     <div
       ref={ref}
-      className={`flex p-4 items-center gap-2 group  ${
-        isDragging ? "opacity-50" : ""
-      }`}
+      className={`flex p-4 items-center gap-2 group  ${isDragging ? "opacity-50" : ""
+        }`}
       style={{ cursor: "move" }}
     >
-      <div className="flex relative items-start bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl ">
+      <div className="flex relative bg-gray-100 rounded-xl shadow-sm overflow-visible w-full max-w-2xl ">
         <div className="flex-1 p-4 relative">
           <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-green-500 text-white text-sm rounded-full flex items-center justify-center z-10 shadow">
             {itemIndex + 1}
@@ -58,7 +57,7 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete }) => {
           </div>
         </div>
 
-        <div className="w-24 h-fit flex-shrink-0">
+        <div className="w-24 flex-shrink-0">
           {photoURL ? (
             <img
               src={photoURL}
