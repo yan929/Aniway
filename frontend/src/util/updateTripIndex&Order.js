@@ -29,14 +29,14 @@ import dayjs from 'dayjs';
 export function updateTripIndexAndOrder(tripData) {
     if (tripData.length === 0) return [];
 
-    // 按日期排序（确保无残留）
+   
     const sorted = [...tripData].sort((a, b) =>
         dayjs(a.date).unix() - dayjs(b.date).unix()
     );
 
-    // 重置索引
+    
     return sorted.map((day, index) => ({
         ...day,
-        index: index // 确保从0开始连续
+        index: index 
     }));
 }
