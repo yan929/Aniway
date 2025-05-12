@@ -11,6 +11,8 @@ function AniDetail() {
   const [animeLocData, setAnimeLocData] = useState(null);
 
   const fetchAniInfo = async () => {
+    console.log("Fetching anime info for ID:", id);
+
     try {
       const response = await apiClient.get(`/api/anime/${id}`);
 
@@ -23,6 +25,8 @@ function AniDetail() {
   };
 
   const fetchAniLoc = async () => {
+    console.log("Test data:", animeData);
+
     const encodedName = encodeURIComponent(animeData.name);
 
     try {
@@ -40,22 +44,26 @@ function AniDetail() {
     }
   };
 
-  // useEffect(() => {
+  useEffect(() => {
+    fetchAniInfo();
+    setTimeout(() => window.scrollTo(0, 0), 0);
+  }, [id]);
 
-  //   fetchAniInfo();
-  // }, [id]);
+  useEffect(() => {
+    if (animeData && animeData.name) {
+      fetchAniLoc();
+      setTimeout(() => window.scrollTo(0, 0), 0);
+    }
+  }, [animeData]);
 
   return (
     <>
-      <Link to={"/"}>Back to home</Link>
-      <button onClick={fetchAniInfo}>Fetch Anime Info</button>
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (
         <p>Loading...</p>
       )}
 
-      <button onClick={fetchAniLoc}>Fetch Location Info</button>
       {animeLocData ? (
         <DisplayAniLoc aniLocList={animeLocData} />
       ) : (
