@@ -1,5 +1,6 @@
 import { useState } from "react";
-import UserModification from "../../components/Setting/userModi";
+import UserForm from "../../components/Setting/userForm";
+import DeleteAccountSection from "../../components/Setting/deleteArea";
 
 function Setting() {
   const [activeTab, setActiveTab] = useState("account");
@@ -22,24 +23,24 @@ function Setting() {
           >
             Account
           </div>
-          {/* <div
+          <div
             className={`cursor-pointer font-medium ${
-              activeTab === "preference"
+              activeTab === "delete"
                 ? "text-black underline"
                 : "text-gray-600 hover:text-black"
             }`}
             onClick={() => {
-              setActiveTab("preference");
+              setActiveTab("delete");
             }}
           >
-            User Preference
-          </div> */}
+            Delete
+          </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 px-10 py-10">
-          {activeTab === "account" && <UserModification />}
-          {/* {activeTab === "preference" && <PreferenceModifi />} */}
+          {activeTab === "account" && <UserForm />}
+          {activeTab === "delete" && <DeleteAccountSection  />}
         </main>
       </div>
     </>
