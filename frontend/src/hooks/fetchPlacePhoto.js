@@ -10,19 +10,11 @@ export async function fetchPlacePhoto(photoReference) {
 
   // Check cache first
   if (photoBlobCache.has(photoReference)) {
-    console.log(
-      "fetchPlacePhoto: Serving photo from cache for reference:",
-      photoReference
-    );
     const cachedBlob = photoBlobCache.get(photoReference);
     return URL.createObjectURL(cachedBlob);
   }
 
   try {
-    console.log(
-      "fetchPlacePhoto: Fetching photo for reference:",
-      photoReference
-    );
     const res = await apiClient.get(
       `/api/gmap/photo?photo_reference=${photoReference}`,
       {

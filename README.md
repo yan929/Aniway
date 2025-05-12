@@ -1,4 +1,3 @@
-
 # AniWay
 
 **AniWay** is an intelligent travel planning platform for anime fans. It helps you plan trips to real-world locations featured in your favorite anime series—combining AI-powered recommendations, interactive maps, and seamless itinerary management.
@@ -6,6 +5,7 @@
 ## ✈️ What is AniWay?
 
 AniWay transforms anime-inspired travel into reality by offering features tailored for otaku travelers:
+
 - Real-world locations from anime scenes.
 - AI-personalized trip itineraries.
 - Interactive maps & scene comparisons.
@@ -28,6 +28,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 ## 🛠️ Tech Stack
 
 ### Frontend:
+
 - **React 19**, **React Router v7**
 - **Vite** for development & builds
 - **TailwindCSS v4** & **Flowbite-React** for UI components
@@ -37,6 +38,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 - **ESLint**, **Vitest**, **Testing Library**
 
 ### Backend:
+
 - **Node.js** & **Express 5**
 - **MongoDB** with **Mongoose**
 - **OpenAI API** & **Anitabi API** integrations
@@ -51,6 +53,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 ## 🚀 Getting Started
 
 ### Prerequisites:
+
 - Node.js & npm
 - Google Cloud API key (Maps, Places API)
 - OpenAI API key
@@ -58,6 +61,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 - MongoDB URI
 
 ### Installation:
+
 ```bash
 git clone https://github.com/your-org/aniway.git
 
@@ -71,6 +75,7 @@ npm install
 ```
 
 ### Development:
+
 ```bash
 # Frontend
 cd frontend
@@ -82,6 +87,7 @@ npm run dev
 ```
 
 ### Testing:
+
 ```bash
 # Frontend
 cd frontend
@@ -93,9 +99,11 @@ npm test
 ```
 
 ### Environment Variables (.env example):
+
 📦 Frontend Environment Variables
 Please create a .env file in the /frontend directory.
 Example: /frontend/.env.example
+
 ```bash
 # Google Maps API Key for frontend
 VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
@@ -107,6 +115,7 @@ VITE_BACKEND_API=http://127.0.0.1:5050/
 🖥️ Backend Environment Variables
 Please create a .env file in the /backend directory.
 Example: /backend/.env.example
+
 ```bash
 # Database Configuration
 MONGO_URI=mongodb://username:password@host:port/aniway?authSource=admin
@@ -145,6 +154,7 @@ You can access the live version of Aniway here:
 ---
 
 ## 🌐 Links
+
 - [Wiki](https://github.com/UOA-CS732-S1-2025/group-project-team-rocket-webmasters/wiki)
 
 ---
@@ -152,19 +162,23 @@ You can access the live version of Aniway here:
 ## 🗺️ Screenshots
 
 ### Homepage
+
 ![Homepage](./images/homepage.png)
 
 ### Itinerary Planner with Interactive Map View
+
 ![Itinerary Planner & Map](./images/trip-planner-map.png)
 
 ### Anime Location Detail Page
+
 ![Anime Location Detail](./images/anime-location-detail.png)
 
 ---
 
 ## 🙌 Contributors
 
-### Shi Bang ([sban351@aucklanduni.ac.nz](mailto:sban351@aucklanduni.ac.nz)) [@sban351](https://github.com/sban351)
+### Rocky Shi ([sban351@aucklanduni.ac.nz](mailto:sban351@aucklanduni.ac.nz)) [@sban351](https://github.com/sban351)
+
 **Fullstack Developer & Project Lead**  
 Led overall project coordination and task management.  
 Developed backend features including data preparation, homepage search API, and AI RAG API.  
@@ -174,6 +188,7 @@ Managed deployment of backend services (APIs, databases) and frontend applicatio
 ---
 
 ### Yan Wa Ho ([yho777@aucklanduni.ac.nz](mailto:yho777@aucklanduni.ac.nz)) [@tiff777](https://github.com/tiff777)
+
 **Fullstack Developer & Project Coordinator**  
 Implemented frontend features including the search bar, anime display components, and settings page.  
 Handled backend API integration and database setup.  
@@ -183,7 +198,8 @@ Wrote and maintained project documentation.
 ---
 
 ### Zephyr Chen ([bche942@aucklanduni.ac.nz](mailto:bche942@aucklanduni.ac.nz)) [@zephyr942](https://github.com/zephyr942)
-**Fullstack Developer (Trip Planner Features)**   
+
+**Fullstack Developer (Trip Planner Features)**  
 Designed the homepage, trip planner interface, and core UI in Figma.  
 Developed the trip planner feature with frontend components, routing, custom hooks and backend APIs.  
 Integrated GMap components from teammates and extended related API queries.  
@@ -193,6 +209,7 @@ Developed a ChatGPT powered single day itinerary generation demo and integrated 
 ---
 
 ### Tun-Yu Hsieh ([thsi160@aucklanduni.ac.nz](mailto:thsi160@aucklanduni.ac.nz)) [@Claire1234Claire](https://github.com/Claire1234Claire)
+
 **Fullstack Developer (Google Features & Authentication)**  
 Implemented Google Maps integration and developed backend API routes for location data, connecting them with frontend components.  
 Built the LocationPopup component to display detailed place information with interactive maps and itinerary features.  
@@ -204,6 +221,7 @@ Created and maintained the project README documentation.
 ---
 
 ### Hong Ying Xie ([hxie943@aucklanduni.ac.nz](mailto:hxie943@aucklanduni.ac.nz)) [@xhy0518](https://github.com/xhy0518)
+
 **Frontend Developer**  
 Implemented the website's homepage frontend design and functionality.  
 Developed navigation bar and footer components, including dropdown menus for user login/logout functionality.  
@@ -213,6 +231,7 @@ Built the location search page display functionality and implemented frontend fe
 ---
 
 ### Nicholas Travis ([nkaw981@aucklanduni.ac.nz](mailto:nkaw981@aucklanduni.ac.nz)) [@nkaw981](https://github.com/nkaw981)
+
 **Backend Developer**  
 _To be completed_
 

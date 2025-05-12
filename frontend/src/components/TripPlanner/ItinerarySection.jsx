@@ -15,24 +15,43 @@ export default function ItinerarySection({ onRefsCreated }) {
     if (dayPlans && onRefsCreated) {
       onRefsCreated(dayRefs.current);
     }
-  }); // No dependency array - runs after every render where refs might be updated
+  }, [dayPlans, onRefsCreated]);
 
   console.log("ItinerarySection - currentTrip:", currentTrip);
   console.log("ItinerarySection - dayPlans (currentTrip.content):", dayPlans);
 
   // Check if dayPlans is an array and not empty
   if (!currentTrip) {
-    return <div className="text-gray-500">Loading trip data...</div>; // Or some other loading/empty state
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "200px",
+        }}
+      >
+        <span className="text-gray-500">
+          Please select a date range to create the itinerary.
+        </span>
+      </div>
+    );
   }
 
   if (!dayPlans || !Array.isArray(dayPlans)) {
     // This case might occur if currentTrip exists but content is missing/invalid
     // or if currentTrip is null and the above check didn't catch it (though it should)
-    return <div className="text-red-500">Error: Trip data (content) is invalid or not loaded.</div>;
+    return (
+      <div className="text-red-500">
+        Error: Trip data (content) is invalid or not loaded.
+      </div>
+    );
   }
 
   if (dayPlans.length === 0) {
-    return <div className="text-gray-500">This trip has no planned days yet.</div>;
+    return (
+      <div className="text-gray-500">This trip has no planned days yet.</div>
+    );
   }
 
   return (
@@ -42,8 +61,13 @@ export default function ItinerarySection({ onRefsCreated }) {
           key={day.date || index}
           className="mb-4"
           // Assign a ref to this div using the day's date as the key
-          ref={el => { if (el) dayRefs.current[day.date || `day-${index}`] = el; else delete dayRefs.current[day.date || `day-${index}`]; }}
-        > {/* Prefer day.date for key if available and unique */}
+          ref={(el) => {
+            if (el) dayRefs.current[day.date || `day-${index}`] = el;
+            else delete dayRefs.current[day.date || `day-${index}`];
+          }}
+        >
+          {" "}
+          {/* Prefer day.date for key if available and unique */}
           <TripDayPlan day={day} index={index} />
         </div>
       ))}

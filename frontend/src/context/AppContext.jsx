@@ -1,81 +1,44 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { updateTripDate } from "../util/updateTripDate.js";
 import apiClient from "../util/api.js";
-import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isSameOrBefore);
 
 const AppContext = React.createContext({
   currentTrip: null,
-  loadCurrentTrip: async () => { },
+  loadCurrentTrip: async () => {},
   // eslint-disable-next-line no-unused-vars
-  appendItemsToContent: (itemsArray) => { },
+  appendItemsToContent: (itemsArray) => {},
   // eslint-disable-next-line no-unused-vars
-  replaceEntireTrip: (newTripObject) => { },
+  replaceEntireTrip: (newTripObject) => {},
   // eslint-disable-next-line no-unused-vars
-  updateCurrentTripTitle: (newTitle) => { },
-  saveCurrentTripToDb: async () => { },
-  updateTrip: () => { },
-  fetchTrip: () => { },
-  updateItinerary: () => { },
-  deleteTripItem: () => { },
+  updateCurrentTripTitle: (newTitle) => {},
+  saveCurrentTripToDb: async () => {},
+  updateTrip: () => {},
+  fetchTrip: () => {},
+  updateItinerary: () => {},
+  deleteTripItem: () => {},
   user: null,
-  loginUser: () => { },
-  logoutUser: () => { },
+  loginUser: () => {},
+  logoutUser: () => {},
   selectedDay: null,
-  selectDay: () => { },
+  selectDay: () => {},
   isAuthenticated: false,
   isAuthLoading: true,
   tripTitle: "",
   tripLocation: null,
-  setTripDetails: () => { },
+  setTripDetails: () => {},
 });
-
-const initialTestTrip = {
-  _id: "681013239a49bb4d4b06de53",
-  title: "My Amazing Test Trip",
-  content: [
-    {
-      date: "2025-10-01",
-      index: 0,
-      itinerary: [
-        {
-          gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-          order: 1,
-          arrivalTime: "12:00",
-          note: "Dinner with view",
-        },
-        {
-          gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-          order: 2,
-          arrivalTime: "22:00",
-          note: "Dinner with view",
-        },
-      ],
-    },
-    {
-      date: "2025-10-02",
-      index: 1,
-      itinerary: [
-        {
-          gpPlaceId: "ChIJCewJkL2LGGAR3Qmk0vCTGkg",
-          order: 1,
-          arrivalTime: "10:00",
-          note: "Dinner with view",
-        },
-      ],
-    },
-  ],
-};
 
 function AppContextProvider({ children }) {
   const [currentTrip, setCurrentTrip] = useState(() => {
     try {
       const savedTrip = localStorage.getItem("currentTrip");
-      return savedTrip ? JSON.parse(savedTrip) : initialTestTrip;
+      return savedTrip ? JSON.parse(savedTrip) : null;
     } catch (e) {
       console.error("Failed to load currentTrip from localStorage:", e);
-      return initialTestTrip;
+      return null;
     }
   });
 
@@ -268,7 +231,9 @@ function AppContextProvider({ children }) {
     if (!_id) {
       console.log("AppContext: Creating new trip with payload:", payload);
       try {
-        const response = await apiClient.post("/api/tplan", payload);
+        const response = await apiClient.post("/api/tplan", payload, {
+          withCredentials: true,
+        });
         setCurrentTrip(response.data);
         console.log(
           "AppContext: New trip created successfully.",
@@ -282,7 +247,7 @@ function AppContextProvider({ children }) {
         );
         alert(
           "Error creating trip. " +
-          (error.response?.data?.message || error.message)
+            (error.response?.data?.message || error.message)
         );
         throw error;
       }
@@ -292,7 +257,9 @@ function AppContextProvider({ children }) {
         payload
       );
       try {
-        const response = await apiClient.patch(`/api/tplan/${_id}`, payload);
+        const response = await apiClient.patch(`/api/tplan/${_id}`, payload, {
+          withCredentials: true,
+        });
         setCurrentTrip((prevTrip) => ({ ...prevTrip, ...response.data }));
         console.log("AppContext: Trip updated successfully.", response.data);
         alert("Trip updated successfully!");
@@ -303,7 +270,7 @@ function AppContextProvider({ children }) {
         );
         alert(
           "Error updating trip. " +
-          (error.response?.data?.message || error.message)
+            (error.response?.data?.message || error.message)
         );
         throw error;
       }
@@ -445,14 +412,13 @@ function AppContextProvider({ children }) {
 
   // Function to set trip details from HomePage
   function setTripDetails(location, title, dates) {
-
     // Explicitly check properties and log them
-    const hasStartDate = dates && dates.hasOwnProperty('startDate') && dates.startDate instanceof Date;
-    const hasEndDate = dates && dates.hasOwnProperty('endDate') && dates.endDate instanceof Date;
-    const isStartBeforeEnd = hasStartDate && hasEndDate && dates.startDate <= dates.endDate;
+    const hasStartDate = dates?.startDate instanceof Date;
+    const hasEndDate = dates?.endDate instanceof Date;
+    const isStartBeforeEnd =
+      hasStartDate && hasEndDate && dates.startDate <= dates.endDate;
 
     // --- Debugging End ---
-
 
     // Update separate location/title states if they are used elsewhere independently
     if (location) setTripLocation(location);
@@ -461,41 +427,45 @@ function AppContextProvider({ children }) {
     let newContent = [];
     // If dates are valid, generate the content array using dayjs
     if (dates && hasStartDate && hasEndDate && isStartBeforeEnd) {
-      console.log("[setTripDetails] Date check passed. Generating content with dayjs...");
+      console.log(
+        "[setTripDetails] Date check passed. Generating content with dayjs..."
+      );
 
       // Convert start and end dates to dayjs objects
-      let currentDay = dayjs(dates.startDate).startOf('day');
-      const endDay = dayjs(dates.endDate).startOf('day');
+      let currentDay = dayjs(dates.startDate).startOf("day");
+      const endDay = dayjs(dates.endDate).startOf("day");
 
       // Iterate using dayjs isSameOrBefore and add methods
       while (currentDay.isSameOrBefore(endDay)) {
         newContent.push({
-          date: currentDay.format('YYYY-MM-DD'), // Format using dayjs
+          date: currentDay.format("YYYY-MM-DD"), // Format using dayjs
           index: newContent.length,
           itinerary: [],
         });
         // Move to the next day
-        currentDay = currentDay.add(1, 'day');
+        currentDay = currentDay.add(1, "day");
       }
       console.log("[setTripDetails] Generated content:", newContent);
-
     } else {
-      console.warn("[setTripDetails] Date check failed. Content will be empty.", {
-        receivedDates: dates,
-        check_hasStartDate: hasStartDate,
-        check_hasEndDate: hasEndDate,
-        check_isStartBeforeEnd: isStartBeforeEnd
-      });
+      console.warn(
+        "[setTripDetails] Date check failed. Content will be empty.",
+        {
+          receivedDates: dates,
+          check_hasStartDate: hasStartDate,
+          check_hasEndDate: hasEndDate,
+          check_isStartBeforeEnd: isStartBeforeEnd,
+        }
+      );
     }
 
     // Update the entire currentTrip state object AT ONCE
     setCurrentTrip((prevTrip) => {
       const tripId = prevTrip?._id; // Preserve existing ID if any
       const newTrip = {
-        ...prevTrip,             // Preserve other fields like image, userId etc.
+        ...prevTrip, // Preserve other fields like image, userId etc.
         _id: tripId,
         title: title || "My Trip", // Set title directly in currentTrip
-        content: newContent,       // Set content directly in currentTrip
+        content: newContent, // Set content directly in currentTrip
         // You might want to store the primary destination location here too:
         // destination: location || prevTrip?.destination,
       };
@@ -529,7 +499,9 @@ function AppContextProvider({ children }) {
     }
     try {
       console.log(`AppContext: Loading trip with ID: ${tripId}`);
-      const response = await apiClient.get(`/api/tplan/${tripId}`);
+      const response = await apiClient.get(`/api/tplan/${tripId}`, {
+        withCredentials: true,
+      });
       if (response.data) {
         setCurrentTrip(response.data);
         console.log("AppContext: Trip loaded successfully:", response.data);
@@ -566,7 +538,6 @@ function AppContextProvider({ children }) {
     setIsAuthenticated(true);
     console.log("AppContext: User update with new name.");
   }, []);
-
 
   const context = {
     currentTrip,

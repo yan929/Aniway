@@ -3,11 +3,6 @@ import TripPlan from "../models/TripPlan.js";
 
 const getAllPlans = asyncHandler(async (req, res) => {
   try {
-    // Add authentication check
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     // Use authenticated user's ID instead of hardcoded value
     const userId = req.user.id;
 
@@ -86,6 +81,8 @@ const getPlan = asyncHandler(async (req, res) => {
 
 // Reference from the code of partialUpdateLocation in LocationController
 const partialUpdatePlan = asyncHandler(async (req, res) => {
+  console.log("patch, id:", req.params.id);
+  console.log("patch, user:", req.user);
   try {
     const updatedPlan = await TripPlan.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
@@ -93,9 +90,7 @@ const partialUpdatePlan = asyncHandler(async (req, res) => {
       { new: true }
     );
     if (!updatedPlan)
-      return res
-        .status(404)
-        .json({ message: "Trip plan not found or not authorized" });
+      return res.status(404).json({ message: "Trip plan not found" });
     res.json(updatedPlan);
   } catch (err) {
     console.error("Error partially updating plan:", err);

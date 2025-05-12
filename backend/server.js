@@ -22,6 +22,7 @@ import chatgptRoutes from "./routes/ChatgptRoutes.js";
 import tPlanRoutes from "./routes/TPlanRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
+import { ensureAuthenticated } from "./middleware/auth.js";
 // AuthRoute
 import authRoutes from "./routes/AuthRoutes.js";
 // User Routes
@@ -130,7 +131,7 @@ app.use("/api/chatgpt", chatgptRoutes);
 
 app.use("/api/ai", AIAdviceRoutes);
 
-app.use("/api/tplan", tPlanRoutes);
+app.use("/api/tplan", ensureAuthenticated, tPlanRoutes);
 
 app.use("/api/user", userRoutes); // Mount user routes
 
