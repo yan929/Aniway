@@ -12,3 +12,28 @@ body.trip-planner-page #root {
   padding: 1rem;
   width: 100%;
 }
+
+/* Add custom scrollbar styles for elements with overflow-y-auto */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+  /* Adjust width */
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+  /* Make track transparent */
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(159, 169, 183, 0.5);
+  /* Slightly visible thumb */
+  border-radius: 4px;
+}
+
+/* Hide scrollbar for Firefox */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  /* "auto" or "thin" */
+  scrollbar-color: rgba(159, 169, 183, 0.5) transparent;
+  /* thumb and track color */
+}
