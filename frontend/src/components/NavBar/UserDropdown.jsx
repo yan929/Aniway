@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 function UserDropdown({ user, onLogout, isOpen, setIsOpen }) {
 
   const dropdownRef = useRef(null);
-  
   return (
     <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
 
@@ -24,6 +23,7 @@ function UserDropdown({ user, onLogout, isOpen, setIsOpen }) {
             >
             <FaUser className="mr-2 text-gray-600" />
             My Trips
+
             </Link>
           </li>
           <li>
@@ -32,9 +32,7 @@ function UserDropdown({ user, onLogout, isOpen, setIsOpen }) {
             </Link>
           </li>
           <li>
-            
             <Link to="/api/logout" onClick={onLogout} className="flex items-center px-4 py-2 hover:bg-gray-50">
-              
               <FaSignOutAlt className="mr-2" />Logout
             </Link>
           </li>

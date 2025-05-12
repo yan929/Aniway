@@ -1,18 +1,23 @@
-function AniLocCard({ locList, onLocationClick }) {
+function AniLocCard({ locList, onLocationClick, cardClassName, showMainListTitle }) {
+  // Default to true if showMainListTitle is not explicitly passed (though SmartAdviceWindow always passes it now)
+  const shouldShowTitle = showMainListTitle === undefined ? true : showMainListTitle;
+
   return (
     <>
-      <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
-        Locations ({locList.length})
-      </h2>
+      {shouldShowTitle && (
+        <h2 className="text-3xl font-extrabold tracking-wide flex items-center mb-6">
+          Locations ({locList ? locList.length : 0})
+        </h2>
+      )}
       <div className="flex flex-col gap-4 pb-8">
         {locList.map((data) => (
           <div
             key={data.id}
-            className="flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer"
+            className={`flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer ${cardClassName || "h-48"}`}
             onClick={() => onLocationClick && onLocationClick(data)}
           >
             {/* Left side - Image */}
-            <div className="w-1/4 h-48">
+            <div className="w-1/4 aspect-video">
               <img
                 src={data.image || "/default-image.jpg"}
                 alt={data.locationName}

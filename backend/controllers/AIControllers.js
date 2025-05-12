@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
-import { searchRawLocationData, enrichLocationsWithAnime, searchRawLocationDataByLocateAnime } from "../services/locationService.js";
-import { replanSingleDayItinerary } from "./itineraryReplanController.js"; 
+import { searchRawLocationDataByLocateAnime } from "../services/locationService.js";
+
 
 dotenv.config();
 
@@ -42,7 +42,7 @@ const analyzeUserInput = async (req, res) => {
           role: "user",
           // Note: buildUserQueryPrompt was simplified in previous steps to only take prompt, startDate, endDate
           // We are using itineraryDate for both start and end as it's a single day context
-          content: buildUserQueryPrompt(prompt, itineraryDate, itineraryDate), 
+          content: buildUserQueryPrompt(prompt, itineraryDate, itineraryDate),
         },
       ],
       temperature: 0.3,
@@ -52,11 +52,11 @@ const analyzeUserInput = async (req, res) => {
     console.log(`✅ Response from initial ChatGPT for location/theme extraction`);
     let initialAIResponse;
     try {
-        initialAIResponse = JSON.parse(initialReply);
+      initialAIResponse = JSON.parse(initialReply);
     } catch (e) {
-        console.error("❌ Invalid JSON from initial AI for location/theme extraction:", e);
-        console.error("Raw AI reply:", initialReply);
-        return res.status(500).json({ error: "Initial AI (location/theme extraction) returned invalid JSON", raw: initialReply });
+      console.error("❌ Invalid JSON from initial AI for location/theme extraction:", e);
+      console.error("Raw AI reply:", initialReply);
+      return res.status(500).json({ error: "Initial AI (location/theme extraction) returned invalid JSON", raw: initialReply });
     }
     console.log("Parsed JSON from initial AI:", initialAIResponse);
 
@@ -70,44 +70,17 @@ const analyzeUserInput = async (req, res) => {
     // This data will be the 'newlyAddedLocation' for the replanning step
     const rawLocations = await searchRawLocationDataByLocateAnime(locations, themes);
     console.log("Raw Locations from DB search:", rawLocations);
-
-    const newlyAddedLocationData = rawLocations && rawLocations.length > 0 ? rawLocations[0] : null;
-
-    if (!newlyAddedLocationData) {
-        // If no relevant location is found from the user's prompt to add/replan,
-        // you might want to return the initial AI response or a specific message.
-        // For now, let's assume we proceed to replan even if newlyAddedLocationData is null,
-        // as replanSingleDayItinerary might handle this (e.g., just re-optimizing existing).
-        // Or, you could return an error/specific response here:
-        console.warn("⚠️ No new location data found from prompt to use for replanning. Proceeding with current itinerary and original request.");
-        // Potentially, if newlyAddedLocationData is crucial, you might return an error or a different response:
-        // return res.status(404).json({ error: "No relevant new location found based on your request to add to the itinerary." });
-    }
-
-    // Step 3: Call the replanning function
-    // Parameters for replanSingleDayItinerary:
-    // 1. newlyAddedLocation: The first item from rawLocations (or null)
-    // 2. existingDayItinerary: The currentItinerary from req.body
-    // 3. originalUserRequest: The original prompt from req.body
-
-    const replannedItinerary = await replanSingleDayItinerary(
-        newlyAddedLocationData, 
-        currentItinerary, 
-        prompt 
-    );
-
-    // Step 4: Send the successful response with the replanned itinerary
-    res.json(replannedItinerary);
-    console.log("✅ Successfully replanned itinerary sent to client.");
+    res.json(rawLocations); // Send the whole array
+    console.log("✅ Successfully sent location suggestions to client.");
 
   } catch (err) {
     console.error("❌ Error in analyzeUserInput processing pipeline:", err.message);
     // Check if the error is from our known error types (e.g., from replanSingleDayItinerary)
     // or a general error. This helps in sending a more specific error message.
     if (err.message.includes("AI returned invalid JSON") || err.message.includes("Failed to generate the replanned day itinerary")) {
-        res.status(500).json({ error: "Failed to process itinerary replan with AI.", details: err.message });
+      res.status(500).json({ error: "Failed to process itinerary replan with AI.", details: err.message });
     } else {
-        res.status(500).json({ error: "An unexpected error occurred while analyzing user input and replanning.", details: err.message });
+      res.status(500).json({ error: "An unexpected error occurred while analyzing user input and replanning.", details: err.message });
     }
   }
 };
