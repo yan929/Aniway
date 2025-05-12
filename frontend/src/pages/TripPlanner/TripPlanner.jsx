@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
@@ -10,9 +10,27 @@ import apiClient from "../../util/api.js"; // Added import
 
 export default function TripPlanner() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { currentTrip, tripLocation, replaceEntireTrip } =
+  const { currentTrip, tripLocation, replaceEntireTrip, selectDay } =
     useContext(AppContext);
   const navigate = useNavigate();
+
+  // Ref to store the refs of each day section from ItinerarySection
+  const daySectionRefs = useRef({});
+
+  // Callback function for ItinerarySection to pass up its refs
+  const handleRefsCreated = (refs) => {
+    daySectionRefs.current = refs;
+  };
+
+  // Function to scroll to a specific day
+  const scrollToDay = (date) => {
+    const ref = daySectionRefs.current[date];
+    if (ref) {
+      ref.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.warn(`Ref for date ${date} not found.`);
+    }
+  };
 
   // Add/remove body class for special styling
   useEffect(() => {
@@ -126,12 +144,12 @@ export default function TripPlanner() {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
-      <Sidebar onToggleChat={toggleChatWindow} />
+      <Sidebar onToggleChat={toggleChatWindow} onScrollToDay={scrollToDay} />
       <main className="flex-1 overflow-y-auto bg-gray-100">
         {" "}
         {/* Added padding for ItinerarySection */}
         <TripHeader />
-        <ItinerarySection />
+        <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
       <div className="w-1/3 bg-gray-200 overflow-y-auto">
         {" "}
