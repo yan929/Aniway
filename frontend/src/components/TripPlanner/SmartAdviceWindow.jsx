@@ -10,6 +10,7 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
     const [error, setError] = useState("");
     const [userInput, setUserInput] = useState("");
     const [suggestions, setSuggestions] = useState([]);
+    const [backdropMouseDown, setBackdropMouseDown] = useState(false);
 
     if (!isOpen) return null;
 
@@ -153,7 +154,22 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
         <div
             id="smart-advice-backdrop"
             className="fixed inset-0 bg-[rgba(0,0,0,0.2)] flex justify-center items-center z-50"
-            onClick={handleBackgroundClick}
+            onMouseDown={e => {
+                if (e.target.id === "smart-advice-backdrop") {
+                    setBackdropMouseDown(true);
+                } else {
+                    setBackdropMouseDown(false);
+                }
+            }}
+            onMouseUp={e => {
+                if (
+                    backdropMouseDown &&
+                    e.target.id === "smart-advice-backdrop"
+                ) {
+                    onClose();
+                }
+                setBackdropMouseDown(false);
+            }}
         >
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl animate-fadeIn relative">
                 <div className="flex justify-between items-center mb-4">
