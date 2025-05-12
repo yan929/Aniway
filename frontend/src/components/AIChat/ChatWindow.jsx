@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef, Fragment, useContext } from "react";
 import { LuSendHorizontal } from "react-icons/lu";
 import { IoClose } from "react-icons/io5";
 import { FaRobot, FaUserCircle, FaCheck } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
+import { AppContext } from "../../context/AppContext.jsx";
 
 export default function ChatWindow({ onClose, onApplySuggestion }) {
   const [message, setMessage] = useState("");
@@ -18,6 +19,8 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
 
   const messagesEndRef = useRef(null);
   const currentStreamIdRef = useRef(null); // Ref to track the ID of the message being streamed into
+
+  const { user } = useContext(AppContext);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -297,6 +300,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
         </div>
       </div>
 
+      {/* Chat history area */}
       <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-100">
         {chatHistory.map((msg) => {
           return (
@@ -319,7 +323,15 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                     }`}
                   >
                     {msg.sender === "user" ? (
-                      <FaUserCircle size={18} />
+                      user && user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt="User"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <FaUserCircle size={18} />
+                      )
                     ) : (
                       <FaRobot size={18} />
                     )}
@@ -340,6 +352,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                   </div>
                 </div>
               </div>
+              {/* Suggestion button for AI messages */}
               {msg.sender === "ai" && msg.suggestionData && (
                 <div className="flex justify-center mt-2 mb-2">
                   <button
@@ -380,6 +393,10 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
             <LuSendHorizontal size={18} />
           </button>
         </div>
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          AI suggestions are a starting point. Always review them and be
+          prepared to manually adjust your travel plans.
+        </p>
       </div>
     </div>
   );

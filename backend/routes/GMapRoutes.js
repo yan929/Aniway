@@ -15,11 +15,11 @@ router.post("/", fetchPlaceInfo);
 router.get("/place_by_nearby", fetchPlaceNearby);
 router.post("/photo", fetchPlacePhoto);
 
-//fethch place photo by place_id
+// fetch place photo by place_id
 router.get("/photo", fetchPlacePhotoByPlaceId);
 
-//get place details by place_id
+// get place details by place_id
 router.get("/:placeId", getPlaceDetails);
-//Test Place ID： ChIJCewJkL2LGGAR3Qmk0vCTGkg
+// Test Place ID： ChIJCewJkL2LGGAR3Qmk0vCTGkg
 
 export default router;
