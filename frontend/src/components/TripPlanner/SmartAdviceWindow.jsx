@@ -160,8 +160,8 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     <h2 className="text-xl font-bold">Smart Advice</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-black text-2xl absolute top-3 right-4"
-                    ></button>
+                        className="text-gray-500 text-2xl absolute top-1 right-1"
+                    >&times;</button>
                 </div>
 
                 <div className="space-y-4">
