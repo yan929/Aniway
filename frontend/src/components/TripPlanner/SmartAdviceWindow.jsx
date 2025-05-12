@@ -130,16 +130,23 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                 return;
             }
 
-            console.log("New item to add to itinerary:", newItemToAdd);
-            updateItinerary(currentTrip.content, newItemToAdd);
-            console.log("Item added to itinerary via AppContext.");
-            onClose();
+            // Correctly prepare arguments for updateItinerary
+            // Find the existing itinerary for the target day from currentTrip.content
+            const targetDayObject = currentTrip.content.find(d => d.date === newItemToAdd.date);
+            const existingItineraryForDay = targetDayObject ? targetDayObject.itinerary : [];
+
+            // Create the new complete itinerary array for the day by appending the new item
+            const newItineraryForDay = [...existingItineraryForDay, newItemToAdd];
+
+
+            updateItinerary(newItemToAdd.date, newItineraryForDay);
+
 
         } catch (err) {
             console.error("Error adding suggestion to itinerary or fetching details:", err);
             setError(err.response?.data?.message || err.message || "Could not add location to itinerary.");
         }
-        // finally { setLoading(false); } // Ensure loading state is handled correctly if re-enabled
+
     };
 
     return (
