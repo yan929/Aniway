@@ -80,7 +80,7 @@ function SearchBar({ onLocationSelected, onInputChange, dayIndex }) {
     setInput(keyword);
     debouncedFetch(keyword);
     setSelectedIndex(-1);
-    
+
     // Pass the input value to parent component if callback exists
     if (typeof onInputChange === "function") {
       onInputChange(keyword);
@@ -98,7 +98,7 @@ function SearchBar({ onLocationSelected, onInputChange, dayIndex }) {
   return (
     <>
       <div className="relative flex flex-col items-center w-full">
-        <div className="flex items-center bg-white w-full rounded-l-full h-10 px-4">
+        <div className="flex items-center bg-white w-full rounded-full h-10 px-4 border border-gray-200 shadow-lg ">
           <FaSearch id="search-icon" />
           <input
             type="text"
