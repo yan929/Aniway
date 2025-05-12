@@ -2,7 +2,7 @@ import React from "react";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
 import usePlaceDetails from "../../hooks/usePlaceDetails.js";
-import SearchBar from "../Search/search.jsx";
+import LocSearchBar from "../Search/locSearch.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
@@ -82,7 +82,7 @@ export default function TripDayPlan({ day, index }) {
         <span>Day {index + 1}</span>
         <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
         <button
-          className="mt-auto ml-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300"
+          className="mt-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300"
           onClick={() => setIsOpen(true)}
         >
           Smart Advice
@@ -108,10 +108,10 @@ export default function TripDayPlan({ day, index }) {
           );
         })}
       </div>
-      <div className="mt-6 w-full max-w-2xl">
+      <div className="mt-6 max-w-4xl">
         {/* Pass the current day index to SearchBar */}
-        <SearchBar
-          onLocationSelected={handleAddLocationToDay}
+        <LocSearchBar
+          setSelectedLocation={handleAddLocationToDay}
           dayIndex={index}
         />
       </div>

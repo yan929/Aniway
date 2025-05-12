@@ -51,9 +51,10 @@ function LocSearchBar({ setSelectedLocation }) {
 
   const handleSelectLocation = (loc) => {
     setSelectedLocation({
+      label: loc.name,
       lat: loc.lat,
       lng: loc.lng,
-      label: loc.name,
+      gpPlaceId: loc.googlePlaceId
     });
     setInput(loc.name);
     setShowResult(false);
@@ -82,7 +83,7 @@ function LocSearchBar({ setSelectedLocation }) {
         />
 
         {showResult && (
-          <div className="absolute top-full bg-white w-1/2 rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-10">
+          <div className="absolute top-full bg-white w-full rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-10">
             <SearchLocItem
               icon={FaLocationDot}
               title={"Location"}

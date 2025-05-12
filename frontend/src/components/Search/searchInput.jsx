@@ -35,7 +35,7 @@ function SearchInput({
 
   return (
     <>
-      <div className="bg-white w-1/2 rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] flex items-center">
+      <div className="bg-white w-full rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] flex items-center">
         <FaSearch id="search-icon" />
         <input
           type="text"
