@@ -17,14 +17,14 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
 
   const daysData = Array.isArray(currentTrip?.content)
     ? currentTrip.content.map((day) => {
-      const dateObj = new Date(day.date);
-      const dayLabel = dateObj.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "numeric",
-        day: "numeric",
-      });
-      return { date: day.date, label: dayLabel };
-    })
+        const dateObj = new Date(day.date);
+        const dayLabel = dateObj.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "numeric",
+          day: "numeric",
+        });
+        return { date: day.date, label: dayLabel };
+      })
     : [];
 
   return (
@@ -32,7 +32,8 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
       <nav className="flex flex-col gap-2">
         <button
           onClick={onToggleChat}
-          className="flex items-center justify-center gap-2 text-left py-1 px-3 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
+          className="flex items-center justify-center gap-2 text-left py-1 px-3 h-12 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
+          style={{ fontSize: "14px" }}
         >
           <IoSparklesOutline size={18} />
           Smart Assistant
