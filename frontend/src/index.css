@@ -3,15 +3,31 @@
 @source "../.flowbite-react/class-list.json";
 
 @layer base {
+
+  /* Ensure html and body take full height and prevent horizontal scroll */
+  html,
+  body {
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Hide vertical scrollbar specifically for the trip planner page */
+  body.trip-planner-page {
+    overflow-y: hidden;
+  }
+
   h1 {
     @apply text-4xl font-bold;
   }
+
   h2 {
     @apply text-3xl font-semibold;
   }
+
   h3 {
     @apply text-2xl font-medium;
   }
+
   p {
     @apply text-base leading-relaxed;
   }
@@ -28,9 +44,11 @@
     cursor: pointer;
     transition: border-color 0.25s;
   }
+
   button:hover {
     border-color: #646cff;
   }
+
   button:focus,
   button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
@@ -43,11 +61,13 @@
 
   /* Restore list styles within chat messages */
   .chat-message-content ul {
-    @apply list-disc pl-5 mb-2; /* Use disc bullets, add left padding, add bottom margin */
+    @apply list-disc pl-5 mb-2;
+    /* Use disc bullets, add left padding, add bottom margin */
   }
 
   .chat-message-content li {
-    @apply mb-1; /* Add small bottom margin to list items */
+    @apply mb-1;
+    /* Add small bottom margin to list items */
   }
 }
 

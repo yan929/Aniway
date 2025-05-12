@@ -14,6 +14,17 @@ export default function TripPlanner() {
     useContext(AppContext);
   const navigate = useNavigate();
 
+  // Add/remove body class for special styling
+  useEffect(() => {
+    // Add class when component mounts
+    document.body.classList.add('trip-planner-page');
+
+    // Remove class when component unmounts
+    return () => {
+      document.body.classList.remove('trip-planner-page');
+    };
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
+
   // Check if trip data exists when component mounts
   useEffect(() => {
     // If tripData or tripLocation is missing, you might want to redirect or show a message
