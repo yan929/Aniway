@@ -85,3 +85,35 @@ export const getUserTrips = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+export const modifyUserProfile=async (req, res) => {
+  try {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    console.log('User profile update request:', req.body.name);
+    
+
+    const {name} = req.body;
+
+    // Find user by Google ID
+    const user = await User.findOne({ google_id: req.user.id });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user profile
+    user.name = name || user.name;
+ 
+    console.log('Updated user:', user);
+    
+    await user.save();
+
+    res.status(200).json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+}

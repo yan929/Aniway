@@ -510,6 +510,13 @@ function AppContextProvider({ children }) {
     console.log("AppContext: User logged out, isAuthenticated set to false.");
   }, []);
 
+  const updateUser = useCallback((updatedUserData) => {
+    setUser(updatedUserData);
+    setIsAuthenticated(true);
+    console.log("AppContext: User update with new name.");
+  }, []);
+
+
   const context = {
     currentTrip,
     loadCurrentTrip,
@@ -525,6 +532,7 @@ function AppContextProvider({ children }) {
     user,
     loginUser,
     logoutUser,
+    updateUser,
     tripTitle,
     tripLocation,
     setTripDetails,
