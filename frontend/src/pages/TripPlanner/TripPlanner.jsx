@@ -10,7 +10,7 @@ import apiClient from "../../util/api.js"; // Added import
 
 export default function TripPlanner() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { currentTrip, tripLocation, replaceEntireTrip, selectDay } =
+  const { currentTrip, tripLocation, replaceEntireTrip } =
     useContext(AppContext);
   const navigate = useNavigate();
 
@@ -26,22 +26,11 @@ export default function TripPlanner() {
   const scrollToDay = (date) => {
     const ref = daySectionRefs.current[date];
     if (ref) {
-      ref.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      ref.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       console.warn(`Ref for date ${date} not found.`);
     }
   };
-
-  // Add/remove body class for special styling
-  useEffect(() => {
-    // Add class when component mounts
-    document.body.classList.add('trip-planner-page');
-
-    // Remove class when component unmounts
-    return () => {
-      document.body.classList.remove('trip-planner-page');
-    };
-  }, []); // Empty dependency array ensures this runs only on mount and unmount
 
   // Check if trip data exists when component mounts
   useEffect(() => {
@@ -98,8 +87,6 @@ export default function TripPlanner() {
                   ...item,
                   gpPlaceId: placeData.place_id,
                   name: placeData.name, // Store the name
-                  address: placeData.address, // Optionally store address or other useful info
-                  // photo_reference: placeData.photo_reference, // Optionally store photo_reference
                 };
               } catch (error) {
                 if (error.response) {
@@ -130,7 +117,20 @@ export default function TripPlanner() {
         })
       );
 
-      const updatedSuggestion = { ...suggestion, content: updatedContent };
+      const updatedSuggestion = {
+        ...suggestion,
+        content: updatedContent,
+        image:
+          updatedContent[0]?.itinerary[0]?.image ||
+          "https://placehold.co/300x200?text=No+Image",
+        destination:
+          updatedContent.length > 0 &&
+          updatedContent[updatedContent.length - 1].itinerary.length > 0
+            ? updatedContent[updatedContent.length - 1].itinerary[
+                updatedContent[updatedContent.length - 1].itinerary.length - 1
+              ].city || undefined
+            : undefined,
+      };
       console.log(
         "Applying updated suggestion to trip plan:",
         updatedSuggestion
@@ -143,7 +143,7 @@ export default function TripPlanner() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden relative">
+    <div className="flex flex-1 overflow-hidden relative">
       <Sidebar onToggleChat={toggleChatWindow} onScrollToDay={scrollToDay} />
       <main className="flex-1 overflow-y-auto bg-gray-100">
         {" "}

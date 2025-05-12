@@ -29,8 +29,6 @@ import userRoutes from "./routes/UserRoutes.js";
 
 import AIAdviceRoutes from "./routes/AIAdviceRoutes.js";
 
-import TripDataRoutes from "./routes/TripDataRoutes.js";
-
 dotenv.config();
 connectDB();
 
@@ -131,8 +129,6 @@ app.use("/api/anime", animeRoutes);
 app.use("/api/chatgpt", chatgptRoutes);
 
 app.use("/api/ai", AIAdviceRoutes);
-
-app.use("/api/trip", TripDataRoutes);
 
 app.use("/api/tplan", tPlanRoutes);
 

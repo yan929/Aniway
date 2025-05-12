@@ -1,16 +1,9 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
   text-align: center;
-}
-
-/* Override #root styles specifically for the TripPlanner page */
-body.trip-planner-page #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1rem;
-  width: 100%;
+  height: 100%;
 }
 
 /* Add custom scrollbar styles for elements with overflow-y-auto */

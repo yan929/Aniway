@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import apiClient from "../../util/api.js";
 import { AppContext } from "../../context/AppContext.jsx";
 import UserDropdown from "../NavBar/UserDropdown.jsx";
@@ -57,13 +56,12 @@ function NavBar() {
     }
   };
 
-  
   // Get user's initial for avatar
   const userInitial =
     user && user.name ? user.name.charAt(0).toUpperCase() : "A";
 
   return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-14">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <img
@@ -101,10 +99,15 @@ function NavBar() {
                 Sign In
               </span>
             )}
-            
           </div>
-            {user&&(<UserDropdown user={user} onLogout={handleLogout} isOpen={dropdownOpen} setIsOpen={setDropdownOpen}/>)}
-
+          {user && (
+            <UserDropdown
+              user={user}
+              onLogout={handleLogout}
+              isOpen={dropdownOpen}
+              setIsOpen={setDropdownOpen}
+            />
+          )}
         </div>
       </div>
     </nav>

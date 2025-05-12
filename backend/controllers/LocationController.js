@@ -145,3 +145,117 @@ export {
   partialUpdateLocation,
   deleteLocation,
 };
+
+// New Service Function to fetch relevant locations
+export const searchRelevantLocationsService = async (extractedInfo) => {
+  console.log(
+    "LocationService: Fetching relevant places based on:",
+    extractedInfo
+  );
+
+  const { destination, interests } = extractedInfo || {}; // Handle undefined extractedInfo
+
+  // Basic validation
+  if (!destination && (!interests || interests.length === 0)) {
+    console.log("LocationService: No destination or interests provided.");
+    return [];
+  }
+
+  const queryConditions = [];
+
+  // Add destination condition if provided
+  if (destination) {
+    const destinationRegex = new RegExp(destination.trim(), "i"); // Case-insensitive
+    queryConditions.push({ addresses: { $regex: destinationRegex } });
+  }
+
+  // Add interests condition if provided
+  if (interests && interests.length > 0) {
+    const interestRegexes = interests.map(
+      (interest) => new RegExp(interest.trim(), "i")
+    );
+    // Assuming interests are related to anime names as in the original function
+    queryConditions.push({
+      $or: [
+        { anime_names: { $in: interestRegexes } },
+        { anime_en_names: { $in: interestRegexes } },
+        { anime_cn_names: { $in: interestRegexes } },
+      ],
+    });
+  }
+
+  // Combine conditions using $and if multiple conditions exist
+  const query =
+    queryConditions.length > 1
+      ? { $and: queryConditions }
+      : queryConditions.length === 1
+      ? queryConditions[0]
+      : {};
+
+  let places = [];
+  try {
+    const locations = await Location.find(query)
+      .select(
+        "name country city anime_names anime_cn_names anime_en_names images addresses lat lng" // Added name
+      )
+      .limit(10); // Keep the limit for now, can be parameterized later
+
+    places = locations.map((loc) => ({
+      id: loc._id,
+      name: loc.name, // Ensure name is included
+      lat: loc.lat,
+      lng: loc.lng,
+      addresses: loc.addresses,
+      country: loc.country,
+      city: loc.city,
+      images: loc.images,
+      anime_names: loc.anime_names,
+      anime_cn_names: loc.anime_cn_names,
+      anime_en_names: loc.anime_en_names,
+    }));
+  } catch (error) {
+    console.error("LocationService: Error fetching relevant places:", error);
+    return []; // Return empty array on error
+  }
+
+  console.log(
+    `LocationService: Found ${
+      places.length
+    } places matching query for destination: '${destination}', interests: '${interests?.join(
+      ", "
+    )}'`
+  );
+  return places;
+};
+
+// New API Handler Function
+export const searchRelevantLocationsApi = asyncHandler(async (req, res) => {
+  const { destination, interests: interestsQuery } = req.query;
+
+  // Interests might come as a comma-separated string from query params
+  const interests = interestsQuery ? interestsQuery.split(",") : [];
+
+  if (!destination && interests.length === 0) {
+    return res.status(400).json({
+      message: "Please provide a destination or at least one interest.",
+    });
+  }
+
+  try {
+    const places = await searchRelevantLocationsService({
+      destination,
+      interests,
+    });
+    if (places.length === 0) {
+      return res.status(404).json({
+        message: "No relevant locations found matching your criteria.",
+      });
+    }
+    res.status(200).json(places);
+  } catch (error) {
+    console.error("API Error fetching relevant locations:", error);
+    res
+      .status(500)
+      .json({ message: "Server error fetching relevant locations." });
+  }
+});

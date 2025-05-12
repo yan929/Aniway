@@ -3,9 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../../components/Layout/NavBar";
 import apiClient from "../../util/api";
 import { AppContext } from "../../context/AppContext.jsx";
+import TripCard from "../../components/TripPlanner/TripCard";
 
 const ProfilePage = () => {
-  const { user, isAuthenticated, isAuthLoading } = useContext(AppContext);
+  const { user, isAuthenticated, isAuthLoading, loadCurrentTrip } =
+    useContext(AppContext);
   const [trips, setTrips] = useState([]);
   const [completedTrips, setCompletedTrips] = useState([]);
   // Local loading state for data fetching, distinct from auth loading
@@ -17,19 +19,17 @@ const ProfilePage = () => {
   useEffect(() => {
     // Effect for handling authentication status changes
     if (!isAuthLoading) {
-      if (!isAuthenticated) {
-        console.log(
-          "ProfilePage: User not authenticated, redirecting to login."
-        );
+      if (!isAuthenticated || !user) {
         navigate("/login");
-      } else if (user && user._id !== userId && userId) {
+        return;
+      } else if (user && user.id !== userId && userId) {
         // Optional: If route is /profile/:userId and it's not the current user's ID,
         // handle accordingly (e.g. show public view or redirect if not allowed)
         // For now, assuming /profile/:userId is for the logged-in user primarily.
         // If your app structure means /profile/:userId should ALWAYS match logged in user,
         // you might redirect to /profile/${user._id} or simplify.
         console.warn(
-          `ProfilePage: Accessed with userId param ${userId} but logged in user is ${user._id}.`
+          `ProfilePage: Accessed with userId param ${userId} but logged in user is ${user?._id}.`
         );
         // Potentially navigate(`/profile/${user._id}`) or handle as an error/specific view.
       }
@@ -60,17 +60,24 @@ const ProfilePage = () => {
         console.log("Fetched trips:", tripsData);
 
         const now = new Date();
+        now.setHours(0, 0, 0, 0); // Set to start of today
         const active = [];
         const completed = [];
 
         tripsData.forEach((trip) => {
-          if (trip.content && trip.content.length > 0) {
+          let endDate = null;
+          if (trip.endDate) {
+            endDate = new Date(trip.endDate);
+            endDate.setHours(0, 0, 0, 0);
+          } else if (trip.content && trip.content.length > 0) {
             const lastDay = trip.content[trip.content.length - 1].date;
-            const endDate = new Date(lastDay);
-            if (endDate < now) completed.push(trip);
-            else active.push(trip);
+            endDate = new Date(lastDay);
+            endDate.setHours(0, 0, 0, 0);
+          }
+          if (endDate && endDate < now) {
+            completed.push(trip);
           } else {
-            active.push(trip); // Trips without content are considered active
+            active.push(trip);
           }
         });
 
@@ -98,6 +105,37 @@ const ProfilePage = () => {
     }
     // Dependencies: isAuthLoading, isAuthenticated, user (to re-fetch if user changes, e.g. admin viewing different profiles if that was a feature)
   }, [isAuthLoading, isAuthenticated, user]);
+
+  const handleDeleteTrip = async (tripToDelete) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this trip? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+    try {
+      await apiClient.delete(
+        `/api/tplan/${tripToDelete._id || tripToDelete.id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      setTrips((prev) =>
+        prev.filter(
+          (t) => (t._id || t.id) !== (tripToDelete._id || tripToDelete.id)
+        )
+      );
+      setCompletedTrips((prev) =>
+        prev.filter(
+          (t) => (t._id || t.id) !== (tripToDelete._id || tripToDelete.id)
+        )
+      );
+    } catch (err) {
+      console.error("Failed to delete trip:", err);
+      alert("Failed to delete trip. Please try again.");
+    }
+  };
 
   // Handles Auth Loading State
   if (isAuthLoading) {
@@ -205,27 +243,22 @@ const ProfilePage = () => {
           {trips.length > 0 && (
             <div className="space-y-4 mb-8">
               {trips.map((trip) => (
-                <div
+                <TripCard
                   key={trip._id || trip.id}
-                  className="bg-white rounded-lg shadow-sm p-4 cursor-pointer"
-                  onClick={
-                    () => navigate(`/trip/${trip._id || trip.id}`) // Updated route
-                  }
-                >
-                  <h3 className="font-semibold text-lg">
-                    {trip.title || "Untitled Trip"}
-                  </h3>
-                  {trip.content && trip.content.length > 0 && (
-                    <div className="text-sm text-gray-500 mt-1">
-                      <span>
-                        {new Date(trip.content[0].date).toLocaleDateString()} -
-                        {new Date(
-                          trip.content[trip.content.length - 1].date
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                  user={user}
+                  trip={{
+                    ...trip,
+                    // Pass missing fields as undefined for now
+                    startDate: trip.startDate || undefined,
+                    endDate: trip.endDate || undefined,
+                    destination: trip.destination || undefined,
+                  }}
+                  onDelete={() => handleDeleteTrip(trip)}
+                  onClick={async () => {
+                    await loadCurrentTrip(trip._id || trip.id);
+                    navigate("/tripplanner");
+                  }}
+                />
               ))}
             </div>
           )}
@@ -244,27 +277,21 @@ const ProfilePage = () => {
           {completedTrips.length > 0 && (
             <div className="space-y-4">
               {completedTrips.map((trip) => (
-                <div
+                <TripCard
                   key={trip._id || trip.id}
-                  className="bg-white rounded-lg shadow-sm p-4 cursor-pointer"
-                  onClick={
-                    () => navigate(`/trip/${trip._id || trip.id}`) // Updated route
-                  }
-                >
-                  <h3 className="font-semibold text-lg">
-                    {trip.title || "Untitled Trip"}
-                  </h3>
-                  {trip.content && trip.content.length > 0 && (
-                    <div className="text-sm text-gray-500 mt-1">
-                      <span>
-                        {new Date(trip.content[0].date).toLocaleDateString()} -
-                        {new Date(
-                          trip.content[trip.content.length - 1].date
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                  user={user}
+                  trip={{
+                    ...trip,
+                    startDate: trip.startDate || undefined,
+                    endDate: trip.endDate || undefined,
+                    destination: trip.destination || undefined,
+                  }}
+                  onDelete={() => handleDeleteTrip(trip)}
+                  onClick={async () => {
+                    await loadCurrentTrip(trip._id || trip.id);
+                    navigate("/tripplanner");
+                  }}
+                />
               ))}
             </div>
           )}

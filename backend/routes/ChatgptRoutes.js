@@ -2,8 +2,7 @@
 import express from "express";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
-import Location from "../models/Location.js"; // <-- Import Location model
-import { getNearbyPlaceDetailsService } from "../controllers/GmapController.js"; // Import the service function
+import { searchRelevantLocationsService } from "../controllers/LocationController.js"; // <-- Import the new service function
 
 dotenv.config();
 
@@ -83,146 +82,8 @@ router.post("/itinerary", async (req, res) => {
 
 // --- RAG Streaming Chat Endpoint ---
 
-// Updated helper function to use the direct service call
-async function enhancePlacesWithNearbyDetails(initialPlaces) {
-  if (!initialPlaces || initialPlaces.length === 0) {
-    return [];
-  }
-  console.log(
-    `Enhancing ${initialPlaces.length} initial places with specific nearby details (using direct service call)...`
-  );
-  const enhancedPlaces = [];
-
-  for (const place of initialPlaces) {
-    if (place.lat == null || place.lng == null) {
-      console.warn(
-        `Skipping enhancement for place due to missing lat/lng: ${
-          place.id || JSON.stringify(place)
-        }`
-      );
-      continue;
-    }
-
-    try {
-      // Directly call the service function. Assuming no specific 'keyword' from initialPlaces for this call.
-      // If a keyword from `initialPlaces` (e.g., place.name) should be used, it can be passed as the third argument.
-      const nearbyDetails = await getNearbyPlaceDetailsService(
-        place.lat,
-        place.lng,
-        null
-      );
-
-      if (nearbyDetails && nearbyDetails.place_id) {
-        // Check if service returned valid details
-        enhancedPlaces.push({
-          id: nearbyDetails.place_id,
-          original_db_id: place.id,
-          lat: nearbyDetails.location.lat,
-          lng: nearbyDetails.location.lng,
-          addresses: [nearbyDetails.address],
-          name: nearbyDetails.name,
-          country: place.country,
-          city: nearbyDetails.city || place.city,
-          images: place.images,
-          anime_names: place.anime_names,
-          anime_cn_names: place.anime_cn_names,
-          anime_en_names: place.anime_en_names,
-          photo_reference: nearbyDetails.photo_reference,
-        });
-      } else {
-        // This case should be less frequent now as the service throws errors for "no places found"
-        console.warn(
-          `No specific nearby place details returned by service for initial place ID ${place.id} (lat: ${place.lat}, lng: ${place.lng}).`
-        );
-      }
-    } catch (error) {
-      // Log errors from the service call.
-      // The service now throws errors with statusCode, so we can check error.statusCode if needed.
-      console.error(
-        `Error calling getNearbyPlaceDetailsService for initial place ID ${place.id} (lat: ${place.lat}, lng: ${place.lng}):`,
-        error.message,
-        error.statusCode ? `(Status: ${error.statusCode})` : ""
-      );
-      // Decide if you want to skip this place or add the original `place` as a fallback
-    }
-  }
-  console.log(
-    `Finished enhancing. Resulted in ${enhancedPlaces.length} places (direct service call).`
-  );
-  return enhancedPlaces;
-}
-
-// Placeholder for RAG - Retrieval Step
-async function fetchRelevantPlaces(extractedInfo) {
-  console.log(" Fetching relevant places based on:", extractedInfo);
-
-  const { destination, interests } = extractedInfo;
-
-  // Basic validation
-  if (!destination && (!interests || interests.length === 0)) {
-    console.log(" No destination or interests provided.");
-    return [];
-  }
-
-  const queryConditions = [];
-
-  // Add destination condition if provided
-  if (destination) {
-    const destinationRegex = new RegExp(destination.trim(), "i"); // Case-insensitive
-    queryConditions.push({ addresses: { $regex: destinationRegex } });
-  }
-
-  // Add interests condition if provided
-  if (interests && interests.length > 0) {
-    const interestRegexes = interests.map(
-      (interest) => new RegExp(interest.trim(), "i")
-    );
-    queryConditions.push({
-      $or: [
-        { anime_names: { $in: interestRegexes } },
-        { anime_en_names: { $in: interestRegexes } },
-        { anime_cn_names: { $in: interestRegexes } },
-      ],
-    });
-  }
-
-  // Combine conditions using $and (if both exist)
-  const query = queryConditions.length > 0 ? { $and: queryConditions } : {};
-
-  let places = [];
-  try {
-    const locations = await Location.find(query)
-      .select(
-        "country city anime_names anime_cn_names anime_en_names images addresses lat lng"
-      )
-      .limit(10);
-
-    places = locations.map((loc) => ({
-      id: loc._id,
-      lat: loc.lat,
-      lng: loc.lng,
-      addresses: loc.addresses,
-      country: loc.country,
-      city: loc.city,
-      images: loc.images,
-      anime_names: loc.anime_names,
-      anime_cn_names: loc.anime_cn_names,
-      anime_en_names: loc.anime_en_names,
-    }));
-  } catch (error) {
-    console.error("Error fetching relevant places:", error);
-    return [];
-  }
-
-  console.log(
-    ` Found ${
-      places.length
-    } places matching query for destination: '${destination}', interests: '${interests?.join(
-      ", "
-    )}'`
-  );
-  return places;
-}
+// Placeholder for RAG - Retrieval Step - THIS FUNCTION IS NOW REMOVED
+// async function fetchRelevantPlaces(extractedInfo) { ... }
 
 // Helper to build the prompt for the initial information extraction LLM call
 function buildExtractionPrompt(userPrompt) {
@@ -300,8 +161,10 @@ router.post("/augment-itinerary", async (req, res) => {
       "Performing initial retrieval step (and using these directly for AI context)..."
     );
     try {
-      retrievedPlaces = await fetchRelevantPlaces(extractedInfo);
-      console.log(`Retrieved ${retrievedPlaces.length} places from database.`);
+      retrievedPlaces = await searchRelevantLocationsService(extractedInfo);
+      console.log(
+        `Retrieved ${retrievedPlaces.length} places via LocationService.`
+      );
     } catch (retrievalError) {
       console.error(
         "Initial retrieval failed:",
@@ -310,20 +173,6 @@ router.post("/augment-itinerary", async (req, res) => {
       );
       retrievedPlaces = [];
     }
-
-    // --- 2b. Enhancement Step (New) ---
-    // console.log("Performing enhancement step with nearby details...");
-    // try {
-    //   retrievedPlaces = await enhancePlacesWithNearbyDetails(initiallyRetrievedPlaces);
-    //   console.log(`After enhancement, have ${retrievedPlaces.length} places for AI context.`);
-    // } catch (enhancementError) {
-    //   console.error(
-    //     "Enhancement with nearby details failed:",
-    //     enhancementError,
-    //     "Proceeding with initially retrieved places (if any)."
-    //   );
-    //   retrievedPlaces = initiallyRetrievedPlaces; // Fallback already handled as retrievedPlaces is directly assigned now
-    // }
 
     // --- 3. Augmentation & Streaming Generation Step ---
     console.log(
@@ -513,15 +362,19 @@ async function convertMarkdownItineraryToJson(
       "index": 1,
       "itinerary": [
         {
+          "image": "https://example.com/image.jpg",
           "lat": 35.6895,
           "lng": 139.6917,
+          "city": "Tokyo",
           "order": 1,
           "arrivalTime": "HH:MM",
           "note": "Description..."
         },
         {
+          "image": "https://example.com/image2.jpg",
           "lat": 34.6937,
           "lng": 135.5023,
+          "city": "Osaka",
           "order": 2,
           "arrivalTime": "HH:MM",
           "note": "Description..."
@@ -533,8 +386,10 @@ async function convertMarkdownItineraryToJson(
       "index": 2,
       "itinerary": [
         {
+          "image": "https://example.com/image3.jpg",
           "lat": 35.6814,
           "lng": 139.7671,
+          "city": "Tokyo",
           "order": 1,
           "arrivalTime": "HH:MM",
           "note": "Description..."
@@ -562,7 +417,8 @@ async function convertMarkdownItineraryToJson(
           - Use the provided 'Retrieved Places' list as the SOLE source for 'lat' and 'lng'.\n
           - Match place names from the Markdown EXACTLY (case-insensitive acceptable, look for the name part after the time and hyphen, 
             e.g., in '- **09:00 - Place Name:** ...', match 'Place Name') with 'name' in 'Retrieved Places'. Use the corresponding 'lat'/'lng'.\n
-          - If a place from Markdown isn't found in 'Retrieved Places' or lacks 'lat'/'lng', OMIT that activity object from the 'itinerary' array.\n\n
+          - If a place from Markdown isn't found in 'Retrieved Places' or lacks 'lat'/'lng', OMIT that activity object from the 'itinerary' array.\n
+          - For each itinerary object, fill the 'city' field using the 'city' property from the matched place in the Retrieved Places list. If no city is available, set 'city' to null.\n
           **Time Handling Instructions:**\n
           - Each Markdown activity line starts with a time in **HH:MM** format (e.g., '- **09:30 - Activity:** ...').\n
           - Extract this **HH:MM** time and place it into the **'arrivalTime'** field in the JSON object for that activity. Ensure it's a string.\n\n
