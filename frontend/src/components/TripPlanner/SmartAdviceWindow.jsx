@@ -176,7 +176,7 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     <h2 className="text-xl font-bold">Smart Advice</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 text-2xl absolute top-1 right-1"
+                        className="text-gray-500 text-2xl absolute top-0 right-0 focus-visible"
                     >&times;</button>
                 </div>
 
