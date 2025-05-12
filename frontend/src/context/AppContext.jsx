@@ -6,7 +6,11 @@ const AppContext = React.createContext({
   currentTrip: null,
   loadCurrentTrip: async () => {},
   // eslint-disable-next-line no-unused-vars
-  updateCurrentTripDetails: (_details) => {},
+  appendItemsToContent: (itemsArray) => {},
+  // eslint-disable-next-line no-unused-vars
+  replaceEntireTrip: (newTripObject) => {},
+  // eslint-disable-next-line no-unused-vars
+  updateCurrentTripTitle: (newTitle) => {},
   saveCurrentTripToDb: async () => {},
   updateTrip: () => {},
   fetchTrip: () => {},
@@ -175,19 +179,62 @@ function AppContextProvider({ children }) {
     checkUserSession();
   }, []);
 
-  const updateCurrentTripDetails = useCallback((detailsToUpdate) => {
+  // Renamed and repurposed from appendDataToTrip
+  const appendItemsToContent = useCallback((itemsToAppend) => {
+    if (!Array.isArray(itemsToAppend)) {
+      console.error(
+        "appendItemsToContent expects an array, received:",
+        itemsToAppend
+      );
+      return;
+    }
     setCurrentTrip((prevTrip) => {
       if (!prevTrip) {
         console.warn(
-          "updateCurrentTripDetails called when prevTrip is null. detailsToUpdate:",
-          detailsToUpdate
+          "appendItemsToContent called when prevTrip is null. Initializing with new content."
         );
-        return { ...prevTrip, ...detailsToUpdate };
+        return { content: itemsToAppend }; // Or some other default structure if needed
       }
-      return { ...prevTrip, ...detailsToUpdate };
+      return {
+        ...prevTrip,
+        content: [...(prevTrip.content || []), ...itemsToAppend],
+      };
     });
-    console.log("AppContext: Local currentTrip updated with:", detailsToUpdate);
+    console.log(
+      "AppContext: Appended items to currentTrip.content:",
+      itemsToAppend
+    );
   }, []);
+
+  // New function to replace the entire trip object
+  const replaceEntireTrip = useCallback((newTripObject) => {
+    setCurrentTrip(newTripObject);
+    console.log("AppContext: Replaced entire currentTrip with:", newTripObject);
+  }, []);
+
+  // Function to update only the trip title
+  const updateCurrentTripTitle = useCallback(
+    (newTitle) => {
+      setCurrentTrip((prevTrip) => {
+        if (!prevTrip) {
+          // This case should ideally be prevented by UI logic (e.g., in TripHeader)
+          console.error(
+            "updateCurrentTripTitle: currentTrip is null, cannot set title."
+          );
+          // If a trip must be created, it needs more default fields:
+          // return { title: newTitle, content: [], _id: null, /* other initial fields */ };
+          return prevTrip; // Or return null/initialTestTrip if appropriate
+        }
+        return { ...prevTrip, title: newTitle };
+      });
+      setTripTitle(newTitle); // Update the separate tripTitle state for broader consistency
+      console.log(
+        "AppContext: currentTrip.title and standalone tripTitle updated to:",
+        newTitle
+      );
+    },
+    [setTripTitle]
+  ); // setTripTitle from useState is stable
 
   const saveCurrentTripToDb = useCallback(async () => {
     if (!currentTrip) {
@@ -254,9 +301,19 @@ function AppContextProvider({ children }) {
       }
       console.log("Updating trip with new range data:", newDayPlanArray);
       const extendedContent = updateTripDate(newDayPlanArray);
-      updateCurrentTripDetails({ content: extendedContent });
+      // updateTrip now uses replaceEntireTrip to set the new content within the existing trip structure
+      if (currentTrip) {
+        // Ensure currentTrip exists before spreading
+        replaceEntireTrip({ ...currentTrip, content: extendedContent });
+      } else {
+        console.warn(
+          "updateTrip: currentTrip is null, cannot create new trip structure with content only."
+        );
+        // Potentially set to a new trip with just this content if that's desired:
+        // replaceEntireTrip({ title: 'New Trip', content: extendedContent, _id: null /* etc */ });
+      }
     },
-    [currentTrip, updateCurrentTripDetails]
+    [currentTrip, replaceEntireTrip] // Dependency updated
   );
 
   // Refactored function to update itinerary for a specific day
@@ -342,7 +399,13 @@ function AppContextProvider({ children }) {
       });
 
       console.log("After deletion:", newTripData);
-      updateCurrentTripDetails({ content: newTripData });
+      // deleteTripItem now uses replaceEntireTrip
+      if (currentTrip) {
+        // Ensure currentTrip exists
+        replaceEntireTrip({ ...currentTrip, content: newTripData });
+      } else {
+        console.warn("deleteTripItem: currentTrip is null.");
+      }
 
       if (selectedDay && selectedDay.date === deleteTripDay.date) {
         const updatedSelectedDay = newTripData.find(
@@ -450,7 +513,9 @@ function AppContextProvider({ children }) {
   const context = {
     currentTrip,
     loadCurrentTrip,
-    updateCurrentTripDetails,
+    appendItemsToContent,
+    replaceEntireTrip,
+    updateCurrentTripTitle,
     saveCurrentTripToDb,
     updateTrip,
     updateItinerary,

@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import DatePicker from "../../components/DatePicker/DatePicker"; // Import DatePicker
 
 export default function TripHeader() {
-  const { currentTrip, updateCurrentTripDetails, updateTrip } =
+  const { currentTrip, updateCurrentTripTitle, updateTrip } =
     useContext(AppContext);
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -125,7 +125,7 @@ export default function TripHeader() {
       alert("Error: Could not save trip title. Trip data is missing.");
       return;
     }
-    updateCurrentTripDetails({ title: editableTitle });
+    updateCurrentTripTitle(editableTitle);
     setIsEditingTitle(false);
   };
 

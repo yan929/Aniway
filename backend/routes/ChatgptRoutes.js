@@ -3,6 +3,7 @@ import express from "express";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
 import Location from "../models/Location.js"; // <-- Import Location model
+import { getNearbyPlaceDetailsService } from "../controllers/GmapController.js"; // Import the service function
 
 dotenv.config();
 
@@ -82,6 +83,75 @@ router.post("/itinerary", async (req, res) => {
 
 // --- RAG Streaming Chat Endpoint ---
 
+// Updated helper function to use the direct service call
+async function enhancePlacesWithNearbyDetails(initialPlaces) {
+  if (!initialPlaces || initialPlaces.length === 0) {
+    return [];
+  }
+  console.log(
+    `Enhancing ${initialPlaces.length} initial places with specific nearby details (using direct service call)...`
+  );
+  const enhancedPlaces = [];
+
+  for (const place of initialPlaces) {
+    if (place.lat == null || place.lng == null) {
+      console.warn(
+        `Skipping enhancement for place due to missing lat/lng: ${
+          place.id || JSON.stringify(place)
+        }`
+      );
+      continue;
+    }
+
+    try {
+      // Directly call the service function. Assuming no specific 'keyword' from initialPlaces for this call.
+      // If a keyword from `initialPlaces` (e.g., place.name) should be used, it can be passed as the third argument.
+      const nearbyDetails = await getNearbyPlaceDetailsService(
+        place.lat,
+        place.lng,
+        null
+      );
+
+      if (nearbyDetails && nearbyDetails.place_id) {
+        // Check if service returned valid details
+        enhancedPlaces.push({
+          id: nearbyDetails.place_id,
+          original_db_id: place.id,
+          lat: nearbyDetails.location.lat,
+          lng: nearbyDetails.location.lng,
+          addresses: [nearbyDetails.address],
+          name: nearbyDetails.name,
+          country: place.country,
+          city: nearbyDetails.city || place.city,
+          images: place.images,
+          anime_names: place.anime_names,
+          anime_cn_names: place.anime_cn_names,
+          anime_en_names: place.anime_en_names,
+          photo_reference: nearbyDetails.photo_reference,
+        });
+      } else {
+        // This case should be less frequent now as the service throws errors for "no places found"
+        console.warn(
+          `No specific nearby place details returned by service for initial place ID ${place.id} (lat: ${place.lat}, lng: ${place.lng}).`
+        );
+      }
+    } catch (error) {
+      // Log errors from the service call.
+      // The service now throws errors with statusCode, so we can check error.statusCode if needed.
+      console.error(
+        `Error calling getNearbyPlaceDetailsService for initial place ID ${place.id} (lat: ${place.lat}, lng: ${place.lng}):`,
+        error.message,
+        error.statusCode ? `(Status: ${error.statusCode})` : ""
+      );
+      // Decide if you want to skip this place or add the original `place` as a fallback
+    }
+  }
+  console.log(
+    `Finished enhancing. Resulted in ${enhancedPlaces.length} places (direct service call).`
+  );
+  return enhancedPlaces;
+}
+
 // Placeholder for RAG - Retrieval Step
 async function fetchRelevantPlaces(extractedInfo) {
   console.log(" Fetching relevant places based on:", extractedInfo);
@@ -110,8 +180,8 @@ async function fetchRelevantPlaces(extractedInfo) {
     queryConditions.push({
       $or: [
         { anime_names: { $in: interestRegexes } },
-        { anime_cn_names: { $in: interestRegexes } },
         { anime_en_names: { $in: interestRegexes } },
+        { anime_cn_names: { $in: interestRegexes } },
       ],
     });
   }
@@ -226,36 +296,58 @@ router.post("/augment-itinerary", async (req, res) => {
     }
 
     // --- 2. Retrieval Step ---
-    console.log(" Performing retrieval step...");
+    console.log(
+      "Performing initial retrieval step (and using these directly for AI context)..."
+    );
     try {
       retrievedPlaces = await fetchRelevantPlaces(extractedInfo);
-      console.log(` Retrieved ${retrievedPlaces.length} places.`);
+      console.log(`Retrieved ${retrievedPlaces.length} places from database.`);
     } catch (retrievalError) {
       console.error(
-        " Retrieval failed:",
+        "Initial retrieval failed:",
         retrievalError,
         "Proceeding without retrieved places."
       );
       retrievedPlaces = [];
     }
 
+    // --- 2b. Enhancement Step (New) ---
+    // console.log("Performing enhancement step with nearby details...");
+    // try {
+    //   retrievedPlaces = await enhancePlacesWithNearbyDetails(initiallyRetrievedPlaces);
+    //   console.log(`After enhancement, have ${retrievedPlaces.length} places for AI context.`);
+    // } catch (enhancementError) {
+    //   console.error(
+    //     "Enhancement with nearby details failed:",
+    //     enhancementError,
+    //     "Proceeding with initially retrieved places (if any)."
+    //   );
+    //   retrievedPlaces = initiallyRetrievedPlaces; // Fallback already handled as retrievedPlaces is directly assigned now
+    // }
+
     // --- 3. Augmentation & Streaming Generation Step ---
-    console.log(" Building augmented prompt and starting stream...");
+    console.log(
+      " Building augmented prompt and starting stream with initially retrieved places..."
+    );
     const systemPrompt = {
       role: "system",
       content:
-        "You are a helpful travel planner. Generate a detailed, day-by-day itinerary based on the user's request and conversation history. Also consider the following potentially relevant places mentioned as context (these context items will have 'lat' and 'lng' coordinates)." +
+        "You are a helpful travel planner. Generate a detailed, day-by-day itinerary based on the user's request and conversation history. " +
+        "You will be provided with a list of [Context Places] that have known coordinates. " +
+        "**When suggesting specific activities at named locations, YOU MUST PRIORITIZE using place names EXACTLY as they appear in the [Context Places] list if you want them to be geocoded in the final structured output.** " +
+        "If a suitable place name from the [Context Places] cannot be found for an activity, you can suggest a generic activity (e.g., 'Lunch at a local restaurant') or clearly state that a specific named place from the context wasn't suitable." +
+        "\n\n**Behavior Instructions:**" +
+        "\n- When the user asks to modify an existing itinerary (e.g., add a day, change an activity), update the *existing* itinerary accordingly, incorporating previous turns of the conversation and context. Do not generate a completely new, unrelated itinerary unless the user explicitly asks for one." +
+        "\n- **Crucially, do NOT include latitude and longitude coordinates (e.g., '(lat: ..., lng: ...)') in the descriptive text for activities or locations.**" +
+        "\n- If, for any given day, no relevant activities or places (especially from the [Context Places]) can be suggested based on the user's request, clearly state that and do not generate an empty schedule for that day. You can suggest the user provide more details or try a different interest for that day." +
+        "\n- Include practical tips at the end if relevant." +
+        "\n- Be conversational and enthusiastic!" +
         "\n\n**Formatting Instructions:**" +
         "\n- Structure the response clearly using Markdown, following the Day -> Time Section -> Activity format." +
         "\n- For each day, include sections for 'Morning:', 'Afternoon:', and 'Evening:'. Use ONLY bold Markdown for these section titles (e.g., `**Morning:**`). DO NOT use heading syntax (`###`)." +
         "\n- Within each time section, use bullet points (-) for specific activities/locations. **Crucially, start each activity line with a suggested realistic start time in HH:MM format**, followed by the activity name and description, formatted like this: `- **HH:MM - Activity/Location Name:** Brief Description.`" +
-        "\n- **CRITICAL:** When mentioning a specific place or attraction within the 'Brief Description' part (i.e., AFTER the colon ':'), format it like this: `***Place Name***` (bold and italics)." +
-        "\n- **IMPORTANT:** Do NOT use italics for the main '**HH:MM - Activity/Location Name:**' part before the colon. Use bold (`**...**`) only where specified (Time, Activity/Location Name, and Time sections)." +
-        "\n\n**Behavior Instructions:**" +
-        "\n- When the user asks to modify an existing itinerary (e.g., add a day, change an activity), update the *existing* itinerary accordingly, incorporating previous turns of the conversation and context. Do not generate a completely new, unrelated itinerary unless the user explicitly asks for one." +
-        "\n- **Crucially, do NOT include latitude and longitude coordinates (e.g., '(lat: ..., lng: ...)') in the descriptive text for activities or locations.**" +
-        "\n- Include practical tips at the end if relevant." +
-        "\n- Be conversational and enthusiastic!",
+        "\n- **CRITICAL:** When mentioning a specific place or attraction within the 'Brief Description' part (i.e., AFTER the colon ':'), and you are using a name from the [Context Places], format it like this: `***Place Name***` (bold and italics). If it's a generic place not from the context, use normal text." +
+        "\n- **IMPORTANT:** Do NOT use italics for the main '**HH:MM - Activity/Location Name:**' part before the colon. Use bold (`**...**`) only where specified (Time, Activity/Location Name, and Time sections).",
     };
 
     // Map incoming chat history
@@ -273,13 +365,13 @@ router.post("/augment-itinerary", async (req, res) => {
       const contextString = retrievedPlaces
         .map(
           (p) =>
-            `${p.addresses[0] || "Unknown Address"} (lat: ${p.lat}, lng: ${
-              p.lng
-            })`
+            `${p.name || "Unknown Place Name"} (Address: ${
+              p.addresses?.[0] || "Unknown Address"
+            })` // Use p.name from enhanced places
         )
         .join("; ");
 
-      userMessageWithContext += `\n\n[Context: Consider places like: ${contextString}]`;
+      userMessageWithContext += `\n\n[Context Places: ${contextString}]`; // Clearly label the context
     }
 
     // Construct the full messages array
@@ -332,28 +424,41 @@ router.post("/augment-itinerary", async (req, res) => {
       extractedInfo
     );
 
-    let suggestionsPayload = [];
+    let suggestionsPayload;
     if (structuredItineraryJson) {
-      console.log(
-        "Original structured itinerary:",
-        JSON.stringify(structuredItineraryJson, null, 2)
-      );
+      // Filter out days with empty itineraries before assigning to suggestionsPayload
+      if (
+        structuredItineraryJson.content &&
+        Array.isArray(structuredItineraryJson.content)
+      ) {
+        structuredItineraryJson.content =
+          structuredItineraryJson.content.filter(
+            (day) =>
+              day.itinerary &&
+              Array.isArray(day.itinerary) &&
+              day.itinerary.length > 0
+          );
+      }
 
-      // Assign the potentially pre-filtered result from the conversion function
       suggestionsPayload = structuredItineraryJson;
       console.log(
-        "Suggestion structure (should be pre-filtered):",
+        "Suggestion structure (filtered for non-empty day itineraries):",
         JSON.stringify(suggestionsPayload, null, 2)
       );
 
-      // Send suggestion event only if the conversion returned a non-empty array
-      if (Array.isArray(suggestionsPayload) && suggestionsPayload.length > 0) {
+      // Send suggestion event only if suggestionsPayload.content is an array and has items AFTER filtering
+      if (
+        suggestionsPayload &&
+        suggestionsPayload.content &&
+        Array.isArray(suggestionsPayload.content) &&
+        suggestionsPayload.content.length > 0
+      ) {
         res.write(`event: suggestion\n`);
         res.write(`data: ${JSON.stringify(suggestionsPayload)}\n\n`);
         console.log(" Suggestion event sent.");
       } else {
         console.log(
-          " No valid suggestions left after filtering UNKNOWN place IDs."
+          "No valid suggestions with non-empty day itineraries left after filtering."
         );
       }
     } else {
@@ -400,22 +505,44 @@ async function convertMarkdownItineraryToJson(
     return null;
   }
   console.log("Attempting to convert Markdown itinerary to JSON...");
-  const targetJsonStructureExample = `[{
-        "date": "YYYY-MM-DD",
-        "index": 1,
-        "itinerary": [
-            { "lat": 35.6895, "lng": 139.6917, "order": 1, "arrivalTime": "HH:MM", "note": "Description..." }, 
-            { "lat": 34.6937, "lng": 135.5023, "order": 2, "arrivalTime": "HH:MM", "note": "Description..." }
-        ]
+  const targetJsonStructureExample = `{
+  "title": "Trip Title",
+  "content": [
+    {
+      "date": "YYYY-MM-DD",
+      "index": 1,
+      "itinerary": [
+        {
+          "lat": 35.6895,
+          "lng": 139.6917,
+          "order": 1,
+          "arrivalTime": "HH:MM",
+          "note": "Description..."
+        },
+        {
+          "lat": 34.6937,
+          "lng": 135.5023,
+          "order": 2,
+          "arrivalTime": "HH:MM",
+          "note": "Description..."
+        }
+      ]
     },
     {
-        "date": "YYYY-MM-DD",
-        "index": 2,
-        "itinerary": [
-            { "lat": 35.6814, "lng": 139.7671, "order": 1, "arrivalTime": "HH:MM", "note": "Description..." }
-        ]
+      "date": "YYYY-MM-DD",
+      "index": 2,
+      "itinerary": [
+        {
+          "lat": 35.6814,
+          "lng": 139.7671,
+          "order": 1,
+          "arrivalTime": "HH:MM",
+          "note": "Description..."
+        }
+      ]
     }
-]`;
+  ]
+}`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -423,13 +550,30 @@ async function convertMarkdownItineraryToJson(
       messages: [
         {
           role: "system",
-          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary and convert it STRICTLY into a JSON array matching the structure below. \n\n**Date Handling Instructions:**\n1. The **required format** for the 'date' field is **'YYYY-MM-DD'**. \n2. Use the provided 'Start Date' (${
+          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary and convert it STRICTLY into a JSON object matching the structure below. Generate a title based on the whole trip as the 'title' field in the JSON object.\n\n
+          **Date Handling Instructions:**\n
+          1. The **required format** for the 'date' field is **'YYYY-MM-DD'**. \n
+          2. Use the provided 'Start Date' (${
             extractedInfo.startDate
-          }) as the date for the first day (the object with index: 1).\n3. For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n4. The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n**Location Handling Instructions:**\n- Use the provided 'Retrieved Places' list as the SOLE source for 'lat' and 'lng'.\n- Match place names from the Markdown EXACTLY (case-insensitive acceptable, look for the name part after the time and hyphen, e.g., in '- **09:00 - Place Name:** ...', match 'Place Name') with 'name' in 'Retrieved Places'. Use the corresponding 'lat'/'lng'.\n- If a place from Markdown isn't found in 'Retrieved Places' or lacks 'lat'/'lng', OMIT that activity object from the 'itinerary' array.\n\n**Time Handling Instructions:**\n- Each Markdown activity line starts with a time in **HH:MM** format (e.g., '- **09:30 - Activity:** ...').\n- Extract this **HH:MM** time and place it into the **'arrivalTime'** field in the JSON object for that activity. Ensure it's a string.\n\nRespond ONLY with the valid JSON array, nothing else. \n\n**Start Date:** ${
-            extractedInfo.startDate
-          }\n**Retrieved Places:**\n${JSON.stringify(
-            retrievedPlaces
-          )}\n\n**JSON Structure Example:**\n${targetJsonStructureExample}\n\n**Example Markdown Input Format:**\n- **09:00 - Tokyo Tower:** Visit the iconic tower.\n- **11:30 - Senso-ji Temple:** Explore Asakusa.`,
+          }) as the date for the first day (the object with index: 1).\n
+          3. For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n
+          4. The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n
+          **Location Handling Instructions:**\n
+          - Use the provided 'Retrieved Places' list as the SOLE source for 'lat' and 'lng'.\n
+          - Match place names from the Markdown EXACTLY (case-insensitive acceptable, look for the name part after the time and hyphen, 
+            e.g., in '- **09:00 - Place Name:** ...', match 'Place Name') with 'name' in 'Retrieved Places'. Use the corresponding 'lat'/'lng'.\n
+          - If a place from Markdown isn't found in 'Retrieved Places' or lacks 'lat'/'lng', OMIT that activity object from the 'itinerary' array.\n\n
+          **Time Handling Instructions:**\n
+          - Each Markdown activity line starts with a time in **HH:MM** format (e.g., '- **09:30 - Activity:** ...').\n
+          - Extract this **HH:MM** time and place it into the **'arrivalTime'** field in the JSON object for that activity. Ensure it's a string.\n\n
+          Respond ONLY with the valid JSON object, nothing else. \n\n
+          **Start Date:** ${extractedInfo.startDate}\n
+          **Retrieved Places:** ${JSON.stringify(retrievedPlaces)}\n\n
+          **JSON Structure Example:**\n
+          ${targetJsonStructureExample}\n\n
+          **Example Markdown Input Format:**\n
+          - **09:00 - Tokyo Tower:** Visit the iconic tower.\n
+          - **11:30 - Senso-ji Temple:** Explore Asakusa.`,
         },
         {
           role: "user",
@@ -459,7 +603,7 @@ async function convertMarkdownItineraryToJson(
 
     try {
       const parsedJson = JSON.parse(cleanedJsonString); // Parse the cleaned string
-      if (Array.isArray(parsedJson)) {
+      if (parsedJson.content && Array.isArray(parsedJson.content)) {
         console.log("Successfully converted Markdown to JSON structure.");
         return parsedJson;
       } else {
