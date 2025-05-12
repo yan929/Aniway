@@ -103,25 +103,70 @@ function formatAnimeLocationObject(locSubDoc, animeDoc) {
   };
 }
 
-const escapeRegexChars = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegexChars = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&');
 
 
-export async function searchRawLocationDataByLocateAnime(locationKeywords = [], themeKeywords = []) {
-  const hasLocation = Array.isArray(locationKeywords) && locationKeywords.length > 0;
-  const hasTheme = Array.isArray(themeKeywords) && themeKeywords.length > 0;
+export async function searchRawLocationDataByLocateAnime(locationKeywordsInput = [], themeKeywordsInput = []) {
+  // Filter out empty or whitespace-only keywords and ensure they are strings
+  const activeLocationKeywords = Array.isArray(locationKeywordsInput)
+    ? locationKeywordsInput.map(k => String(k || '').trim()).filter(k => k !== "")
+    : [];
+  const activeThemeKeywords = Array.isArray(themeKeywordsInput)
+    ? themeKeywordsInput.map(k => String(k || '').trim()).filter(k => k !== "")
+    : [];
 
+  const hasLocation = activeLocationKeywords.length > 0;
+  const hasTheme = activeThemeKeywords.length > 0;
 
   if (!hasTheme) {
-    return [];
-    console.log("No theme keywords provided.");
+    if (hasLocation) {
+      // New logic: Search only by locationKeywords from Location model, limit 50
+      const locationRegexPattern = activeLocationKeywords.map(escapeRegexChars).join("|");
+      const locationRegex = new RegExp(locationRegexPattern, "i");
+
+      const foundLocations = await Location.find({
+        isValid: true, // Standard filter for active locations
+        $or: [
+          { anitabi_names: locationRegex },
+          { anitabi_cn_names: locationRegex },
+          // Assumes addresses is an array of strings in the Location model
+          { addresses: { $elemMatch: { $regex: locationRegex } } }
+        ],
+      })
+        .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
+        .limit(50)
+        .lean();
+
+      return foundLocations.map(loc => ({
+        id: loc._id.toString(), // Master Location ID
+        name: loc.anitabi_names?.[0] || loc.anitabi_cn_names?.[0] || "Unknown Location",
+        image: (Array.isArray(loc.images) && loc.images.length > 0) ? loc.images[0] : null,
+        ep: null, // Not applicable for general location search
+        s: null,  // Not applicable
+        origin: null, // Not applicable
+        originURL: null, // Not applicable
+        locationRef: loc._id.toString(), // Refers to itself
+        lat: loc.lat,
+        lng: loc.lng,
+        addresses: loc.addresses || [],
+        anitabi_names: loc.anitabi_names || [], // From the Location doc
+        anitabi_cn_names: loc.anitabi_cn_names || [], // From the Location doc
+        animeName: null, // No specific anime context
+        animeId: null,   // No specific anime context
+      }));
+    } else {
+      // No effective location or theme keywords provided
+      console.log("No effective location or theme keywords provided for searchRawLocationDataByLocateAnime.");
+      return [];
+    }
   }
 
-  // Create regex for theme keywords. This is always needed if hasTheme is true.
-  // Joins escaped keywords with "|" for an OR condition, case-insensitive.
-  const themeRegexPattern = themeKeywords.map(escapeRegexChars).join("|");
+  // --- Original logic for theme-based search (now uses activeKeywords) ---
+  // This part is reached only if hasTheme is true.
+
+  const themeRegexPattern = activeThemeKeywords.map(escapeRegexChars).join("|");
   const themeRegex = new RegExp(themeRegexPattern, "i");
 
-  // Prepare anime query based on themeKeywords
   const animeQuery = {
     $or: [
       { name: themeRegex },
@@ -130,38 +175,39 @@ export async function searchRawLocationDataByLocateAnime(locationKeywords = [], 
     ]
   };
 
-  // Fetch animes matching the theme keywords
   const animes = await Anime.find(animeQuery)
     .select("_id name name_en name_cn locations") // Select fields needed for output and filtering
     .lean(); // Use lean() for performance
 
   let matchedLocations = [];
 
-  // Create regex for location keywords only if they are provided
-  const locationRegex = hasLocation
-    ? new RegExp(locationKeywords.map(escapeRegexChars).join("|"), "i")
+  // Create regex for location keywords only if they are provided (and hasTheme is true)
+  const locationRegex = hasLocation // hasLocation is already based on activeLocationKeywords
+    ? new RegExp(activeLocationKeywords.map(escapeRegexChars).join("|"), "i")
     : null;
 
   for (const anime of animes) {
     let locationsToConsider = anime.locations || [];
 
-    // If locationKeywords are provided, filter the locations from the current anime
+    // If locationKeywords are provided (hasLocation is true) and we have a locationRegex,
+    // filter the locations from the current anime
     if (hasLocation && locationRegex) {
       locationsToConsider = locationsToConsider.filter((loc) => {
         // Check against the location's own name and its addresses array
         const nameMatch = loc.name && locationRegex.test(loc.name);
-        const addressMatch = loc.addresses?.some(addr => locationRegex.test(addr));
+        const addressMatch = Array.isArray(loc.addresses) && loc.addresses.some(addr => typeof addr === 'string' && locationRegex.test(addr));
         return nameMatch || addressMatch;
       });
     }
     // If !hasLocation (but hasTheme is true), all locationsToConsider from this anime will be processed.
 
     // Map the filtered/all locations to the desired output object structure
+    // using the formatAnimeLocationObject helper or direct mapping
     matchedLocations.push(
       ...locationsToConsider.map(locSubDoc => ({
         // Fields from the location sub-document (locSubDoc)
-        id: locSubDoc.id,                         // e.g., "5c4dgq9t5"
-        name: locSubDoc.name,                     // e.g., "「CLANNAD」DVD: 第8巻 表紙"
+        id: locSubDoc.id,
+        name: locSubDoc.name,
         image: locSubDoc.image,
         ep: locSubDoc.ep,
         s: locSubDoc.s,
@@ -171,11 +217,11 @@ export async function searchRawLocationDataByLocateAnime(locationKeywords = [], 
         lat: locSubDoc.lat,
         lng: locSubDoc.lng,
         addresses: locSubDoc.addresses || [],
-        anitabi_names: locSubDoc.anitabi_names || [], // Include if present in sub-doc
-        anitabi_cn_names: locSubDoc.anitabi_cn_names || [], // Include if present in sub-doc
+        anitabi_names: locSubDoc.anitabi_names || [],
+        anitabi_cn_names: locSubDoc.anitabi_cn_names || [],
         // Add anime information
         animeName: anime.name_en || anime.name || anime.name_cn,
-        animeId: anime._id?.toString(), // Ensure anime._id is selected and converted
+        animeId: anime._id?.toString(),
       }))
     );
   }

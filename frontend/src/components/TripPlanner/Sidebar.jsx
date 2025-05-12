@@ -28,18 +28,19 @@ export default function Sidebar({ onToggleChat }) {
     : [];
 
   return (
-    <aside className="bg-gray-800 text-white w-64 p-4 flex flex-col gap-6 h-screen shrink-0">
+    <aside className="bg-gray-800 text-white w-48 p-4 flex flex-col gap-6 h-screen shrink-0">
       <nav className="flex flex-col gap-2">
-        <button className="text-left py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
-          ➤ Overview
-        </button>
-        <button
+      <button
           onClick={onToggleChat}
-          className="flex items-center justify-center gap-2 text-left py-2 px-3 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
+          className="flex items-center justify-center gap-2 text-left py-1 px-3 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
         >
           <IoSparklesOutline size={18} />
           Smart Assistant
         </button>
+        <button className="text-left py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
+          ➤ Overview
+        </button>
+      
         <button className="text-left py-2 px-3 rounded font-semibold">
           🗺️ Itinerary
         </button>
