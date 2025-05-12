@@ -90,11 +90,12 @@ function HomePage() {
       {/* Hero Section with Search */}
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-          PLACE HOLDER PLACE HOLDER PLACE
+          Aniway — The Anime Traveler's Way
         </h1>
         <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-          PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE HOLDER PLACE
-          HOLDER PLACE HOLDER PLACE HOLDER
+          From screen to scenes, find the anime in your advanture.
+          <br />
+          Find your scene, live your dream !
         </p>
 
         {/* Search Container - Fixed position and z-index issues */}
