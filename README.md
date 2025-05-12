@@ -177,43 +177,43 @@ Managed deployment of backend services (APIs, databases) and frontend applicatio
 **Fullstack Developer & Project Coordinator**  
 Implemented frontend features including the search bar, anime display components, and settings page.  
 Handled backend API integration and database setup.  
-Contributed to project management tasks, including coordination and progress tracking.
+Contributed to project management tasks, including coordination and progress tracking.  
 Wrote and maintained project documentation.
 
 ---
 
 ### Zephyr Chen ([bche942@aucklanduni.ac.nz](mailto:bche942@aucklanduni.ac.nz)) [@zephyr942](https://github.com/zephyr942)
 **Fullstack Developer (Trip Planner Features)**   
-Designed the homepage, trip planner interface, and core UI in Figma.
-Developed the trip planner feature with frontend components, routing, custom hooks and backend APIs.
-Integrated GMap components from teammates and extended related API queries.
-Built and connected the MongoDB trip data model for managing trip information.
+Designed the homepage, trip planner interface, and core UI in Figma.  
+Developed the trip planner feature with frontend components, routing, custom hooks and backend APIs.  
+Integrated GMap components from teammates and extended related API queries.  
+Built and connected the MongoDB trip data model for managing trip information.  
 Developed a ChatGPT powered single day itinerary generation demo and integrated it into the trip planner.
 
 ---
 
 ### Tun-Yu Hsieh ([thsi160@aucklanduni.ac.nz](mailto:thsi160@aucklanduni.ac.nz)) [@Claire1234Claire](https://github.com/Claire1234Claire)
 **Fullstack Developer (Google Features & Authentication)**  
-Implemented Google Maps integration and developed backend API routes for location data, connecting them with frontend components.
-Built the LocationPopup component to display detailed place information with interactive maps and itinerary features.
-Created a Google Maps demo to showcase location updates and support reusable map components.
-Implemented Google OAuth login flow across frontend and backend, handling user authentication, profile display, and logout functionality.
-Developed unit tests for GoogleLogin, GMap, AuthRoutes, and GmapController.
+Implemented Google Maps integration and developed backend API routes for location data, connecting them with frontend components.  
+Built the LocationPopup component to display detailed place information with interactive maps and itinerary features.  
+Created a Google Maps demo to showcase location updates and support reusable map components.  
+Implemented Google OAuth login flow across frontend and backend, handling user authentication, profile display, and logout functionality.  
+Developed unit tests for GoogleLogin, GMap, AuthRoutes, and GmapController.  
 Created and maintained the project README documentation.
 
 ---
 
 ### Hong Ying Xie ([hxie943@aucklanduni.ac.nz](mailto:hxie943@aucklanduni.ac.nz)) [@xhy0518](https://github.com/xhy0518)
-**Frontend Developer**
-Implemented the website's homepage frontend design and functionality.
-Developed navigation bar and footer components, including dropdown menus for user login/logout functionality.
-Created the user profile frontend interface and enhanced backend user-related features, enabling the display and edit of user trip plans.
+**Frontend Developer**  
+Implemented the website's homepage frontend design and functionality.  
+Developed navigation bar and footer components, including dropdown menus for user login/logout functionality.  
+Created the user profile frontend interface and enhanced backend user-related features, enabling the display and edit of user trip plans.  
 Built the location search page display functionality and implemented frontend features for adding search results to daily itineraries.
 
 ---
 
 ### Nicholas Travis ([nkaw981@aucklanduni.ac.nz](mailto:nkaw981@aucklanduni.ac.nz)) [@nkaw981](https://github.com/nkaw981)
-**Backend Developer**
+**Backend Developer**  
 _To be completed_
 
 ---
