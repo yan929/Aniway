@@ -12,7 +12,7 @@ const MainLayout = () => {
       <NavBar />
       {/* Main content area, Outlet renders the current page */}
       {/* pt-16 to offset content below fixed NavBar */}
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-6">
         <Outlet />
       </main>
       {showFooter && <Footer />}
