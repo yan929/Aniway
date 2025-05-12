@@ -1,47 +1,40 @@
-import { useState } from "react";
-import UserModification from "../../components/Setting/userModi";
+import { useState,useContext } from "react";
+import UserForm from "../../components/Setting/userForm";
+import DeleteAccountSection from "../../components/Setting/deleteArea";
+import LocSearchBar from "../../components/Search/locSearch";
+import { AppContext } from "../../context/AppContext.jsx";
 
 function Setting() {
-  const [activeTab, setActiveTab] = useState("account");
+  const [activeTab, setActiveTab] = useState("User Details");
+  const { user } = useContext(AppContext);
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r px-6 py-8">
-          <h2 className="text-xl font-bold">Settings</h2>
-          <div
-            className={`cursor-pointer font-medium ${
-              activeTab === "account"
-                ? "text-black underline"
-                : "text-gray-600 hover:text-black"
-            }`}
-            onClick={() => {
-              setActiveTab("account");
-            }}
-          >
-            Account
-          </div>
-          {/* <div
-            className={`cursor-pointer font-medium ${
-              activeTab === "preference"
-                ? "text-black underline"
-                : "text-gray-600 hover:text-black"
-            }`}
-            onClick={() => {
-              setActiveTab("preference");
-            }}
-          >
-            User Preference
-          </div> */}
-        </aside>
+    <div className="max-w-5xl mx-auto p-8">
+  <h2 className="text-3xl font-semibold mb-6 text-left">Settings</h2>
 
-        {/* Main Content */}
-        <main className="flex-1 px-10 py-10">
-          {activeTab === "account" && <UserModification />}
-          {/* {activeTab === "preference" && <PreferenceModifi />} */}
-        </main>
+  {/* Tabs */}
+  <div className="flex border-b border-gray-200">
+    {['User Details', 'Delete Account'].map((tab, i) => (
+      <div
+        key={tab}
+        className={`mr-6 pb-2 text-sm font-medium border-b-2 ${
+          activeTab === tab
+            ? 'border-b-blue-500 text-blue-500'
+            : 'border-transparent text-gray-400'
+        }`}
+        onClick={()=> setActiveTab(tab)}
+      >
+        {tab}
       </div>
+    ))}
+  </div>
+
+    {activeTab === 'User Details' && <UserForm user={user} />}
+    {activeTab === 'Delete Account' && <DeleteAccountSection />}
+
+</div>
+
     </>
   );
 }
