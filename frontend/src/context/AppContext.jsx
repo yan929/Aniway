@@ -1,31 +1,34 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { updateTripDate } from "../util/updateTripDate.js";
 import apiClient from "../util/api.js";
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+dayjs.extend(isSameOrBefore);
 
 const AppContext = React.createContext({
   currentTrip: null,
-  loadCurrentTrip: async () => {},
+  loadCurrentTrip: async () => { },
   // eslint-disable-next-line no-unused-vars
-  appendItemsToContent: (itemsArray) => {},
+  appendItemsToContent: (itemsArray) => { },
   // eslint-disable-next-line no-unused-vars
-  replaceEntireTrip: (newTripObject) => {},
+  replaceEntireTrip: (newTripObject) => { },
   // eslint-disable-next-line no-unused-vars
-  updateCurrentTripTitle: (newTitle) => {},
-  saveCurrentTripToDb: async () => {},
-  updateTrip: () => {},
-  fetchTrip: () => {},
-  updateItinerary: () => {},
-  deleteTripItem: () => {},
+  updateCurrentTripTitle: (newTitle) => { },
+  saveCurrentTripToDb: async () => { },
+  updateTrip: () => { },
+  fetchTrip: () => { },
+  updateItinerary: () => { },
+  deleteTripItem: () => { },
   user: null,
-  loginUser: () => {},
-  logoutUser: () => {},
+  loginUser: () => { },
+  logoutUser: () => { },
   selectedDay: null,
-  selectDay: () => {},
+  selectDay: () => { },
   isAuthenticated: false,
   isAuthLoading: true,
   tripTitle: "",
   tripLocation: null,
-  setTripDetails: () => {},
+  setTripDetails: () => { },
 });
 
 const initialTestTrip = {
@@ -279,7 +282,7 @@ function AppContextProvider({ children }) {
         );
         alert(
           "Error creating trip. " +
-            (error.response?.data?.message || error.message)
+          (error.response?.data?.message || error.message)
         );
         throw error;
       }
@@ -300,7 +303,7 @@ function AppContextProvider({ children }) {
         );
         alert(
           "Error updating trip. " +
-            (error.response?.data?.message || error.message)
+          (error.response?.data?.message || error.message)
         );
         throw error;
       }
@@ -442,40 +445,72 @@ function AppContextProvider({ children }) {
 
   // Function to set trip details from HomePage
   function setTripDetails(location, title, dates) {
-    console.log("Setting trip details:", { location, title, dates });
 
-    // Update location and title
+    // Explicitly check properties and log them
+    const hasStartDate = dates && dates.hasOwnProperty('startDate') && dates.startDate instanceof Date;
+    const hasEndDate = dates && dates.hasOwnProperty('endDate') && dates.endDate instanceof Date;
+    const isStartBeforeEnd = hasStartDate && hasEndDate && dates.startDate <= dates.endDate;
+
+    // --- Debugging End ---
+
+
+    // Update separate location/title states if they are used elsewhere independently
     if (location) setTripLocation(location);
-    if (title) setTripTitle(title);
+    if (title) setTripTitle(title); // Keep this if tripTitle state is used directly
 
-    // If dates are provided, update the trip data
-    if (dates && dates.start && dates.end) {
-      // Create date range from the selected dates
-      const startDate = new Date(dates.start);
-      const endDate = new Date(dates.end);
+    let newContent = [];
+    // If dates are valid, generate the content array using dayjs
+    if (dates && hasStartDate && hasEndDate && isStartBeforeEnd) {
+      console.log("[setTripDetails] Date check passed. Generating content with dayjs...");
 
-      // Format dates to YYYY-MM-DD
-      const formatDate = (date) => {
-        return date.toISOString().split("T")[0];
-      };
+      // Convert start and end dates to dayjs objects
+      let currentDay = dayjs(dates.startDate).startOf('day');
+      const endDay = dayjs(dates.endDate).startOf('day');
 
-      // Generate array of dates
-      const dateArray = [];
-      let currentDate = new Date(startDate);
-
-      while (currentDate <= endDate) {
-        dateArray.push({
-          date: formatDate(currentDate),
-          index: dateArray.length,
+      // Iterate using dayjs isSameOrBefore and add methods
+      while (currentDay.isSameOrBefore(endDay)) {
+        newContent.push({
+          date: currentDay.format('YYYY-MM-DD'), // Format using dayjs
+          index: newContent.length,
           itinerary: [],
         });
-        currentDate.setDate(currentDate.getDate() + 1);
+        // Move to the next day
+        currentDay = currentDay.add(1, 'day');
       }
+      console.log("[setTripDetails] Generated content:", newContent);
 
-      // Update trip with new date range
-      if (dateArray.length > 0) {
-        updateTrip(dateArray);
-      }
+    } else {
+      console.warn("[setTripDetails] Date check failed. Content will be empty.", {
+        receivedDates: dates,
+        check_hasStartDate: hasStartDate,
+        check_hasEndDate: hasEndDate,
+        check_isStartBeforeEnd: isStartBeforeEnd
+      });
+    }
+
+    // Update the entire currentTrip state object AT ONCE
+    setCurrentTrip((prevTrip) => {
+      const tripId = prevTrip?._id; // Preserve existing ID if any
+      const newTrip = {
+        ...prevTrip,             // Preserve other fields like image, userId etc.
+        _id: tripId,
+        title: title || "My Trip", // Set title directly in currentTrip
+        content: newContent,       // Set content directly in currentTrip
+        // You might want to store the primary destination location here too:
+        // destination: location || prevTrip?.destination,
+      };
+      console.log("Setting new currentTrip context:", newTrip);
+      // LocalStorage update is handled by the useEffect hook watching currentTrip
+      return newTrip;
+    });
+
+    // Reset selected day based on the new content
+    if (newContent.length > 0) {
+      setSelectedDay(newContent[0]); // Select the first day
+      console.log("Resetting selectedDay to:", newContent[0]);
+    } else {
+      setSelectedDay(null); // Clear selected day if no content generated
+      console.log("Resetting selectedDay to null as content is empty.");
     }
   }
 

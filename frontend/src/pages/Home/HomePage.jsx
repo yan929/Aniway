@@ -46,20 +46,20 @@ function HomePage() {
 
   // Handle search submission and transfer data to TripPlanner
   const handleSearch = () => {
-    if (selectedLocation && selectedDates) {
+    // Check if both location and a COMPLETE date range (start AND end) are selected
+    if (selectedLocation && selectedDates && selectedDates.startDate && selectedDates.endDate) {
       // Generate trip title based on selected location
-      const tripTitle = `Trip to ${
-        selectedLocation.name || selectedLocation.description || "Destination"
-      }`;
-      
+      const tripTitle = `Trip to ${selectedLocation.name || selectedLocation.description || "Destination"
+        }`;
+
       // Transfer data to AppContext for use in TripPlanner
       setTripDetails(selectedLocation, tripTitle, selectedDates);
-      
+
       // Navigate to the trip planner page
       navigate("/tripplanner");
     } else {
       // Prompt user to select destination and dates
-      alert("Please select a destination and travel dates");
+      alert("Please select a destination and a complete travel date range (start and end date).");
     }
   };
 
