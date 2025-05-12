@@ -174,10 +174,10 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl animate-fadeIn relative">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Smart Advice</h2>
-                    <button
+                    <div
                         onClick={onClose}
-                        className="text-gray-500 text-2xl absolute top-0 right-0 focus-visible"
-                    >&times;</button>
+                        className="text-gray-500 hover:text-gray-700 active:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 active:bg-gray-200 absolute top-2 right-4 cursor-pointer transition-all duration-200"
+                    >&times;</div>
                 </div>
 
                 <div className="space-y-4">
