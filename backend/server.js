@@ -55,6 +55,8 @@ app.use(
 
 app.use(express.json());
 
+app.use(errorHandler);
+
 // === Session Setup ===
 app.use(
   session({
@@ -142,49 +144,6 @@ app.use(authRoutes);
 app.get("/", (req, res) => {
   res.send("AniWay backend is running 🚀");
 });
-
-app.use(errorHandler);
-
-// === Session Setup ===
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "dev_secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-  })
-);
-
-// === OAuth Setup ===
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
-    },
-    (accessToken, refreshToken, profile, done) => {
-      profile.accessToken = accessToken;
-      return done(null, profile);
-    }
-  )
-);
-
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
-passport.deserializeUser((user, done) => {
-  done(null, user);
-});
-
-app.use(authRoutes);
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
