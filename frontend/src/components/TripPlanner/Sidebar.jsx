@@ -45,7 +45,7 @@ export default function Sidebar({ onToggleChat }) {
           🗺️ Itinerary
         </button>
       </nav>
-      <div className="flex flex-col gap-1 text-sm text-gray-300">
+      <div className="flex flex-col gap-1 text-center text-gray-300 overflow-y-auto">
         {dates.length > 0 ? (
           dates.map((dayLabel, index) => (
             <div
