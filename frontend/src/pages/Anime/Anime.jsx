@@ -4,11 +4,13 @@ import { useState } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
+import LocationPopup from "../../components/LocationPopup/LocationPopup";
 
 function AniDetail() {
   const { id } = useParams();
   const [animeData, setAnimeData] = useState(null);
   const [animeLocData, setAnimeLocData] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const fetchAniInfo = async () => {
     console.log("Fetching anime info for ID:", id);
@@ -25,8 +27,6 @@ function AniDetail() {
   };
 
   const fetchAniLoc = async () => {
-    console.log("Test data:", animeData);
-
     const encodedName = encodeURIComponent(animeData.name);
 
     try {
@@ -38,10 +38,27 @@ function AniDetail() {
         console.log("Test response:", response);
       }
       const data = await response.data;
-      setAnimeLocData(data);
+
+      const locData = data.map((location) => ({
+        ...location,
+        animeName: animeData.name,
+      }));
+
+      console.log("Test locData:", locData);
+
+      setAnimeLocData(locData);
     } catch (error) {
       console.error("Error fetching anime locations:", error);
     }
+  };
+
+  const handleLocationClick = (location) => {
+    setSelectedLocation(location);
+    console.log("Selected location:", location);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedLocation(null);
   };
 
   useEffect(() => {
@@ -64,10 +81,19 @@ function AniDetail() {
         <p>Loading...</p>
       )}
 
+      <br />
+      <br />
       {animeLocData ? (
-        <DisplayAniLoc aniLocList={animeLocData} />
+        <DisplayAniLoc
+          aniLocList={animeLocData}
+          onLocationClick={handleLocationClick}
+        />
       ) : (
         <p>Loading...</p>
+      )}
+
+      {selectedLocation && (
+        <LocationPopup location={selectedLocation} onClose={handleClosePopup} />
       )}
     </>
   );

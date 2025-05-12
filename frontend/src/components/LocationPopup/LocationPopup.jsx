@@ -177,9 +177,9 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
           style={{ maxHeight: "calc(90vh - 400px - 2rem)" }}
         >
           {/* Location title and Add button */}
-          <div className="mb-6 flex justify-between items-start">
+          <div className="mb-6 flex justify-center items-start">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2 ">
                 {location.names || placeDetails?.name || location.city}
               </h2>
 
