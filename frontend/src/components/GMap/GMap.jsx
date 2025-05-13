@@ -21,7 +21,7 @@ function GMap({ locations }) {
     setSelected(loc);
     setPhotoUrl(null);
     try {
-      const response = await apiClient.post("/api/gmap/", {
+      const response = await apiClient.post("/api/gmap/place_by_latlng", {
         lat: loc.lat,
         lng: loc.lng,
       });

@@ -54,7 +54,7 @@ function LocSearchBar({ setSelectedLocation }) {
       label: loc.name,
       lat: loc.lat,
       lng: loc.lng,
-      gpPlaceId: loc.googlePlaceId
+      gpPlaceId: loc.googlePlaceId,
     });
     setInput(loc.name);
     setShowResult(false);
@@ -77,7 +77,7 @@ function LocSearchBar({ setSelectedLocation }) {
           fetchKeyword={debouncedFetch}
           selectedIndexChange={(index) => setSelectedIndex(index)}
           selectedIndex={selectedIndex}
-          onSelecItem={handleSelectLocation}
+          onSelectItem={handleSelectLocation}
           inputValue={input}
           onInputChange={(value) => setInput(value)}
         />
