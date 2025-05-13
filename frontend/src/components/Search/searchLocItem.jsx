@@ -23,6 +23,16 @@ function SearchLocItem({
     onSelectLocation({ lat: result.lat, lng: result.lng, label: result.name });
   };
 
+  // Placeholder image path
+  const PLACEHOLDER_IMAGE_PATH = "/no-image.jpg"; // Correct path if no-image.jpg is in the public directory
+
+  // Handle image loading error
+  const handleImageError = (e) => {
+    e.target.src = PLACEHOLDER_IMAGE_PATH; // Set the source to the placeholder on error
+    // Optional: Add a class to the image container if needed to style the placeholder state
+    // e.target.parentElement.classList.add('no-image');
+  };
+
   return (
     <div className="w-full">
       <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 border-b border-gray-200">
@@ -51,12 +61,12 @@ function SearchLocItem({
                   <p className="text-sm m-0 text-gray-600 text-left">{result.animeName}</p>
                 </div>
 
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-16 rounded-md overflow-hidden">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-16 rounded-md overflow-hidden z-10">
                   <img
-                    src={result.images?.[0] ||
-                      (result.image && result.image ? result.image : "/frontend/default-image.jpg")}
-                    alt={result.name}
+                    src={result.images?.[0] || (result.image || PLACEHOLDER_IMAGE_PATH)}
+                    alt={result.name || "Location image"}
                     className="w-full h-full object-cover"
+                    onError={handleImageError}
                   />
                 </div>
               </div>
