@@ -157,7 +157,7 @@ export default function TripPlanner() {
       <div className="w-1/3 bg-gray-200 overflow-y-auto">
         {" "}
         {/* Added a container for the map */}
-        {/* <TripMapDisplay /> */}
+        <TripMapDisplay />
         {/* Replaced commented out MapPanel with TripMapDisplay */}
       </div>
 
