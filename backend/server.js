@@ -40,10 +40,14 @@ const app = express();
 app.set("trust proxy", 1);
 
 // Determine allowed origin based on environment
+const otherOrigins = process.env.OTHER_ORIGINS?.split(",") || [];
+
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? [process.env.FRONTEND_URL]
-    : ["http://localhost:5173"];
+    ? [process.env.FRONTEND_URL, ...otherOrigins]
+    : ["http://localhost:5173", ...otherOrigins];
+
+console.log("Allowed origins:", allowedOrigins);
 
 app.use(
   cors({
