@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import apiClient from "../../util/api";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { IoClose } from "react-icons/io5";
@@ -9,6 +9,9 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showInfoWindow, setShowInfoWindow] = useState(true);
+  
+  // Create a ref for the modal content
+  const modalContentRef = useRef(null);
 
   // Extract all anime names (English and Japanese) from arrays
   const getAnimeNames = () => {
@@ -39,6 +42,14 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
     }
     // Fall back to placeDetails name or default
     return placeDetails?.name || "Location";
+  };
+
+  // Handle click on the overlay background to close the popup
+  const handleBackgroundClick = (e) => {
+    // Only close if the click is on the background, not on the modal content
+    if (modalContentRef.current && !modalContentRef.current.contains(e.target)) {
+      onClose();
+    }
   };
 
   useEffect(() => {
@@ -80,11 +91,18 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   };
 
   return (
+    // Add onClick handler to the background overlay
     <div
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
+      onClick={handleBackgroundClick}
     >
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl">
+      {/* Add ref to the modal content and prevent click propagation */}
+      <div 
+        ref={modalContentRef}
+        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl"
+        onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
+      >
         {/* Header */}
         <div className="relative">
           <button
