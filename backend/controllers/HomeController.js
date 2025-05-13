@@ -81,6 +81,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
 // @access  Public
 const searchAllLocations = asyncHandler(async (req, res) => {
   const { q } = req.query;
+  console.log("Search query:", q);
 
   if (!q) {
     return res.status(400).json({ message: "Search query 'q' is required" });
@@ -141,8 +142,19 @@ const searchAllLocations = asyncHandler(async (req, res) => {
       })
     );
 
+    const anime = await Anime.find({
+          $or: [{ name_en: regex }, { name_cn: regex }, { name: regex }],
+        });
+
+        if (!anime || anime.length === 0) {
+          console.log("Test anime:", anime);
+          return res.status(404).json({ message: "Anime not found" });
+        }
+
+    const searchAnime = anime[0].locations;
+
     res.json({
-      searchLocations,
+      searchLocations,searchAnime
     });
   } catch (error) {
     console.error("Error searching all locations:", error);
@@ -182,6 +194,7 @@ const searchData = asyncHandler(async (req, res) => {
       locations: anime.locations,
       description: anime.overview || anime.summary,
     }));
+     
 
     // Search Locations
     const searchLocationsData = await Location.find({
@@ -208,9 +221,14 @@ const searchData = asyncHandler(async (req, res) => {
           "locations.lat": loc.lat,
           "locations.lng": loc.lng,
         })
-          .select("_id name name_en name_cn")
+          .select("_id name name_en name_cn locations")
           .limit(1) // Get just the first related anime
           .lean();
+        // console.log("Test related anime:", relatedAnime[0].locations);
+
+      const index = relatedAnime[0].locations.findIndex(
+      (location) => location.lat === loc.lat && location.lng === loc.lng
+    );
 
         return {
           id: loc._id,
@@ -224,6 +242,7 @@ const searchData = asyncHandler(async (req, res) => {
               : "",
           lat: loc.lat,
           lng: loc.lng,
+          image:relatedAnime[0].locations[index].image|| [],
           addresses: loc.addresses,
           animeName:
             relatedAnime.length > 0

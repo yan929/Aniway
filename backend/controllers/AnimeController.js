@@ -88,8 +88,14 @@ const getAnimeLocation = async (req, res) => {
   const animeName = req.params.animeName;
   console.log("Test animeName:", animeName);
 
+  const regex = new RegExp(animeName, "i"); 
+
   const anime = await Anime.find({
-    $or: [{ name_en: animeName }, { name_cn: animeName }],
+    $or: [
+      { name_en: regex },
+      { name_cn: regex },
+      { name: regex },
+    ],
   });
 
   if (!anime || anime.length === 0) {
@@ -109,12 +115,6 @@ const getAnimeLocation = async (req, res) => {
   }
 
   const locationList = locationData.map((location) => {
-    console.log("Test location object:", location, {
-      id: location.id,
-      ed: location.ep,
-      s: location["s"],
-    });
-
     return {
       id: location.id,
       locationName: location.name,

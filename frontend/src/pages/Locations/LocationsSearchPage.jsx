@@ -15,7 +15,7 @@ function LocationsSearchPage() {
   const searchQuery = searchParams.get("q");
   const dayIndexParam = searchParams.get("day");
   const showBackButton = searchParams.get("backButton") !== "false"; // Default to showing back button
-  
+
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,9 +23,10 @@ function LocationsSearchPage() {
   const [addedLocations, setAddedLocations] = useState(new Set());
 
   // Calculate current day - if dayIndex is provided in URL, use that day, otherwise use selectedDay from context
-  const currentDay = dayIndexParam && tripData ? 
-    tripData[parseInt(dayIndexParam, 10)] : 
-    selectedDay;
+  const currentDay =
+    dayIndexParam && tripData
+      ? tripData[parseInt(dayIndexParam, 10)]
+      : selectedDay;
 
   // Handle location card click to show detailed popup
   const handleLocationClick = (location) => {
@@ -46,38 +47,44 @@ function LocationsSearchPage() {
   // This closely follows the pattern from TripDayPlan.jsx
   const handleAddToItinerary = async (location) => {
     if (!currentDay) {
-      alert("No day selected. Please go to the trip planner first to select a day.");
+      alert(
+        "No day selected. Please go to the trip planner first to select a day."
+      );
       return;
     }
-    
+
     try {
       // Structure the location similar to how SearchBar does
       const loc = {
         label: location.name || location.names,
         lat: location.lat,
-        lng: location.lng
+        lng: location.lng,
       };
-      
+
       // Fetch place data exactly like in TripDayPlan
-      const newPlaceData = await fetchPlaceByLatLng(loc.label, loc.lat, loc.lng);
-      
+      const newPlaceData = await fetchPlaceByLatLng(
+        loc.label,
+        loc.lat,
+        loc.lng
+      );
+
       // Create the update item exactly like in TripDayPlan
       const updateItem = {
         date: currentDay.date,
         gpPlaceId: newPlaceData.place_id,
         order: currentDay.itinerary ? currentDay.itinerary.length : 0,
       };
-      
+
       // Call updateItinerary exactly like in TripDayPlan
       updateItinerary(tripData, updateItem);
-      
+
       // Mark as added in UI
-      setAddedLocations(prev => {
+      setAddedLocations((prev) => {
         const newSet = new Set(prev);
         newSet.add(location.id);
         return newSet;
       });
-      
+
       console.log("Added location to itinerary:", location.id);
     } catch (error) {
       console.error("Error adding location to itinerary:", error);
@@ -87,7 +94,7 @@ function LocationsSearchPage() {
 
   // Function to remove a location from UI state
   const handleRemoveFromItinerary = (location) => {
-    setAddedLocations(prev => {
+    setAddedLocations((prev) => {
       const newSet = new Set(prev);
       newSet.delete(location.id);
       return newSet;
@@ -120,7 +127,14 @@ function LocationsSearchPage() {
           params: { q: searchQuery },
         });
 
-        setLocations(response.data.searchLocations || []);
+       const searchData = response.data;
+        
+        const combinedLocations = [
+          ...(searchData.searchAnime || []),
+          ...(searchData.searchLocations || []),
+        ];
+        
+        setLocations(combinedLocations || []);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching locations:", err);
@@ -143,8 +157,8 @@ function LocationsSearchPage() {
           <FaArrowLeft /> Back to Planner
         </button>
       )}
-      
-      <header className={`mb-8 ${showBackButton ? 'pt-16' : 'pt-4'}`}>
+
+      <header className={`mb-8 ${showBackButton ? "pt-16" : "pt-4"}`}>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <h1 className="text-3xl font-bold">Locations for "{searchQuery}"</h1>
           {currentDay && (
@@ -188,8 +202,8 @@ function LocationsSearchPage() {
       )}
 
       {selectedLocation && (
-        <LocationPopup 
-          location={selectedLocation} 
+        <LocationPopup
+          location={selectedLocation}
           onClose={handleClosePopup}
           onToggleInItinerary={handleToggleInItinerary}
           isAdded={addedLocations.has(selectedLocation.id)}
