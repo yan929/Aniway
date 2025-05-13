@@ -107,20 +107,6 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
 
       // Construct image URL using photo_reference
       let imageUrl = clickedSuggestion.image; // Default to the image from the suggestion list (e.g., anitabi image)
-      if (enrichedLocationDataFromAPI.photo_reference) {
-        // ASSUMPTION: Your backend route for fetchPlacePhotoByPlaceId is /api/gmap/photo_by_reference
-        // This URL will point to your backend, which then serves the image from Google.
-        imageUrl = `/api/gmap/photo_by_reference?photo_reference=${enrichedLocationDataFromAPI.photo_reference}`;
-        console.log(
-          "Constructed Google Place photo URL (via backend):",
-          imageUrl
-        );
-      } else {
-        console.log(
-          "No photo_reference from Google, using existing image:",
-          imageUrl
-        );
-      }
 
       const targetDayItinerary =
         currentTrip.content.find((d) => d.date === day.date)?.itinerary || [];

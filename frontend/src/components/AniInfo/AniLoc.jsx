@@ -1,7 +1,11 @@
-import HorizontalLocationCard from "../PopularItem/HorizontalLocationCard";
 import AniLocCard from "./AniLocCard";
 
-function DisplayAniLoc({ aniLocList, onLocationClick, cardClassName, showListTitle }) {
+function DisplayAniLoc({
+  aniLocList,
+  onLocationClick,
+  cardClassName,
+  showListTitle,
+}) {
   return (
     <div className="ani-info">
       <AniLocCard
