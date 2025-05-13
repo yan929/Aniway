@@ -22,14 +22,28 @@ function LocSearchBar({ setSelectedLocation }) {
     }
 
     try {
-      const response = await apiClient.get(`/api/home/search`, {
+      const searchResponse = await apiClient.get(`/api/home/search`, {
         params: { q: keyword },
       });
+      const searchData = searchResponse.data;
+      console.log("Search anime :", searchData.searchAnime);
+      console.log("Search anime location:", searchData.searchAnimeLocations);
+      console.log("Search location:", searchData.searchLocations);
+      
+      
 
-      const data = response.data;
+    //   const encodedName = encodeURIComponent(keyword);
+    //   const aniLocResponse = await apiClient.get(`/api/anime/locations/${encodedName}`)
+    //   console.log("Test response:", aniLocResponse);  
+    //   const aniLocData = aniLocResponse.data;
 
-      const locations = data.searchLocations || [];
-      setLocResults(locations);
+      const combinedLocations = [
+      ...(searchData.searchLocations || []),
+      ...(searchData.searchAnimeLocations|| []),
+    ];
+
+     
+      setLocResults(combinedLocations);
 
       setShowResult(true);
     } catch (err) {
@@ -44,10 +58,10 @@ function LocSearchBar({ setSelectedLocation }) {
     }
   };
 
-  // Debounce hook with 500 ms
+  // Debounce hook with 200 ms
   const debouncedFetch = useDebouncedCallback((keyword) => {
     fetchData(keyword);
-  }, 500);
+  }, 200);
 
   const handleSelectLocation = (loc) => {
     setSelectedLocation({

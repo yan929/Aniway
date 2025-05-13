@@ -81,6 +81,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
 // @access  Public
 const searchAllLocations = asyncHandler(async (req, res) => {
   const { q } = req.query;
+  console.log("Search query:", q);
 
   if (!q) {
     return res.status(400).json({ message: "Search query 'q' is required" });
@@ -141,8 +142,16 @@ const searchAllLocations = asyncHandler(async (req, res) => {
       })
     );
 
+    const anime = await Anime.find({
+      $or: [{ name_en: regex }, { name_cn: regex }, { name: regex }],
+    });
+
+    const searchAnime =
+      anime && anime[0] && anime[0].locations ? anime[0].locations : [];
+      
     res.json({
       searchLocations,
+      searchAnime,
     });
   } catch (error) {
     console.error("Error searching all locations:", error);
@@ -183,6 +192,19 @@ const searchData = asyncHandler(async (req, res) => {
       description: anime.overview || anime.summary,
     }));
 
+    const searchAnimeLocations = searchAnimeData?.[0]?.locations
+      ? searchAnimeData[0].locations
+          .map((loc) => ({
+            id: loc.id,
+            name: loc.name,
+            image: loc.image,
+            lat: loc.lat,
+            lng: loc.lng,
+            addresses: loc.addresses,
+          }))
+          .slice(0, limit)
+      : [];
+
     // Search Locations
     const searchLocationsData = await Location.find({
       isValid: true, // Filter valid locations
@@ -208,9 +230,14 @@ const searchData = asyncHandler(async (req, res) => {
           "locations.lat": loc.lat,
           "locations.lng": loc.lng,
         })
-          .select("_id name name_en name_cn")
+          .select("_id name name_en name_cn locations")
           .limit(1) // Get just the first related anime
           .lean();
+        // console.log("Test related anime:", relatedAnime[0].locations);
+
+        const index = relatedAnime[0].locations.findIndex(
+          (location) => location.lat === loc.lat && location.lng === loc.lng
+        );
 
         return {
           id: loc._id,
@@ -224,6 +251,7 @@ const searchData = asyncHandler(async (req, res) => {
               : "",
           lat: loc.lat,
           lng: loc.lng,
+          image: relatedAnime[0]?.locations[index]?.image || [],
           addresses: loc.addresses,
           animeName:
             relatedAnime.length > 0
@@ -237,6 +265,7 @@ const searchData = asyncHandler(async (req, res) => {
 
     res.json({
       searchAnime,
+      searchAnimeLocations,
       searchLocations,
     });
   } catch (error) {

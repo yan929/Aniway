@@ -1,18 +1,21 @@
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
+import LocationPopup from "../../components/LocationPopup/LocationPopup";
 
 function AniDetail() {
   const { id } = useParams();
   const [animeData, setAnimeData] = useState(null);
   const [animeLocData, setAnimeLocData] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const fetchAniInfo = async () => {
+ 
     try {
-      const response = await apiClient.get(`/api/anime/${id}`);
+      const response = await apiClient.get(`/api/anime/info/${id}`);
 
       const data = await response.data;
 
@@ -33,33 +36,61 @@ function AniDetail() {
       if (!response) {
         console.log("Test response:", response);
       }
-      const data = await response.data;
-      setAnimeLocData(data);
+      const data = await response.data;  
+
+      const locData = data.map((location) => ({
+        ...location,
+        animeName: animeData.name,
+      }));
+
+      setAnimeLocData(locData);
     } catch (error) {
       console.error("Error fetching anime locations:", error);
     }
   };
 
-  // useEffect(() => {
+  const handleLocationClick = (location) => {
+    setSelectedLocation(location);
+    console.log("Selected location:", location);
+  };
 
-  //   fetchAniInfo();
-  // }, [id]);
+  const handleClosePopup = () => {
+    setSelectedLocation(null);
+  };
+
+  useEffect(() => {
+    fetchAniInfo();
+    setTimeout(() => window.scrollTo(0, 0), 0);
+  }, [id]);
+
+  useEffect(() => {
+    if (animeData && animeData.name) {
+      fetchAniLoc();
+      setTimeout(() => window.scrollTo(0, 0), 0);
+    }
+  }, [animeData]);
 
   return (
     <>
-      <Link to={"/"}>Back to home</Link>
-      <button onClick={fetchAniInfo}>Fetch Anime Info</button>
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (
         <p>Loading...</p>
       )}
 
-      <button onClick={fetchAniLoc}>Fetch Location Info</button>
+      <br />
+      <br />
       {animeLocData ? (
-        <DisplayAniLoc aniLocList={animeLocData} />
+        <DisplayAniLoc
+          aniLocList={animeLocData}
+          onLocationClick={handleLocationClick}
+        />
       ) : (
         <p>Loading...</p>
+      )}
+
+      {selectedLocation && (
+        <LocationPopup location={selectedLocation} onClose={handleClosePopup} />
       )}
     </>
   );

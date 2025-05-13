@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../../util/api";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { IoClose } from "react-icons/io5";
@@ -9,7 +10,8 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showInfoWindow, setShowInfoWindow] = useState(true);
-
+  const navigate = useNavigate();
+  
   // Create a ref for the modal content
   const modalContentRef = useRef(null);
 
@@ -54,6 +56,21 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
       onClose();
     }
   };
+
+  const handleNavigateAnime= async(name)=>{
+    try{
+      const encodedName = encodeURIComponent(name);
+      
+      const response = await apiClient.get(`/api/anime/${encodedName}`);
+      const data = await response.data;
+
+      navigate(`/anime/${data.id}`)
+      onClose();
+    }
+    catch(error){
+      console.error("Error fetching anime info:", error);
+    }
+  }
 
   useEffect(() => {
     if (!location) return;
@@ -177,9 +194,9 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
           style={{ maxHeight: "calc(90vh - 400px - 2rem)" }}
         >
           {/* Location title and Add button */}
-          <div className="mb-6 flex justify-between items-start">
+          <div className="mb-6 flex justify-center items-start">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2 ">
                 {location.names || placeDetails?.name || location.city}
               </h2>
 
@@ -226,7 +243,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
                   <div
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
-                  >
+                   onClick={() => handleNavigateAnime(anime.en_name)}>
                     <p className="text-base font-semibold text-gray-900">
                       {anime.en_name}
                     </p>

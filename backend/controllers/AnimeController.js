@@ -1,6 +1,7 @@
 // backend/controllers/AnimeController.js
 import asyncHandler from "express-async-handler";
 import Anime from "../models/Anime.js"; // Assuming Anime model exists
+import Location from "../models/Location.js"; // Assuming Location model exists
 
 // @desc    Search anime by location keyword
 // @route   GET /api/anime/search
@@ -55,7 +56,7 @@ const searchAnimeByLocation = asyncHandler(async (req, res) => {
   }
 });
 
-const getAnimeInfo = asyncHandler(async (req, res) => {
+const getAnimeInfoById = asyncHandler(async (req, res) => {
   const { anime_id } = req.params;
 
   if (!anime_id) {
@@ -68,9 +69,6 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Anime not found");
   }
-
-  console.log("Test animeData:", animeData);
-
   const animeInfo = {
     id: animeData._id,
     name: animeData.name_en || animeData.name || animeData.name_cn,
@@ -84,50 +82,70 @@ const getAnimeInfo = asyncHandler(async (req, res) => {
   res.json(animeInfo);
 });
 
+const getAnimeIdByName = asyncHandler(async (req, res) => {
+  const { anime_name } = req.params;
+
+  if (!anime_name) {
+    res.status(400);
+    throw new Error("Anime name is required");
+  }
+
+  const regex = new RegExp(anime_name, "i");
+
+  const animeData = await Anime.findOne({
+    $or: [{ name_en: regex }, { name_cn: regex }, { name: regex }],
+  }).select("_id name");
+
+  if (!animeData) {
+    res.status(404);
+    throw new Error("Anime not found");
+  }
+
+  res.json({ id: animeData._id });
+});
+
 const getAnimeLocation = async (req, res) => {
-  const animeName = req.params.animeName;
+  const animeName = req.params.anime_name;
   console.log("Test animeName:", animeName);
 
+  const regex = new RegExp(animeName, "i");
+
   const anime = await Anime.find({
-    $or: [{ name_en: animeName }, { name_cn: animeName }],
+    $or: [{ name_en: regex }, { name_cn: regex }, { name: regex }],
   });
 
   if (!anime || anime.length === 0) {
-    console.log("Test anime:", anime);
     return res.status(404).json({ message: "Anime not found" });
   }
 
   const locationData = anime[0].locations;
-  // console.log("Test locationData:", locationData);
-
   if (locationData.length === 0) {
-    console.log("Test locations:", anime.locations);
-
     return res
       .status(404)
       .json({ message: "No locations found for this anime" });
   }
 
-  const locationList = locationData.map((location) => {
-    console.log("Test location object:", location, {
-      id: location.id,
-      ed: location.ep,
-      s: location["s"],
-    });
+  const locationList = await Promise.all(
+    locationData.map(async (location) => {
+      const relatedAnime = await Location.findOne({
+        _id: location.locationRef,
+      })
+        .select("_id anitabi_names  anime_cn_names anime_en_names")
+        .lean();
 
-    return {
-      id: location.id,
-      locationName: location.name,
-      image: location.image,
-      addresses: location.addresses,
-      ep: location.ep,
-      s: location.s, // have bug
-      lat: location.lat,
-      lng: location.lng,
-    };
-  });
-
-  // console.log("Test locationList:", locationList);
+      return {
+        id: location.id,
+        locationName: location.name,
+        image: location.image,
+        anime_en_names: relatedAnime.anime_en_names,
+        addresses: location.addresses,
+        ep: location.ep,
+        s: location.s, // have bug
+        lat: location.lat,
+        lng: location.lng,
+      };
+    })
+  );
 
   if (locationList && locationList.length > 0) {
     return res.status(200).json(locationList);
@@ -137,4 +155,9 @@ const getAnimeLocation = async (req, res) => {
       .json({ message: "No locations found for this anime" });
   }
 };
-export { searchAnimeByLocation, getAnimeInfo, getAnimeLocation };
+export {
+  searchAnimeByLocation,
+  getAnimeInfoById,
+  getAnimeLocation,
+  getAnimeIdByName,
+};

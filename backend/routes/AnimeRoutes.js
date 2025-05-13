@@ -2,8 +2,9 @@
 import express from "express";
 import {
   searchAnimeByLocation,
-  getAnimeInfo,
+  getAnimeInfoById,
   getAnimeLocation,
+  getAnimeIdByName
 } from "../controllers/AnimeController.js";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get("/by_location_keyword", searchAnimeByLocation);
 
 // Future routes for anime could be added here
-router.get("/:anime_id", getAnimeInfo);
-router.get("/locations/:animeName", getAnimeLocation);
+router.get("/info/:anime_id", getAnimeInfoById);
+router.get("/:anime_name", getAnimeIdByName);
+router.get("/locations/:anime_name", getAnimeLocation);
 export default router;
