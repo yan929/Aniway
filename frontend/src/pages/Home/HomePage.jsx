@@ -15,7 +15,7 @@ import apiClient from "../../util/api";
 function HomePage() {
   const [aniData, setAniData] = useState([]);
   const [locData, setLocData] = useState([]);
-  const [selectedDates, setSelectedDates] = useState(null); // Initialize as null instead of default date range
+  const [selectedDates, setSelectedDates] = useState(null);// Initialize as null instead of default date range
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPopupLocation, setSelectedPopupLocation] = useState(null);
 
@@ -86,20 +86,23 @@ function HomePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-32 pb-8 flex-grow">
-      {/* Hero Section with Search */}
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+    // Container with responsive padding for better mobile experience
+    <div className="container mx-auto px-4 pt-16 md:pt-24 lg:pt-32 pb-8 flex-grow">
+      {/* Hero Section with Search - Optimized spacing for mobile */}
+      <div className="text-center mb-8 md:mb-12 lg:mb-16">
+        {/* Responsive heading sizes */}
+        <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 md:mb-6">
           Aniway — The Anime Traveler's Way
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+        {/* Responsive paragraph with optimized spacing */}
+        <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 lg:mb-12 max-w-3xl mx-auto">
           From screen to scenes, find the anime in your advanture.
-          <br />
+          <br className="hidden md:block" />
           Find your scene, live your dream !
         </p>
 
-        {/* Search Container - Fixed position and z-index issues */}
-        <div className="max-w-4xl mx-auto px-4 relative">
+        {/* Search Container */}
+        <div className="max-w-4xl mx-auto px-2 md:px-4 relative">
           {/* Search wrapper with flexbox and responsive layout */}
           <div className="flex flex-col md:flex-row rounded-lg md:rounded-full bg-white shadow-lg border border-gray-200 overflow-visible">
             {/* Search Input - Takes all available space */}
@@ -130,8 +133,8 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Popular Destinations and Anime Sections */}
-      <div className="mt-8">
+      {/* Popular Destinations and Anime Sections with reduced top spacing */}
+      <div className="mt-6 md:mt-8">
         <DisplayPopLocInfo
           sectionTitle="Popular Destinations"
           locList={locData}
@@ -141,7 +144,7 @@ function HomePage() {
         <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
       </div>
 
-      {/* Location Popup, ensure it's within a positioned context if needed or portal it */}
+      {/* Location Popup - Shown when a location card is clicked */}
       {selectedPopupLocation && (
         <LocationPopup
           location={selectedPopupLocation}
