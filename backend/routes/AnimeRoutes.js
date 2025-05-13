@@ -4,7 +4,7 @@ import {
   searchAnimeByLocation,
   getAnimeInfoById,
   getAnimeLocation,
-  getAnimeIdByName
+  getAnimeIdByName,
 } from "../controllers/AnimeController.js";
 
 const router = express.Router();

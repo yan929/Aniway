@@ -17,14 +17,14 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
 
   const daysData = Array.isArray(currentTrip?.content)
     ? currentTrip.content.map((day) => {
-      const dateObj = new Date(day.date);
-      const dayLabel = dateObj.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "numeric",
-        day: "numeric",
-      });
-      return { date: day.date, label: dayLabel };
-    })
+        const dateObj = new Date(day.date);
+        const dayLabel = dateObj.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "numeric",
+          day: "numeric",
+        });
+        return { date: day.date, label: dayLabel };
+      })
     : [];
 
   return (

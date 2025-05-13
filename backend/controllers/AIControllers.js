@@ -2,7 +2,6 @@ import { OpenAI } from "openai";
 import dotenv from "dotenv";
 import { searchRawLocationDataByLocateAnime } from "../services/locationService.js";
 
-
 dotenv.config();
 
 const openai = new OpenAI({
@@ -19,10 +18,14 @@ const analyzeUserInput = async (req, res) => {
     return res.status(400).json({ error: "Missing 'prompt' in request body." });
   }
   if (!currentItinerary) {
-    return res.status(400).json({ error: "Missing 'currentItinerary' in request body." });
+    return res
+      .status(400)
+      .json({ error: "Missing 'currentItinerary' in request body." });
   }
   if (!currentItinerary.date) {
-    return res.status(400).json({ error: "The 'currentItinerary' must include a 'date'." });
+    return res
+      .status(400)
+      .json({ error: "The 'currentItinerary' must include a 'date'." });
   }
 
   const itineraryDate = currentItinerary.date;
@@ -49,20 +52,30 @@ const analyzeUserInput = async (req, res) => {
     });
 
     const initialReply = initialChatResponse.choices[0].message.content;
-    console.log(`✅ Response from initial ChatGPT for location/theme extraction`);
+    console.log(
+      `✅ Response from initial ChatGPT for location/theme extraction`
+    );
     let initialAIResponse;
     try {
       initialAIResponse = JSON.parse(initialReply);
     } catch (e) {
-      console.error("❌ Invalid JSON from initial AI for location/theme extraction:", e);
+      console.error(
+        "❌ Invalid JSON from initial AI for location/theme extraction:",
+        e
+      );
       console.error("Raw AI reply:", initialReply);
-      return res.status(500).json({ error: "Initial AI (location/theme extraction) returned invalid JSON", raw: initialReply });
+      return res.status(500).json({
+        error: "Initial AI (location/theme extraction) returned invalid JSON",
+        raw: initialReply,
+      });
     }
     console.log("Parsed JSON from initial AI:", initialAIResponse);
 
     const locations = initialAIResponse.locations?.map((l) => l.location) || [];
-    const potentialTitles = initialAIResponse.potential_titles?.map((t) => t.title) || [];
-    const otherThemes = initialAIResponse.other_themes?.map((t) => t.theme) || [];
+    const potentialTitles =
+      initialAIResponse.potential_titles?.map((t) => t.title) || [];
+    const otherThemes =
+      initialAIResponse.other_themes?.map((t) => t.theme) || [];
 
     console.log("Extracted Locations:", locations);
     console.log("Extracted Potential Titles:", potentialTitles);
@@ -70,10 +83,14 @@ const analyzeUserInput = async (req, res) => {
 
     // Process potential titles into individual keywords
     let keywordsFromTitles = [];
-    potentialTitles.forEach(title => {
-      if (typeof title === 'string') { // Basic check
+    potentialTitles.forEach((title) => {
+      if (typeof title === "string") {
+        // Basic check
         // Split title into words, convert to lowercase, filter empty strings
-        const words = title.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+        const words = title
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((word) => word.length > 0);
         keywordsFromTitles.push(...words);
       }
     });
@@ -81,27 +98,46 @@ const analyzeUserInput = async (req, res) => {
     const combinedKeywords = [
       ...new Set([
         ...keywordsFromTitles,
-        ...otherThemes.map(theme => typeof theme === 'string' ? theme.toLowerCase() : '').filter(theme => theme.length > 0)
-      ])
+        ...otherThemes
+          .map((theme) =>
+            typeof theme === "string" ? theme.toLowerCase() : ""
+          )
+          .filter((theme) => theme.length > 0),
+      ]),
     ];
 
     console.log("Keywords for DB Search:", combinedKeywords);
 
     // Step 2: Search for raw location data based on extracted locations and processed keywords
     // This data will be the 'newlyAddedLocation' for the replanning step
-    const rawLocations = await searchRawLocationDataByLocateAnime(locations, combinedKeywords);
+    const rawLocations = await searchRawLocationDataByLocateAnime(
+      locations,
+      combinedKeywords
+    );
     console.log("Raw Locations from DB search:", rawLocations);
     res.json(rawLocations); // Send the whole array
     console.log("✅ Successfully sent location suggestions to client.");
-
   } catch (err) {
-    console.error("❌ Error in analyzeUserInput processing pipeline:", err.message);
+    console.error(
+      "❌ Error in analyzeUserInput processing pipeline:",
+      err.message
+    );
     // Check if the error is from our known error types (e.g., from replanSingleDayItinerary)
     // or a general error. This helps in sending a more specific error message.
-    if (err.message.includes("AI returned invalid JSON") || err.message.includes("Failed to generate the replanned day itinerary")) {
-      res.status(500).json({ error: "Failed to process itinerary replan with AI.", details: err.message });
+    if (
+      err.message.includes("AI returned invalid JSON") ||
+      err.message.includes("Failed to generate the replanned day itinerary")
+    ) {
+      res.status(500).json({
+        error: "Failed to process itinerary replan with AI.",
+        details: err.message,
+      });
     } else {
-      res.status(500).json({ error: "An unexpected error occurred while analyzing user input and replanning.", details: err.message });
+      res.status(500).json({
+        error:
+          "An unexpected error occurred while analyzing user input and replanning.",
+        details: err.message,
+      });
     }
   }
 };

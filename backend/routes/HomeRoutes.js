@@ -1,6 +1,11 @@
 // backend/routes/HomeRoutes.js
 import express from "express";
-import { getTrendingData, searchData, searchAllLocations, searchCitiesAndCountries} from "../controllers/HomeController.js";
+import {
+  getTrendingData,
+  searchData,
+  searchAllLocations,
+  searchCitiesAndCountries,
+} from "../controllers/HomeController.js";
 
 const router = express.Router();
 

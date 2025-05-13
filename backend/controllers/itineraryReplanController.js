@@ -13,16 +13,27 @@ const openai = new OpenAI({
 
 // Adjust path to your OpenAI client configuration
 
-export async function replanSingleDayItinerary(newlyAddedLocation, existingDayItinerary, originalUserRequest) {
+export async function replanSingleDayItinerary(
+  newlyAddedLocation,
+  existingDayItinerary,
+  originalUserRequest
+) {
   // Validate essential inputs (basic checks can remain if this function is ever called directly elsewhere,
   // but primary validation should be in the controller)
   if (!newlyAddedLocation || !existingDayItinerary || !originalUserRequest) {
     // Instead of res.status().json(), throw an error
-    throw new Error("Missing required parameters: newlyAddedLocation, existingDayItinerary, or originalUserRequest.");
+    throw new Error(
+      "Missing required parameters: newlyAddedLocation, existingDayItinerary, or originalUserRequest."
+    );
   }
   // Example: Ensure newlyAddedLocation has lat and lng
-  if (newlyAddedLocation.lat === undefined || newlyAddedLocation.lng === undefined) {
-    throw new Error("The 'newlyAddedLocation' must include 'lat' (latitude) and 'lng' (longitude).");
+  if (
+    newlyAddedLocation.lat === undefined ||
+    newlyAddedLocation.lng === undefined
+  ) {
+    throw new Error(
+      "The 'newlyAddedLocation' must include 'lat' (latitude) and 'lng' (longitude)."
+    );
   }
   if (!existingDayItinerary.date) {
     throw new Error("The 'existingDayItinerary' must include a 'date'.");
@@ -30,7 +41,11 @@ export async function replanSingleDayItinerary(newlyAddedLocation, existingDayIt
 
   try {
     // Construct the detailed prompt for ChatGPT
-    const promptContent = buildReplanDayItineraryPrompt(newlyAddedLocation, existingDayItinerary, originalUserRequest);
+    const promptContent = buildReplanDayItineraryPrompt(
+      newlyAddedLocation,
+      existingDayItinerary,
+      originalUserRequest
+    );
 
     // Call OpenAI API
     const chatResponse = await openai.chat.completions.create({
@@ -38,12 +53,13 @@ export async function replanSingleDayItinerary(newlyAddedLocation, existingDayIt
       messages: [
         {
           role: "system",
-          content: "You are an expert travel itinerary planner. You MUST reply in valid JSON format only, strictly adhering to the structure provided in the user\\'s prompt. Do not include any additional text, explanations, or markdown formatting outside of the main JSON object."
+          content:
+            "You are an expert travel itinerary planner. You MUST reply in valid JSON format only, strictly adhering to the structure provided in the user\\'s prompt. Do not include any additional text, explanations, or markdown formatting outside of the main JSON object.",
         },
         {
           role: "user",
           content: promptContent,
-        }
+        },
       ],
       temperature: 0.7,
       // response_format: { type: "json_object" }, // Consider enabling if fully supported and desired
@@ -69,15 +85,20 @@ export async function replanSingleDayItinerary(newlyAddedLocation, existingDayIt
       console.error("Error: AI returned invalid JSON for day replan.", e);
       console.error("Raw AI reply that caused parsing error:", aiReply); // Log the original, uncleaned reply
       // Throw a new error that can be caught by the caller
-      throw new Error(`AI returned invalid JSON content for the day itinerary. Raw: ${aiReply}`);
+      throw new Error(
+        `AI returned invalid JSON content for the day itinerary. Raw: ${aiReply}`
+      );
     }
-
   } catch (err) {
     // Log the original error for server-side debugging
-    console.error("Error during ChatGPT API call or processing for day replan:", err.message);
+    console.error(
+      "Error during ChatGPT API call or processing for day replan:",
+      err.message
+    );
     // Re-throw the error to be handled by the caller (AIControllers.js)
     // This allows the controller to decide on the appropriate HTTP response.
-    throw new Error(`Failed to generate the replanned day itinerary. Details: ${err.message}`);
+    throw new Error(
+      `Failed to generate the replanned day itinerary. Details: ${err.message}`
+    );
   }
 }
-

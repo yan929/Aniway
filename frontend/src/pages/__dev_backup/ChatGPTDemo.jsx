@@ -43,7 +43,6 @@ function ChatGPTDemo() {
   return (
     <div style={{ padding: "2rem" }}>
       <h2>🌏 Travel Itinerary Planner with ChatGPT</h2>
-
       <input
         type="text"
         placeholder="e.g., Plan a relaxing trip to Tokyo"
@@ -51,7 +50,6 @@ function ChatGPTDemo() {
         onChange={(e) => setPrompt(e.target.value)}
         style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
       />
-
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
         <input
           type="date"
@@ -67,9 +65,7 @@ function ChatGPTDemo() {
           {loading ? "Generating..." : "Generate Itinerary"}
         </button>
       </div>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
-
       {itinerary.length > 0 && (
         <div>
           <h3>🗓️ Your Itinerary</h3>
@@ -86,8 +82,8 @@ function ChatGPTDemo() {
             </div>
           ))}
         </div>
-      )} */}
-
+      )}{" "}
+      */}
       {rawJson && (
         <div style={{ marginTop: "2rem" }}>
           <h3>📦 Raw JSON Response</h3>

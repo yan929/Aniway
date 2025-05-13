@@ -2,7 +2,7 @@
 import express from "express";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
-import { searchRelevantLocationsService } from "../controllers/LocationController.js"; // <-- Import the new service function
+import { searchRelevantLocationsService } from "../controllers/LocationController.js";
 
 dotenv.config();
 
@@ -405,7 +405,7 @@ async function convertMarkdownItineraryToJson(
       messages: [
         {
           role: "system",
-          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary and convert it STRICTLY into a JSON object matching the structure below. Generate a title based on the whole trip as the 'title' field in the JSON object.\n\n
+          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary and convert it STRICTLY into a JSON object matching the structure below. Generate a title based on the whole trip as the 'title' field in the JSON object, no more than 50 characters including spaces.\n\n
           **Date Handling Instructions:**\n
           1. The **required format** for the 'date' field is **'YYYY-MM-DD'**. \n
           2. Use the provided 'Start Date' (${
