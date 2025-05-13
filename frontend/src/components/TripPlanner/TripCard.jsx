@@ -72,11 +72,10 @@ const getTripStatusWithDayjs = (startDateStr, endDateStr) => {
 };
 
 const TripCard = ({ user, trip, onDelete, onClick }) => {
-  const { title, startDate, endDate, destination, plan } = trip;
+  const { title, startDate, endDate, destination } = trip;
 
   // --- Get Image ---
-  const coverImage =
-    plan?.[0]?.itinerary?.[0]?.image || "https://picsum.photos/300/200";
+  const coverImage = trip.image || "https://picsum.photos/300/200";
 
   // --- Calculate Trip Status using Day.js ---
   const tripStatusText = getTripStatusWithDayjs(startDate, endDate);
