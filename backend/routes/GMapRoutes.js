@@ -11,9 +11,9 @@ import {
 
 const router = express.Router();
 
-router.post("/", fetchPlaceInfo);
+router.post("/place_by_latlng", fetchPlaceInfo);
 // get place details by place_id
-router.get("/:placeId", getPlaceDetails); // Test Place ID： ChIJCewJkL2LGGAR3Qmk0vCTGkg
+router.get("/place_by_id/:placeId", getPlaceDetails); // Test Place ID： ChIJCewJkL2LGGAR3Qmk0vCTGkg
 router.get("/place_by_nearby", fetchPlaceNearby);
 router.post("/photo", fetchPlacePhoto);
 router.get("/photo", fetchPlacePhotoByPlaceId);

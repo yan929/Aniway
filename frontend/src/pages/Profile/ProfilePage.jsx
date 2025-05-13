@@ -4,10 +4,16 @@ import NavBar from "../../components/Layout/NavBar";
 import apiClient from "../../util/api";
 import { AppContext } from "../../context/AppContext.jsx";
 import TripCard from "../../components/TripPlanner/TripCard";
+import { FaPlus } from "react-icons/fa";
 
 const ProfilePage = () => {
-  const { user, isAuthenticated, isAuthLoading, loadCurrentTrip } =
-    useContext(AppContext);
+  const {
+    user,
+    isAuthenticated,
+    isAuthLoading,
+    loadCurrentTrip,
+    clearCurrentTrip,
+  } = useContext(AppContext);
   const [trips, setTrips] = useState([]);
   const [completedTrips, setCompletedTrips] = useState([]);
   // Local loading state for data fetching, distinct from auth loading
@@ -213,22 +219,12 @@ const ProfilePage = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
             <button
               className="w-full py-4 bg-gray-100 text-purple-600 rounded-md flex items-center justify-center hover:bg-purple-50"
-              onClick={() => navigate("/tripplanner")} // Should this be /create-trip or persist current trip context?
+              onClick={() => {
+                clearCurrentTrip();
+                navigate("/tripplanner");
+              }}
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                ></path>
-              </svg>
+              <FaPlus className="w-3 h-3 mr-2" />
               Build a trip with AI
             </button>
           </div>

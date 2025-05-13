@@ -40,7 +40,7 @@ function SearchInput({
         <input
           type="text"
           placeholder="Search..."
-          value={inputValue}
+          value={inputValue ?? ""}
           onChange={(e) => {
             handleChange(e.target.value);
             selectedIndexChange(-1);

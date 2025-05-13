@@ -6,7 +6,7 @@ export async function fetchPlaceDetails(placeId) {
   }
 
   try {
-    const res = await apiClient.get(`/api/gmap/${placeId}`);
+    const res = await apiClient.get(`/api/gmap/place_by_id/${placeId}`);
     return res.data;
   } catch (err) {
     console.error(`❌ fetchPlaceDetails failed for ${placeId}:`, err.message);

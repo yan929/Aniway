@@ -9,7 +9,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showInfoWindow, setShowInfoWindow] = useState(true);
-  
+
   // Create a ref for the modal content
   const modalContentRef = useRef(null);
 
@@ -47,7 +47,10 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
   // Handle click on the overlay background to close the popup
   const handleBackgroundClick = (e) => {
     // Only close if the click is on the background, not on the modal content
-    if (modalContentRef.current && !modalContentRef.current.contains(e.target)) {
+    if (
+      modalContentRef.current &&
+      !modalContentRef.current.contains(e.target)
+    ) {
       onClose();
     }
   };
@@ -61,7 +64,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
         setError(null);
 
         // Get place details from Google Maps
-        const response = await apiClient.post("/api/gmap/", {
+        const response = await apiClient.post("/api/gmap/place_by_latlng", {
           lat: location.lat,
           lng: location.lng,
         });
@@ -98,7 +101,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
       onClick={handleBackgroundClick}
     >
       {/* Add ref to the modal content and prevent click propagation */}
-      <div 
+      <div
         ref={modalContentRef}
         className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl"
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
@@ -190,19 +193,25 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
 
             {/* Add to itinerary checkbox */}
             {onToggleInItinerary && (
-              <div 
+              <div
                 className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-md hover:bg-gray-50"
                 onClick={() => onToggleInItinerary(location)}
               >
-                <div className={`w-5 h-5 border rounded flex items-center justify-center ${
-                  isAdded 
-                    ? 'border-green-500 bg-green-50' 
-                    : 'border-gray-300 bg-white'
-                }`}>
+                <div
+                  className={`w-5 h-5 border rounded flex items-center justify-center ${
+                    isAdded
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
                   {isAdded && <FaCheck size={12} className="text-green-500" />}
                 </div>
-                <span className={`font-medium ${isAdded ? 'text-green-600' : 'text-gray-700'}`}>
-                  {isAdded ? 'Added to Itinerary' : 'Add to Itinerary'}
+                <span
+                  className={`font-medium ${
+                    isAdded ? "text-green-600" : "text-gray-700"
+                  }`}
+                >
+                  {isAdded ? "Added to Itinerary" : "Add to Itinerary"}
                 </span>
               </div>
             )}

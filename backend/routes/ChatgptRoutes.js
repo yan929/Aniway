@@ -214,9 +214,9 @@ router.post("/augment-itinerary", async (req, res) => {
       const contextString = retrievedPlaces
         .map(
           (p) =>
-            `${p.name || "Unknown Place Name"} (Address: ${
-              p.addresses?.[0] || "Unknown Address"
-            })` // Use p.name from enhanced places
+            `${p.addresses[0] || "Unknown Address"} (lat: ${p.lat}, lng: ${
+              p.lng
+            })`
         )
         .join("; ");
 
