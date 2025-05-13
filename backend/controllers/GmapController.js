@@ -14,37 +14,28 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
 
   let nearbyRes = await axios.get(nearbyUrl);
   let nearbyData = nearbyRes.data;
+  let operationalResults =
+    nearbyData.results?.filter(
+      (result) => result.business_status === "OPERATIONAL"
+    ) || [];
 
-  // If initial search (with or without keyword) yields no results, try a tighter radius without keyword
-  if (!nearbyData.results || nearbyData.results.length === 0) {
+  // Fallback if no operational results (not just if results is empty)
+  if (!operationalResults.length) {
     console.log(
-      "[Service] Initial nearby search failed or returned no results. Trying fallback (no keyword, radius 10m)."
+      "[Service] No operational results with keyword, trying without keyword."
     );
-    nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=10&key=${process.env.GOOGLE_API_KEY}`;
-    // console.log("[Service] nearbyUrl (fallback):", nearbyUrl);
+    nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
     nearbyRes = await axios.get(nearbyUrl);
     nearbyData = nearbyRes.data;
-
-    if (!nearbyData.results || nearbyData.results.length === 0) {
-      // Throw an error or return a specific indicator if no places are found even with fallback
-      const error = new Error(
-        "No nearby places found even with fallback search."
-      );
+    operationalResults =
+      nearbyData.results?.filter(
+        (result) => result.business_status === "OPERATIONAL"
+      ) || [];
+    if (!operationalResults.length) {
+      const error = new Error("No operational nearby places found.");
       error.statusCode = 404;
       throw error;
     }
-  }
-
-  const operationalResults = nearbyData.results.filter((result) => {
-    return result.business_status === "OPERATIONAL";
-  });
-
-  if (operationalResults.length === 0) {
-    // If no *operational* places, but there were results, this might be different from a 404 "no places found at all"
-    const error = new Error("No operational nearby places found.");
-    // You might use a different status code or error type to distinguish this case if needed
-    error.statusCode = 404; // Or perhaps a custom code
-    throw error;
   }
 
   const firstResult = operationalResults[0];

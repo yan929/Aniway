@@ -1,32 +1,37 @@
 import { useEffect, useState } from "react";
-import { fetchPlacePhoto } from "../hooks/fetchPlacePhoto";
+import apiClient from "../util/api";
 
 export default function usePlacePhoto(photoReference = "") {
-  const [photoURL, setPlacePhoto] = useState(null);
+  const [photoURL, setPhotoURL] = useState(null);
 
   useEffect(() => {
-    let newPhotoURL = null;
-    const fetchPhoto = async () => {
-      try {
-        const url = await fetchPlacePhoto(photoReference);
-        let newPhotoURL = url;
-        setPlacePhoto(newPhotoURL);
-      } catch (err) {
-        console.error("Failed to fetch place photo:", err);
-        setPlacePhoto(null);
-      }
-    };
+    if (!photoReference) return;
 
-    if (photoReference.length > 0) {
-      fetchPhoto();
+    const cacheKey = `placePhoto_${photoReference}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      console.log("usePlacePhoto: Using cached photo:", cached);
+      setPhotoURL(cached);
+      return;
     }
 
-    // Clean up the object URL when the component unmounts or photoReference changes to avoid memory leaks
-    return () => {
-      if (newPhotoURL) {
-        URL.revokeObjectURL(newPhotoURL);
+    // Fetch from backend
+    const fetchPhoto = async () => {
+      try {
+        const res = await apiClient.get(`/api/gmap/photo_by_reference`, {
+          params: { photo_reference: photoReference },
+          responseType: "blob",
+        });
+        const url = URL.createObjectURL(res.data);
+        setPhotoURL(url);
+        localStorage.setItem(cacheKey, url);
+        console.log("usePlacePhoto: Fetched and cached photo:", url);
+      } catch {
+        // handle error silently
       }
     };
+
+    fetchPhoto();
   }, [photoReference]);
 
   return photoURL;

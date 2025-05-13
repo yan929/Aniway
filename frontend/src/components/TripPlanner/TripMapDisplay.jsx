@@ -1,13 +1,13 @@
-import { useContext } from "react";
+import { useMemo, useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import GMAPLocation from "../GMap/GMAPLocation";
 import useMapLocationsLoader from "../../hooks/useMapLocationsLoader.js";
 
 const TripMapDisplay = () => {
   const { currentTrip } = useContext(AppContext);
-  const { mapLocations, isLoading, displayMessage } = useMapLocationsLoader(
-    currentTrip ? currentTrip.content : []
-  );
+  const tripContent = useMemo(() => currentTrip?.content || [], [currentTrip]);
+  const { mapLocations, isLoading, displayMessage } =
+    useMapLocationsLoader(tripContent);
 
   if (isLoading) {
     return (

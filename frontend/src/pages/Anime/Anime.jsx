@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
