@@ -2,6 +2,7 @@ import PlaceDetails from "../services/GMapPlaceIdService.js";
 
 // 处理Place Details请求
 const getPlaceDetails = async (req, res) => {
+  console.log("getPlaceDetails req.params", req.params);
   try {
     const { placeId } = req.params;
 
@@ -16,7 +17,6 @@ const getPlaceDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 const fetchPlacePhotoByPlaceId = async (req, res) => {
   const { photo_reference } = req.query;

@@ -19,9 +19,7 @@ function usePlaceDetails(itinerary) {
           console.log("usePlaceDetails: Using cached details");
         } else {
           try {
-            const res = await apiClient.get(`/api/gmap/place_details`, {
-              params: { placeId: item.gpPlaceId },
-            });
+            const res = await apiClient.get(`/api/gmap/${item.gpPlaceId}`);
             details = res.data;
             localStorage.setItem(cacheKey, JSON.stringify(details));
           } catch {
