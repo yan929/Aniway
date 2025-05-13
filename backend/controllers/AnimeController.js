@@ -68,13 +68,7 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
   if (!animeData) {
     res.status(404);
     throw new Error("Anime not found");
-  }
-  const animeDataTest = await Anime.findById(anime_id).lean();
-  if (!animeData) {
-    res.status(404);
-    throw new Error("Anime not found");
-  }
-
+  } 
   
   const animeInfo = {
     id: animeData._id,
@@ -84,7 +78,7 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
     description: animeData.overview || animeData.summary,
     director: animeData.director,
     site: animeData.site,
-    copyrights: animeData.info.Copyright ||[],
+    copyrights: animeData.info?.Copyright ||[],
   };
   res.json(animeInfo);
 });
