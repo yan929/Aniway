@@ -42,7 +42,7 @@ export default function TripPlanner() {
   const scrollToDay = (date) => {
     const ref = daySectionRefs.current[date];
     if (ref) {
-      ref.scrollIntoView({ behavior: "smooth", block: "start" });
+      ref.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
       console.warn(`Ref for date ${date} not found.`);
     }
