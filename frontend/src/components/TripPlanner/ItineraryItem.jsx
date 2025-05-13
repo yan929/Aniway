@@ -41,7 +41,7 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete, date }) =>
   return (
     <div
       ref={ref}
-      className={`flex p-4 items-center gap-2 group  ${isDragging ? "opacity-50" : ""
+      className={`flex p-1 items-center gap-2 group  ${isDragging ? "opacity-50" : ""
         }`}
       style={{ cursor: "move" }}
     >
