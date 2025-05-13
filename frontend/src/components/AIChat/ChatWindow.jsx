@@ -284,7 +284,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
   };
 
   return (
-    <div className="bg-white rounded-r-lg shadow-xl w-full h-full flex flex-col">
+    <div className="bg-white rounded-r-lg  w-full h-full flex flex-col">
       <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50 rounded-tr-lg shrink-0">
         <button
           onClick={onClose}

@@ -167,7 +167,7 @@ export default function TripPlanner() {
           ${isChatOpen ? "pointer-events-auto" : "pointer-events-none"} 
         `}
       >
-        <div className="w-full h-full bg-white shadow-xl">
+        <div className="w-full h-full bg-white">
           <ChatWindow
             onClose={toggleChatWindow}
             onApplySuggestion={handleApplySuggestion}
