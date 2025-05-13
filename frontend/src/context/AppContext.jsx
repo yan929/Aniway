@@ -29,6 +29,7 @@ const AppContext = React.createContext({
   tripTitle: "",
   tripLocation: null,
   setTripDetails: () => {},
+  clearCurrentTrip: () => {},
 });
 
 function AppContextProvider({ children }) {
@@ -628,6 +629,12 @@ function AppContextProvider({ children }) {
     console.log("AppContext: User update with new name.");
   }, []);
 
+  // Function to clear current trip from both state and localStorage
+  const clearCurrentTrip = useCallback(() => {
+    setCurrentTrip(null);
+    localStorage.removeItem("currentTrip");
+  }, []);
+
   const context = {
     currentTrip,
     loadCurrentTrip,
@@ -650,6 +657,7 @@ function AppContextProvider({ children }) {
     setTripDetails,
     isAuthenticated,
     isAuthLoading,
+    clearCurrentTrip,
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
