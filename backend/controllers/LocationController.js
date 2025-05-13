@@ -198,7 +198,7 @@ export const searchRelevantLocationsService = async (extractedInfo) => {
       .select(
         "name country city anime_names anime_cn_names anime_en_names images addresses lat lng" // Added name
       )
-      .limit(10); // Keep the limit for now, can be parameterized later
+      .limit(20); // Keep the limit for now, can be parameterized later
 
     places = locations.map((loc) => ({
       id: loc._id,

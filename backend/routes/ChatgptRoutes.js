@@ -196,7 +196,25 @@ router.post("/augment-itinerary", async (req, res) => {
         "\n- For each day, include sections for 'Morning:', 'Afternoon:', and 'Evening:'. Use ONLY bold Markdown for these section titles (e.g., `**Morning:**`). DO NOT use heading syntax (`###`)." +
         "\n- Within each time section, use bullet points (-) for specific activities/locations. **Crucially, start each activity line with a suggested realistic start time in HH:MM format**, followed by the activity name and description, formatted like this: `- **HH:MM - Activity/Location Name:** Brief Description.`" +
         "\n- **CRITICAL:** When mentioning a specific place or attraction within the 'Brief Description' part (i.e., AFTER the colon ':'), and you are using a name from the [Context Places], format it like this: `***Place Name***` (bold and italics). If it's a generic place not from the context, use normal text." +
-        "\n- **IMPORTANT:** Do NOT use italics for the main '**HH:MM - Activity/Location Name:**' part before the colon. Use bold (`**...**`) only where specified (Time, Activity/Location Name, and Time sections).",
+        "\n- **IMPORTANT:** Do NOT use italics for the main '**HH:MM - Activity/Location Name:**' part before the colon. Use bold (`**...**`) only where specified (Time, Activity/Location Name, and Time sections)." +
+        "\n\n**Date Handling Instructions:**" +
+        "\n- The **required format** for the 'date' field is **'YYYY-MM-DD'**. \n" +
+        "\n- Use the provided 'Start Date' (" +
+        extractedInfo.startDate +
+        ") as the date for the first day (the object with index: 1).\n" +
+        "\n- The same place (same lat and lng) can only appear ONCE in the itinerary.\n" +
+        "\n- For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n" +
+        "\n- The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n" +
+        "**Location Handling Instructions:**\n" +
+        "- Use the provided 'Retrieved Places' list as the SOLE source for 'lat' and 'lng'.\n" +
+        "- Carefully extract the 'Activity/Location Name' from each Markdown itinerary item. This is the text that appears after the 'HH:MM - ' and before the terminating colon ':'.\n" +
+        "- Perform an **EXACT, CASE-INSENSITIVE match** for this extracted 'Activity/Location Name' against the 'name' field in each entry of the 'Retrieved Places' list.\n" +
+        "- If such an exact, case-insensitive match is found, use its 'lat', 'lng', and 'city' values for the JSON object.\n" +
+        "- **Crucially: If NO exact, case-insensitive match is found** for the extracted 'Activity/Location Name' within the 'Retrieved Places' list, or if the matched place from 'Retrieved Places' does not have 'lat' and 'lng' values, then you **MUST OMIT** that entire activity object from the 'itinerary' array for the current day. Do not attempt to find a 'closest match' or 'similar match'. Only exact, case-insensitive matches are permitted.\n" +
+        "- If a match is made and coordinates are used, for that itinerary object, fill the 'city' field using the 'city' property from the matched place in the 'Retrieved Places' list. If no city is available from the matched place, set 'city' to null.\n" +
+        "**Time Handling Instructions:**\n" +
+        "- Each Markdown activity line starts with a time in **HH:MM** format (e.g., '- **09:30 - Activity:** ...').\n" +
+        "- Extract this **HH:MM** time and place it into the **'arrivalTime'** field in the JSON object for that activity. Ensure it's a string.\n\n",
     };
 
     // Map incoming chat history
@@ -411,14 +429,16 @@ async function convertMarkdownItineraryToJson(
           2. Use the provided 'Start Date' (${
             extractedInfo.startDate
           }) as the date for the first day (the object with index: 1).\n
-          3. For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n
-          4. The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n
+          3. The same place (same lat and lng) can only appear ONCE in the itinerary.\n
+          4. For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n
+          5. The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n
           **Location Handling Instructions:**\n
           - Use the provided 'Retrieved Places' list as the SOLE source for 'lat' and 'lng'.\n
-          - Match place names from the Markdown EXACTLY (case-insensitive acceptable, look for the name part after the time and hyphen, 
-            e.g., in '- **09:00 - Place Name:** ...', match 'Place Name') with 'name' in 'Retrieved Places'. Use the corresponding 'lat'/'lng'.\n
-          - If a place from Markdown isn't found in 'Retrieved Places' or lacks 'lat'/'lng', OMIT that activity object from the 'itinerary' array.\n
-          - For each itinerary object, fill the 'city' field using the 'city' property from the matched place in the Retrieved Places list. If no city is available, set 'city' to null.\n
+          - Carefully extract the 'Activity/Location Name' from each Markdown itinerary item. This is the text that appears after the 'HH:MM - ' and before the terminating colon ':'.\n
+          - Perform an **EXACT, CASE-INSENSITIVE match** for this extracted 'Activity/Location Name' against the 'name' field in each entry of the 'Retrieved Places' list.\n
+          - If such an exact, case-insensitive match is found, use its 'lat', 'lng', and 'city' values for the JSON object.\n
+          - **Crucially: If NO exact, case-insensitive match is found** for the extracted 'Activity/Location Name' within the 'Retrieved Places' list, or if the matched place from 'Retrieved Places' does not have 'lat' and 'lng' values, then you **MUST OMIT** that entire activity object from the 'itinerary' array for the current day. Do not attempt to find a 'closest match' or 'similar match'. Only exact, case-insensitive matches are permitted.\n
+          - If a match is made and coordinates are used, for that itinerary object, fill the 'city' field using the 'city' property from the matched place in the 'Retrieved Places' list. If no city is available from the matched place, set 'city' to null.\n
           **Time Handling Instructions:**\n
           - Each Markdown activity line starts with a time in **HH:MM** format (e.g., '- **09:30 - Activity:** ...').\n
           - Extract this **HH:MM** time and place it into the **'arrivalTime'** field in the JSON object for that activity. Ensure it's a string.\n\n
@@ -460,7 +480,31 @@ async function convertMarkdownItineraryToJson(
     try {
       const parsedJson = JSON.parse(cleanedJsonString); // Parse the cleaned string
       if (parsedJson.content && Array.isArray(parsedJson.content)) {
-        console.log("Successfully converted Markdown to JSON structure.");
+        // Filter out duplicate lat/lng pairs across all days
+        const seenCoords = new Set();
+        for (const day of parsedJson.content) {
+          if (Array.isArray(day.itinerary)) {
+            day.itinerary = day.itinerary.filter((activity) => {
+              if (
+                typeof activity.lat === "number" &&
+                typeof activity.lng === "number"
+              ) {
+                const key = `${activity.lat},${activity.lng}`;
+                if (seenCoords.has(key)) {
+                  return false;
+                } else {
+                  seenCoords.add(key);
+                  return true;
+                }
+              }
+              // If no lat/lng, keep the activity (or you can choose to filter it out)
+              return true;
+            });
+          }
+        }
+        console.log(
+          "Successfully converted Markdown to JSON structure (duplicates filtered)."
+        );
         return parsedJson;
       } else {
         console.error(
