@@ -19,6 +19,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
 
   const messagesEndRef = useRef(null);
   const currentStreamIdRef = useRef(null); // Ref to track the ID of the message being streamed into
+  const isInitialMount = useRef(true); // Add this ref
 
   const { user } = useContext(AppContext);
 
@@ -27,9 +28,12 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
   };
 
   useEffect(() => {
-    // Scroll whenever history changes, especially during streaming
-    scrollToBottom();
-  }, [chatHistory]);
+    // Scroll only when new messages are added, not on initial render
+    // Check if chatHistory has more than the initial AI message
+    if (chatHistory.length > 1) { // Modify the condition here
+      scrollToBottom();
+    }
+  }, [chatHistory]); // <--- Keep chatHistory as dependency
 
   // --- Function to handle the stream from the backend ---
   const processStream = async (userMessageText) => {
@@ -306,21 +310,18 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
           return (
             <Fragment key={msg.id}>
               <div
-                className={`flex ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
-                  className={`flex items-start max-w-[80%] ${
-                    msg.sender === "user" ? "flex-row-reverse" : "flex-row"
-                  }`}
+                  className={`flex items-start max-w-[80%] ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"
+                    }`}
                 >
                   <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white ${
-                      msg.sender === "user"
-                        ? "bg-blue-500 ml-2"
-                        : "bg-orange-500 mr-2"
-                    }`}
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white ${msg.sender === "user"
+                      ? "bg-blue-500 ml-2"
+                      : "bg-orange-500 mr-2"
+                      }`}
                   >
                     {msg.sender === "user" ? (
                       user && user.avatar ? (
@@ -337,11 +338,10 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                     )}
                   </div>
                   <div
-                    className={`px-4 py-2 rounded-lg inline-block text-left text-sm whitespace-pre-wrap prose prose-sm max-w-none ${
-                      msg.sender === "user"
-                        ? "bg-blue-100 text-gray-800 rounded-br-none"
-                        : "bg-white text-gray-800 rounded-bl-none"
-                    }`}
+                    className={`px-4 py-2 rounded-lg inline-block text-left text-sm whitespace-pre-wrap prose prose-sm max-w-none ${msg.sender === "user"
+                      ? "bg-blue-100 text-gray-800 rounded-br-none"
+                      : "bg-white text-gray-800 rounded-bl-none"
+                      }`}
                   >
                     <div className="chat-message-content">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -383,11 +383,10 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || isStreaming}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 shadow-sm flex items-center justify-center shrink-0 ${
-              !message.trim() || isStreaming
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 shadow-sm flex items-center justify-center shrink-0 ${!message.trim() || isStreaming
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+              }`}
             aria-label="Send message"
           >
             <LuSendHorizontal size={18} />
