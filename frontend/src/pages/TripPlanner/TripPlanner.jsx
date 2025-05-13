@@ -162,19 +162,16 @@ export default function TripPlanner() {
   };
 
   return (
-    <div className="flex flex-1 overflow-hidden relative">
+    <div className="flex h-full w-full overflow-hidden">
       <Sidebar onToggleChat={toggleChatWindow} onScrollToDay={scrollToDay} />
-      <main className="flex-1 overflow-y-auto bg-gray-100">
+      <main className="flex-1 overflow-y-auto bg-gray-100 min-h-0">
         {" "}
-        {/* Added padding for ItinerarySection */}
         <TripHeader />
         <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
-      <div className="w-3/7 bg-gray-200 overflow-y-auto">
+      <div className="w-3/7 bg-gray-200 h-full shrink-0">
         {" "}
-        {/* Added a container for the map */}
         <TripMapDisplay />
-        {/* Replaced commented out MapPanel with TripMapDisplay */}
       </div>
 
       {/* Chat window with slide-in animation */}

@@ -1,10 +1,6 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import {
-  IoSparklesOutline,
-  IoCalendarOutline,
-  IoCaretDownOutline,
-} from "react-icons/io5";
+import { IoSparklesOutline, IoCalendarOutline, IoCaretDownOutline } from "react-icons/io5";
 import { FaSave } from "react-icons/fa";
 
 export default function Sidebar({ onToggleChat, onScrollToDay }) {
@@ -32,8 +28,8 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
     : [];
 
   return (
-    <aside className="bg-slate-700 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0">
-      <nav className="flex flex-col gap-2">
+    <aside className="bg-slate-700 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0 h-full">
+      <nav className="flex flex-col gap-2 shrink-0">
         <button
           onClick={onToggleChat}
           className="flex items-center justify-center gap-2  text-left py-1 px-3 h-12 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
@@ -51,7 +47,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
           <span>Itinerary</span>
         </div>
       </nav>
-      <div className="flex flex-col gap-1 text-gray-300 overflow-y-auto w-full">
+      <div className="flex-grow flex flex-col gap-1 text-gray-300 overflow-y-auto w-full min-h-0">
         {daysData.length > 0 ? (
           daysData.map((dayData, index) => (
             <div
@@ -71,7 +67,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
       </div>
       <button
         onClick={handleSave}
-        className="flex mt-auto items-center justify-center gap-2 text-left py-2 px-3 rounded bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors"
+        className="flex mt-auto items-center justify-center gap-2 text-left py-2 px-3 rounded bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors shrink-0"
       >
         <FaSave size={16} />
         Save Trip
