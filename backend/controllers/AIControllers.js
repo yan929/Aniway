@@ -31,7 +31,7 @@ const analyzeUserInput = async (req, res) => {
   try {
     // Step 1: Initial AI call to extract locations and themes from the user's prompt
     const initialChatResponse = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -61,14 +61,35 @@ const analyzeUserInput = async (req, res) => {
     console.log("Parsed JSON from initial AI:", initialAIResponse);
 
     const locations = initialAIResponse.locations?.map((l) => l.location) || [];
-    const themes = initialAIResponse.themes?.map((t) => t.theme) || [];
+    const potentialTitles = initialAIResponse.potential_titles?.map((t) => t.title) || [];
+    const otherThemes = initialAIResponse.other_themes?.map((t) => t.theme) || [];
 
     console.log("Extracted Locations:", locations);
-    console.log("Extracted Themes:", themes);
+    console.log("Extracted Potential Titles:", potentialTitles);
+    console.log("Extracted Other Themes:", otherThemes);
 
-    // Step 2: Search for raw location data based on extracted locations/themes
+    // Process potential titles into individual keywords
+    let keywordsFromTitles = [];
+    potentialTitles.forEach(title => {
+      if (typeof title === 'string') { // Basic check
+        // Split title into words, convert to lowercase, filter empty strings
+        const words = title.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+        keywordsFromTitles.push(...words);
+      }
+    });
+    // Combine with other themes if necessary, ensure uniqueness and lowercase
+    const combinedKeywords = [
+      ...new Set([
+        ...keywordsFromTitles,
+        ...otherThemes.map(theme => typeof theme === 'string' ? theme.toLowerCase() : '').filter(theme => theme.length > 0)
+      ])
+    ];
+
+    console.log("Keywords for DB Search:", combinedKeywords);
+
+    // Step 2: Search for raw location data based on extracted locations and processed keywords
     // This data will be the 'newlyAddedLocation' for the replanning step
-    const rawLocations = await searchRawLocationDataByLocateAnime(locations, themes);
+    const rawLocations = await searchRawLocationDataByLocateAnime(locations, combinedKeywords);
     console.log("Raw Locations from DB search:", rawLocations);
     res.json(rawLocations); // Send the whole array
     console.log("✅ Successfully sent location suggestions to client.");
@@ -92,28 +113,35 @@ function buildUserQueryPrompt(prompt, startDate, endDate) {
 
 Your task:
 - Carefully extract any locations (e.g., cities, places, landmarks).
-- Carefully extract any themes (e.g., general topics like nature, culture, anime).
-- Special note: If the user mentions an anime, manga, or anime movie title (e.g., "Your Name", "Attack on Titan"), treat it as a **theme**.
+- Identify any specific anime, manga, or movie titles mentioned (e.g., "Your Name", "Attack on Titan", "Haruhi Suzumiya", "Suzumiya Haruhi"). List the exact titles found.
+- Extract any *other* general themes (e.g., nature, culture) if mentioned separately from titles.
 
 Strict output:
 You must strictly return the result in the following JSON format:
 
 {
   "locations": [
-    { "index": 1, "location": "..." },
-    { "index": 2, "location": "..." }
+    { "index": 1, "location": "..." }
+    // ... more locations
   ],
-  "themes": [
-    { "index": 1, "theme": "..." },
-    { "index": 2, "theme": "..." }
+  "potential_titles": [
+    { "index": 1, "title": "..." } 
+    // ... more titles found
+  ],
+  "other_themes": [
+     { "index": 1, "theme": "..." }
+     // ... more general themes
   ],
   "startDate": "${startDate}",
   "endDate": "${endDate}"
 }
 
 Important rules:
+- If no locations are found, return an empty "locations" array: []
+- If no titles are found, return an empty "potential_titles" array: []
+- If no other themes are found, return an empty "other_themes" array: []
 - You must include "startDate" and "endDate" exactly as provided above.
-- Do not invent new locations or themes.
+- Do not invent new locations, titles, or themes.
 - Only extract what is mentioned or implied.
 - Output only the JSON and nothing else.
 - Do not explain anything outside of the JSON.
