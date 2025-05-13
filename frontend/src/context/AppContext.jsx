@@ -219,7 +219,7 @@ function AppContextProvider({ children }) {
     }
 
     console.log(" ---> Save currentTrip", currentTrip);
-    const { _id, title, content, image } = currentTrip;
+    const { id, title, content, image } = currentTrip;
     // Add userId to the payload, using user.id as per the logged object structure
     const payload = {
       title,
@@ -228,7 +228,7 @@ function AppContextProvider({ children }) {
       userId: user.id,
     };
 
-    if (!_id) {
+    if (!id) {
       console.log("AppContext: Creating new trip with payload:", payload);
       try {
         const response = await apiClient.post("/api/tplan", payload, {
@@ -253,11 +253,11 @@ function AppContextProvider({ children }) {
       }
     } else {
       console.log(
-        `AppContext: Updating existing trip ${_id} with payload:`,
+        `AppContext: Updating existing trip ${id} with payload:`,
         payload
       );
       try {
-        const response = await apiClient.patch(`/api/tplan/${_id}`, payload, {
+        const response = await apiClient.patch(`/api/tplan/${id}`, payload, {
           withCredentials: true,
         });
         setCurrentTrip((prevTrip) => ({ ...prevTrip, ...response.data }));
@@ -265,7 +265,7 @@ function AppContextProvider({ children }) {
         alert("Trip updated successfully!");
       } catch (error) {
         console.error(
-          `AppContext: Error updating trip ${_id}:`,
+          `AppContext: Error updating trip ${id}:`,
           error.response ? error.response.data : error.message
         );
         alert(
@@ -409,8 +409,18 @@ function AppContextProvider({ children }) {
   }
 
   // Function to handle moving an item from one day to another atomically
-  function moveItemAcrossDays(sourceDayDate, targetDayDate, itemToMove, targetDayCurrentItinerary) {
-    console.log(`Moving item across days:`, { sourceDayDate, targetDayDate, itemToMove, targetDayCurrentItinerary });
+  function moveItemAcrossDays(
+    sourceDayDate,
+    targetDayDate,
+    itemToMove,
+    targetDayCurrentItinerary
+  ) {
+    console.log(`Moving item across days:`, {
+      sourceDayDate,
+      targetDayDate,
+      itemToMove,
+      targetDayCurrentItinerary,
+    });
 
     if (!currentTrip || !currentTrip.content) {
       console.error("moveItemAcrossDays: currentTrip or content is missing.");
@@ -425,10 +435,12 @@ function AppContextProvider({ children }) {
             (item) => item.gpPlaceId !== itemToMove.gpPlaceId
           );
           // Re-calculate order for the remaining items in the source day
-          const reorderedSourceItinerary = filteredItinerary.map((item, index) => ({
-            ...item,
-            order: index,
-          }));
+          const reorderedSourceItinerary = filteredItinerary.map(
+            (item, index) => ({
+              ...item,
+              order: index,
+            })
+          );
           return { ...day, itinerary: reorderedSourceItinerary };
         }
 
@@ -443,15 +455,19 @@ function AppContextProvider({ children }) {
           if (!itemExists) {
             newTargetItinerary = [...targetDayCurrentItinerary, itemToMove];
           } else {
-            console.warn(`[moveItemAcrossDays] Item ${itemToMove.gpPlaceId} already exists in target day ${targetDayDate} itinerary (rapid hover?), using current target itinerary.`);
+            console.warn(
+              `[moveItemAcrossDays] Item ${itemToMove.gpPlaceId} already exists in target day ${targetDayDate} itinerary (rapid hover?), using current target itinerary.`
+            );
             newTargetItinerary = [...targetDayCurrentItinerary]; // Use the potentially already updated list
           }
 
           // Re-calculate order for all items in the target day
-          const reorderedTargetItinerary = newTargetItinerary.map((item, index) => ({
-            ...item,
-            order: index,
-          }));
+          const reorderedTargetItinerary = newTargetItinerary.map(
+            (item, index) => ({
+              ...item,
+              order: index,
+            })
+          );
           return { ...day, itinerary: reorderedTargetItinerary };
         }
 
@@ -465,13 +481,19 @@ function AppContextProvider({ children }) {
       replaceEntireTrip({ ...currentTrip, content: newContent });
 
       // Update selectedDay state if necessary (simplified logic)
-      const updatedTargetDay = newContent.find(d => d.date === targetDayDate);
-      if (selectedDay && updatedTargetDay && selectedDay.date === targetDayDate) {
-        console.log("Updating selectedDay to reflect moved item in target day:", updatedTargetDay);
+      const updatedTargetDay = newContent.find((d) => d.date === targetDayDate);
+      if (
+        selectedDay &&
+        updatedTargetDay &&
+        selectedDay.date === targetDayDate
+      ) {
+        console.log(
+          "Updating selectedDay to reflect moved item in target day:",
+          updatedTargetDay
+        );
         setSelectedDay(updatedTargetDay);
       }
       // No need to explicitly update selectedDay for source, as it will reflect the removal automatically
-
     } catch (error) {
       console.error("Error in moveItemAcrossDays:", error);
     }
