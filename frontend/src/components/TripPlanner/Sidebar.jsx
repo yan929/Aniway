@@ -28,7 +28,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
     : [];
 
   return (
-    <aside className="bg-gray-800 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0">
+    <aside className="bg-slate-700 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0">
       <nav className="flex flex-col gap-2">
         <button
           onClick={onToggleChat}
