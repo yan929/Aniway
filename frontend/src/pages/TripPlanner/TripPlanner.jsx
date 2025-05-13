@@ -63,10 +63,13 @@ export default function TripPlanner() {
                 return null; // Return null to be filtered out later
               }
               try {
-                const response = await apiClient.post(`/api/gmap/`, {
-                  lat: item.lat,
-                  lng: item.lng,
-                });
+                const response = await apiClient.post(
+                  `/api/gmap/place_by_latlng`,
+                  {
+                    lat: item.lat,
+                    lng: item.lng,
+                  }
+                );
                 const placeData = response.data; // Renamed for clarity
 
                 if (

@@ -12,28 +12,38 @@ import { useDrop } from "react-dnd";
 
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
-  const { currentTrip, updateItinerary, deleteTripItem, selectDay, moveItemAcrossDays } =
-    useContext(AppContext);
+  const {
+    currentTrip,
+    updateItinerary,
+    deleteTripItem,
+    selectDay,
+    moveItemAcrossDays,
+  } = useContext(AppContext);
   const [tripItems, setTripItems] = useState(day.itinerary);
   const [isOpen, setIsOpen] = useState(false);
 
   const [, drop] = useDrop({
     accept: "ITINERARY_ITEM",
     hover(draggedItem, monitor) {
-      console.log(`[TripDayPlan ${day.date}] Hovering with item from: ${draggedItem.fromDate}. Item:`, draggedItem.itemData);
       if (!monitor.isOver({ shallow: true })) {
         // console.log(`[TripDayPlan ${day.date}] Monitor not over shallowly.`);
         return;
       }
       console.log(`[TripDayPlan ${day.date}] Monitor IS over shallowly.`);
 
-
       if (draggedItem.fromDate !== day.date) {
-        console.log(`[TripDayPlan ${day.date}] Cross-day drag detected. From: ${draggedItem.fromDate}, To: ${day.date}`);
+        console.log(
+          `[TripDayPlan ${day.date}] Cross-day drag detected. From: ${draggedItem.fromDate}, To: ${day.date}`
+        );
         const itemToMove = { ...draggedItem.itemData }; // The item being dragged
 
         // Call the new atomic function from AppContext
-        moveItemAcrossDays(draggedItem.fromDate, day.date, itemToMove, tripItems);
+        moveItemAcrossDays(
+          draggedItem.fromDate,
+          day.date,
+          itemToMove,
+          tripItems
+        );
 
         // Update the dragged item's source date marker *after* the move is processed
         // This prevents issues if the hover triggers again immediately before the state updates
@@ -57,18 +67,22 @@ export default function TripDayPlan({ day, index }) {
     if (JSON.stringify(day.itinerary) !== JSON.stringify(tripItems)) {
       setTripItems(day.itinerary);
     }
-  }, [day.itinerary]); // Removed tripItems from dependency array to avoid loop with local state update
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day.itinerary]);
 
   // Function to handle drag-and-drop reordering of itinerary items WITHIN the same day
   const moveItem = (from, to) => {
     if (from === to) return;
-    console.log(`[TripDayPlan ${day.date}] moveItem (intra-day) from ${from} to ${to}`);
+
     const updatedItems = [...tripItems];
     const [moved] = updatedItems.splice(from, 1);
     updatedItems.splice(to, 0, moved);
 
     // Re-assign order for all items in this day
-    const correctlyOrderedItems = updatedItems.map((item, idx) => ({ ...item, order: idx }));
+    const correctlyOrderedItems = updatedItems.map((item, idx) => ({
+      ...item,
+      order: idx,
+    }));
 
     setTripItems(correctlyOrderedItems); // Update local state for immediate UI feedback
     updateItinerary(day.date, correctlyOrderedItems); // Persist the reordered items
@@ -132,7 +146,10 @@ export default function TripDayPlan({ day, index }) {
         {tripItems && tripItems.length > 0 ? (
           tripItems.map((item, itemIndex) => {
             if (!item || !item.gpPlaceId) {
-              console.warn("[TripDayPlan] Rendering item: Item or gpPlaceId is missing", item);
+              console.warn(
+                "[TripDayPlan] Rendering item: Item or gpPlaceId is missing",
+                item
+              );
               return null;
             }
             const detail = placeDetailsMap[item.gpPlaceId];
