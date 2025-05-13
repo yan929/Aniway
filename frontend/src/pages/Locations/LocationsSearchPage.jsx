@@ -127,13 +127,13 @@ function LocationsSearchPage() {
           params: { q: searchQuery },
         });
 
-       const searchData = response.data;
-        
+        const searchData = response.data;
+
         const combinedLocations = [
-          ...(searchData.searchAnime || []),
           ...(searchData.searchLocations || []),
+          ...(searchData.searchAnime || []),
         ];
-        
+
         setLocations(combinedLocations || []);
         setLoading(false);
       } catch (err) {

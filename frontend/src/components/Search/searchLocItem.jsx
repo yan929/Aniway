@@ -55,7 +55,8 @@ function SearchLocItem({
 
 <div className="relative width-16 h-16 rounded-md overflow-hidden">
   <img
-    src={result.image}
+    src={result.images?.[0] ||
+  (result.image && result.image ? result.image : "/frontend/default-image.jpg")}
     alt={result.name}
     className="w-full h-full object-cover"
   />

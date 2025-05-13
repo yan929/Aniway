@@ -26,15 +26,20 @@ function LocSearchBar({ setSelectedLocation }) {
         params: { q: keyword },
       });
       const searchData = searchResponse.data;
+      console.log("Search anime :", searchData.searchAnime);
+      console.log("Search anime location:", searchData.searchAnimeLocations);
+      console.log("Search location:", searchData.searchLocations);
+      
+      
 
-      const encodedName = encodeURIComponent(keyword);
-      const aniLocResponse = await apiClient.get(`/api/anime/locations/${encodedName}`)
-      console.log("Test response:", aniLocResponse);  
-      const aniLocData = aniLocResponse.data;
+    //   const encodedName = encodeURIComponent(keyword);
+    //   const aniLocResponse = await apiClient.get(`/api/anime/locations/${encodedName}`)
+    //   console.log("Test response:", aniLocResponse);  
+    //   const aniLocData = aniLocResponse.data;
 
       const combinedLocations = [
       ...(searchData.searchLocations || []),
-      ...(aniLocData|| []),
+      ...(searchData.searchAnimeLocations|| []),
     ];
 
      
