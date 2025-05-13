@@ -1,57 +1,58 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import { IoSparklesOutline } from "react-icons/io5";
+import { IoSparklesOutline, IoCalendarOutline,IoCaretDownOutline } from "react-icons/io5";
 import { FaSave } from "react-icons/fa";
 
 export default function Sidebar({ onToggleChat, onScrollToDay }) {
   const { currentTrip, saveCurrentTripToDb, selectDay } =
     useContext(AppContext);
 
-  const handleSave = () => {
+  const handleSave = React.useCallback(() => {
     if (!currentTrip) {
       alert("No trip data to save.");
       return;
     }
     saveCurrentTripToDb();
-  };
+  }, [currentTrip, saveCurrentTripToDb]);
 
   const daysData = Array.isArray(currentTrip?.content)
     ? currentTrip.content.map((day) => {
-        const dateObj = new Date(day.date);
-        const dayLabel = dateObj.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "numeric",
-          day: "numeric",
-        });
-        return { date: day.date, label: dayLabel };
-      })
+      const dateObj = new Date(day.date);
+      const dayLabel = dateObj.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "numeric",
+        day: "numeric",
+      });
+      return { date: day.date, label: dayLabel };
+    })
     : [];
 
   return (
-    <aside className="bg-gray-800 text-white w-48 p-4 flex flex-col gap-6 flex-shrink-0">
+    <aside className="bg-slate-700 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0">
       <nav className="flex flex-col gap-2">
         <button
           onClick={onToggleChat}
-          className="flex items-center justify-center gap-2 text-left py-1 px-3 h-12 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
+          className="flex items-center justify-center gap-2  text-left py-1 px-3 h-12 rounded bg-orange-500 hover:bg-orange-400 text-black font-semibold transition-colors"
           style={{ fontSize: "14px" }}
         >
           <IoSparklesOutline size={18} />
           Smart Assistant
         </button>
-        <button className="text-left py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
-          ➤ Overview
-        </button>
+        <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
+          <IoCaretDownOutline size={18}/> Overview
+        </div>
 
-        <button className="text-left py-2 px-3 rounded font-semibold">
-          🗺️ Itinerary
-        </button>
+        <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded font-semibold">
+          <IoCalendarOutline size={18} />
+          <span>Itinerary</span>
+        </div>
       </nav>
-      <div className="flex flex-col gap-1 text-center text-gray-300 overflow-y-auto">
+      <div className="flex flex-col gap-1 text-gray-300 overflow-y-auto w-full">
         {daysData.length > 0 ? (
           daysData.map((dayData, index) => (
             <div
               key={dayData.date || index}
-              className="hover:text-white cursor-pointer p-1 rounded hover:bg-gray-700"
+              className="flex items-center text-left hover:text-white cursor-pointer py-2.5 px-4 rounded hover:bg-gray-700 w-full font-semibold"
               onClick={() => {
                 selectDay(dayData.date);
                 onScrollToDay(dayData.date);

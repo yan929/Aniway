@@ -139,8 +139,8 @@ export default function TripHeader() {
   };
 
   return (
-    <div className="bg-green-700 px-6 py-4 shadow-md w-full">
-      <div className="bg-white rounded-lg px-6 py-4 max-w-3xl mx-auto">
+    <div className="bg-slate-800 px-4 py-3 shadow-md w-full">
+      <div className="bg-white rounded-xl px-6 py-4 max-w-3xl mx-auto">
         {/* Top Row: Title and Save Button */}
         <div className="flex items-center w-full mb-2">
           {/* Trip Title Section (Left) */}

@@ -177,6 +177,9 @@ export default function TripDayPlan({ day, index }) {
           dayIndex={index}
         />
       </div>
+      {index < currentTrip?.content.length - 1 && ( // Only add separator if it's not the last day
+        <div className="my-6 border-t text-center border-gray-300 w-full mx-auto"></div>
+      )}
     </>
   );
 }

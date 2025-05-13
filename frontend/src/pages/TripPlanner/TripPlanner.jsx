@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
 import ItinerarySection from "../../components/TripPlanner/ItinerarySection.jsx";
@@ -13,6 +13,22 @@ export default function TripPlanner() {
   const { currentTrip, tripLocation, replaceEntireTrip } =
     useContext(AppContext);
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
+
+  // Effect to add/remove class from body based on route
+  useEffect(() => {
+    const rootElement = document.body; // Target body for class manipulation
+    if (location.pathname === '/tripplanner') {
+      rootElement.classList.add('root-fullscreen');
+    } else {
+      rootElement.classList.remove('root-fullscreen');
+    }
+    // Cleanup function to remove the class if the component unmounts
+    // or if the path changes away from /tripplanner before unmount
+    return () => {
+      rootElement.classList.remove('root-fullscreen');
+    };
+  }, [location.pathname]); // Re-run effect if location.pathname changes
 
   // Ref to store the refs of each day section from ItinerarySection
   const daySectionRefs = useRef({});
@@ -128,10 +144,10 @@ export default function TripPlanner() {
           "https://placehold.co/300x200?text=No+Image",
         destination:
           updatedContent.length > 0 &&
-          updatedContent[updatedContent.length - 1].itinerary.length > 0
+            updatedContent[updatedContent.length - 1].itinerary.length > 0
             ? updatedContent[updatedContent.length - 1].itinerary[
-                updatedContent[updatedContent.length - 1].itinerary.length - 1
-              ].city || undefined
+              updatedContent[updatedContent.length - 1].itinerary.length - 1
+            ].city || undefined
             : undefined,
       };
       console.log(
@@ -154,7 +170,7 @@ export default function TripPlanner() {
         <TripHeader />
         <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
-      <div className="w-1/3 bg-gray-200 overflow-y-auto">
+      <div className="w-3/7 bg-gray-200 overflow-y-auto">
         {" "}
         {/* Added a container for the map */}
         <TripMapDisplay />
@@ -170,7 +186,7 @@ export default function TripPlanner() {
           ${isChatOpen ? "pointer-events-auto" : "pointer-events-none"} 
         `}
       >
-        <div className="w-full h-full bg-white shadow-xl">
+        <div className="w-full h-full bg-white">
           <ChatWindow
             onClose={toggleChatWindow}
             onApplySuggestion={handleApplySuggestion}
