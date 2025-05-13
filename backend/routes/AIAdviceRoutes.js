@@ -4,7 +4,6 @@ import { analyzeUserInput } from "../controllers/AIControllers.js";
 
 const router = express.Router();
 
-
 router.post("/advice", analyzeUserInput);
 
 export default router;

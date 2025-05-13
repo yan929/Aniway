@@ -15,7 +15,7 @@ import apiClient from "../../util/api";
 function HomePage() {
   const [aniData, setAniData] = useState([]);
   const [locData, setLocData] = useState([]);
-  const [selectedDates, setSelectedDates] = useState(null);// Initialize as null instead of default date range
+  const [selectedDates, setSelectedDates] = useState(null); // Initialize as null instead of default date range
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPopupLocation, setSelectedPopupLocation] = useState(null);
 
@@ -47,10 +47,16 @@ function HomePage() {
   // Handle search submission and transfer data to TripPlanner
   const handleSearch = () => {
     // Check if both location and a COMPLETE date range (start AND end) are selected
-    if (selectedLocation && selectedDates && selectedDates.startDate && selectedDates.endDate) {
+    if (
+      selectedLocation &&
+      selectedDates &&
+      selectedDates.startDate &&
+      selectedDates.endDate
+    ) {
       // Generate trip title based on selected location
-      const tripTitle = `Trip to ${selectedLocation.name || selectedLocation.description || "Destination"
-        }`;
+      const tripTitle = `Trip to ${
+        selectedLocation.name || selectedLocation.description || "Destination"
+      }`;
 
       // Transfer data to AppContext for use in TripPlanner
       setTripDetails(selectedLocation, tripTitle, selectedDates);
@@ -59,7 +65,9 @@ function HomePage() {
       navigate("/tripplanner");
     } else {
       // Prompt user to select destination and dates
-      alert("Please select a destination and a complete travel date range (start and end date).");
+      alert(
+        "Please select a destination and a complete travel date range (start and end date)."
+      );
     }
   };
 

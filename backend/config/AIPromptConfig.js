@@ -1,36 +1,53 @@
 // Helper function to build the prompt for replanning a single day\'s itinerary
-export function buildReplanDayItineraryPrompt(newlyAddedLocation, existingDayItinerary, originalUserRequest) {
-    const date = existingDayItinerary.date; // The specific date to replan
+export function buildReplanDayItineraryPrompt(
+  newlyAddedLocation,
+  existingDayItinerary,
+  originalUserRequest
+) {
+  const date = existingDayItinerary.date; // The specific date to replan
 
-    // Format existing itinerary items for the prompt to give context to the AI
-    let existingItineraryString = "No existing itinerary items were planned for this day.";
-    if (existingDayItinerary.itinerary && existingDayItinerary.itinerary.length > 0) {
-        existingItineraryString = "Previously planned items for this day. If you choose to include any of these, you MUST ensure you can provide all required details (name, lat, lng, and a non-empty addresses array with actual address strings). If an existing item lacks these details in the input, and you cannot confidently find them (e.g., using its Google Place ID if available), then that item MUST BE OMITTED from the new plan. Available details for existing items are:\\\\n";
-        existingItineraryString += existingDayItinerary.itinerary.map((item, index) => {
-            let placeInfo = `  - Item ${index + 1}:`;
-            if (item.name) placeInfo += ` Name: \\"${item.name}\\".`;
-            else placeInfo += ` Name: Not specified.`;
-            if (item.lat !== undefined && item.lng !== undefined) placeInfo += ` Lat/Lng: ${item.lat}, ${item.lng}.`;
-            else placeInfo += ` Lat/Lng: Not specified.`;
-            if (item.addresses && item.addresses.length > 0 && item.addresses[0]) placeInfo += ` Address: \\"${item.addresses[0]}\\".`;
-            else placeInfo += ` Address: Not specified.`;
-            if (item.gpPlaceId) placeInfo += ` Google Place ID: ${item.gpPlaceId}.`;
-            else placeInfo += ` Google Place ID: Not specified.`;
-            if (item.note) placeInfo += ` Original note: \\"${item.note}\\".`;
-            if (item.arrivalTime) placeInfo += ` Original arrival time: ${item.arrivalTime}.`;
-            return placeInfo;
-        }).join("\\\\n");
-    }
+  // Format existing itinerary items for the prompt to give context to the AI
+  let existingItineraryString =
+    "No existing itinerary items were planned for this day.";
+  if (
+    existingDayItinerary.itinerary &&
+    existingDayItinerary.itinerary.length > 0
+  ) {
+    existingItineraryString =
+      "Previously planned items for this day. If you choose to include any of these, you MUST ensure you can provide all required details (name, lat, lng, and a non-empty addresses array with actual address strings). If an existing item lacks these details in the input, and you cannot confidently find them (e.g., using its Google Place ID if available), then that item MUST BE OMITTED from the new plan. Available details for existing items are:\\\\n";
+    existingItineraryString += existingDayItinerary.itinerary
+      .map((item, index) => {
+        let placeInfo = `  - Item ${index + 1}:`;
+        if (item.name) placeInfo += ` Name: \\"${item.name}\\".`;
+        else placeInfo += ` Name: Not specified.`;
+        if (item.lat !== undefined && item.lng !== undefined)
+          placeInfo += ` Lat/Lng: ${item.lat}, ${item.lng}.`;
+        else placeInfo += ` Lat/Lng: Not specified.`;
+        if (item.addresses && item.addresses.length > 0 && item.addresses[0])
+          placeInfo += ` Address: \\"${item.addresses[0]}\\".`;
+        else placeInfo += ` Address: Not specified.`;
+        if (item.gpPlaceId) placeInfo += ` Google Place ID: ${item.gpPlaceId}.`;
+        else placeInfo += ` Google Place ID: Not specified.`;
+        if (item.note) placeInfo += ` Original note: \\"${item.note}\\".`;
+        if (item.arrivalTime)
+          placeInfo += ` Original arrival time: ${item.arrivalTime}.`;
+        return placeInfo;
+      })
+      .join("\\\\n");
+  }
 
-    // Format the newly added location details for the prompt
-    // Ensure newlyAddedLocation and its properties are defined before accessing them
-    const newLocationName = newlyAddedLocation?.name || "The new location";
-    const newLocationLat = newlyAddedLocation?.lat || "Not specified";
-    const newLocationLng = newlyAddedLocation?.lng || "Not specified";
-    const newLocationAddress = newlyAddedLocation?.addresses && newlyAddedLocation.addresses.length > 0 ? newlyAddedLocation.addresses[0] : "Not specified";
-    const newLocationAnimeName = newlyAddedLocation?.animeName || "Not specified";
+  // Format the newly added location details for the prompt
+  // Ensure newlyAddedLocation and its properties are defined before accessing them
+  const newLocationName = newlyAddedLocation?.name || "The new location";
+  const newLocationLat = newlyAddedLocation?.lat || "Not specified";
+  const newLocationLng = newlyAddedLocation?.lng || "Not specified";
+  const newLocationAddress =
+    newlyAddedLocation?.addresses && newlyAddedLocation.addresses.length > 0
+      ? newlyAddedLocation.addresses[0]
+      : "Not specified";
+  const newLocationAnimeName = newlyAddedLocation?.animeName || "Not specified";
 
-    const newLocationString = `
+  const newLocationString = `
 A "Newly Added Location" that MUST be included in the new plan for ${date}:
 - Name: ${newLocationName}
 - Latitude: ${newLocationLat}
@@ -39,7 +56,7 @@ A "Newly Added Location" that MUST be included in the new plan for ${date}:
 - Potentially related to Anime: ${newLocationAnimeName}
 `;
 
-    return `You are an expert travel itinerary planner. Your task is to create a revised and optimized one-day travel plan for the date: ${date}.
+  return `You are an expert travel itinerary planner. Your task is to create a revised and optimized one-day travel plan for the date: ${date}.
 
 Please consider all the following information:
 1.  The User\\\'s Original Overall Travel Request: \\"${originalUserRequest}\\" (This is the **PRIMARY SOURCE** for determining the required anime theme, specific locations mentioned by the user, and the overall time range for the itinerary. Adhere to it strictly.)
@@ -64,7 +81,9 @@ Key requirements for the new itinerary:
 You MUST strictly output your response as a single, valid JSON object. Do NOT include any text, explanations, or markdown formatting outside of this JSON object. The JSON structure must be exactly as follows:
 {
   "date": \\"${date}\\",
-  "index": ${existingDayItinerary.index !== undefined ? existingDayItinerary.index : 0},
+  "index": ${
+    existingDayItinerary.index !== undefined ? existingDayItinerary.index : 0
+  },
   "itinerary": [
     {
       "gpPlaceId": "GOOGLE_PLACE_ID_IF_YOU_CAN_DETERMINE_IT_ELSE_NULL",
@@ -82,7 +101,9 @@ You MUST strictly output your response as a single, valid JSON object. Do NOT in
 
 Important rules for the JSON output:
 - The "date" field in the output must be exactly \\"${date}\\".
-- The "index" field should be ${existingDayItinerary.index !== undefined ? existingDayItinerary.index : 0}.
+- The "index" field should be ${
+    existingDayItinerary.index !== undefined ? existingDayItinerary.index : 0
+  }.
 - For each item in the "itinerary" array:
     - "gpPlaceId": Provide the Google Place ID if known or if you can confidently determine it. If not, use null. This field is secondary; "lat", "lng", "addresses" are mandatory and primary.
     - "name": Provide a clear, specific, verifiable name. **For the \\'Newly Added Location\\', use its provided name: \\"${newLocationName}\\".**

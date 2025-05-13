@@ -8,7 +8,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import dayjs from "dayjs";
-import DatePicker from "../../components/DatePicker/DatePicker"; // Import DatePicker
+import DatePicker from "../../components/DatePicker/DatePicker";
 
 export default function TripHeader() {
   const { currentTrip, updateCurrentTripTitle, updateTrip } =
