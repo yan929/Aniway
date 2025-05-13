@@ -42,7 +42,7 @@ export default function TripPlanner() {
   const scrollToDay = (date) => {
     const ref = daySectionRefs.current[date];
     if (ref) {
-      ref.scrollIntoView({ behavior: "smooth", block: "start" });
+      ref.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
       console.warn(`Ref for date ${date} not found.`);
     }
@@ -178,21 +178,23 @@ export default function TripPlanner() {
       </div>
 
       {/* Chat window with slide-in animation */}
-      <div
-        className={`
-          absolute inset-0 z-50 
-          transition-transform duration-300 ease-in-out
-          transform ${isChatOpen ? "translate-x-0" : "-translate-x-full"}
-          ${isChatOpen ? "pointer-events-auto" : "pointer-events-none"} 
-        `}
-      >
-        <div className="w-full h-full bg-white">
-          <ChatWindow
-            onClose={toggleChatWindow}
-            onApplySuggestion={handleApplySuggestion}
-          />
+      {isChatOpen && (
+        <div
+          className={`
+            absolute inset-0 z-50
+            transition-transform duration-300 ease-in-out
+            transform ${isChatOpen ? "translate-x-0" : "-translate-x-full"}
+            ${isChatOpen ? "pointer-events-auto" : "pointer-events-none"}
+          `}
+        >
+          <div className="w-full h-full bg-white">
+            <ChatWindow
+              onClose={toggleChatWindow}
+              onApplySuggestion={handleApplySuggestion}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
