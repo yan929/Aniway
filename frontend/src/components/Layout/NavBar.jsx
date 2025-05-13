@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import apiClient from "../../util/api.js";
 import { AppContext } from "../../context/AppContext.jsx";
 import UserDropdown from "../NavBar/UserDropdown.jsx";
+import ThemeToggleButton from "../ThemeToggleButton/ThemeToggleButton.jsx";
+
 /**
  * NavBar component - Fixed navigation bar for the Aniway application
  * Displays the logo, application name, and user profile navigation
@@ -61,7 +63,7 @@ function NavBar() {
     user && user.name ? user.name.charAt(0).toUpperCase() : "A";
 
   return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-14">
+    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-14 dark:text-gray-100  dark:bg-gray-900">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <img
@@ -69,7 +71,7 @@ function NavBar() {
             alt="Aniway Logo"
             className="w-10 h-10 rounded-full object-contain mr-2"
           />
-          <span className="text-gray-600 font-medium">Aniway</span>
+          <span className="text-gray-600 font-medium dark:text-gray-100  dark:bg-gray-900">Aniway</span>
         </Link>
 
         <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
@@ -99,7 +101,9 @@ function NavBar() {
                 Sign In
               </span>
             )}
+          
           </div>
+          <ThemeToggleButton/>
           {user && (
             <UserDropdown
               user={user}

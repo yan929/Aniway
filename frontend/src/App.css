@@ -1,18 +1,9 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  /* Default padding for other pages */
+  padding: 0;
   text-align: center;
   height: 100%;
-}
-
-/* Class for fullscreen #root element */
-.root-fullscreen #root,
-body.root-fullscreen #root {
-  /* Added body.root-fullscreen for robustness */
-  padding: 0;
-  max-width: none;
 }
 
 /* Add custom scrollbar styles for elements with overflow-y-auto */
@@ -38,4 +29,10 @@ body.root-fullscreen #root {
   /* "auto" or "thin" */
   scrollbar-color: rgba(159, 169, 183, 0.5) transparent;
   /* thumb and track color */
+}
+
+/* Night Mode when .dark class is on <html> */
+html.dark body {
+  background-color: #121212; /* Dark background */
+  color: white; /* Light text */
 }

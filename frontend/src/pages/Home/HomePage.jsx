@@ -95,17 +95,17 @@ function HomePage() {
 
   return (
     // Container with responsive padding for better mobile experience
-    <div className="container mx-auto px-4 pt-16 md:pt-24 lg:pt-32 pb-8 flex-grow">
+    <div className="container mx-auto px-4 pt-16 md:pt-24 lg:pt-32 pb-8 flex-grow dark:text-gray-100  dark:bg-gray-900">
       {/* Hero Section with Search - Optimized spacing for mobile */}
       <div className="text-center mb-8 md:mb-12 lg:mb-16">
         {/* Responsive heading sizes */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 md:mb-6">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 md:mb-6 dark:text-gray-100  dark:bg-gray-900">
           Aniway — The Anime Traveler's Way
         </h1>
         {/* Responsive paragraph with optimized spacing */}
-        <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 lg:mb-12 max-w-3xl mx-auto">
+        <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 lg:mb-12 max-w-3xl mx-auto dark:text-gray-100  dark:bg-gray-900">
           From screen to scenes, find the anime in your advanture.
-          <br className="hidden md:block" />
+          <br className="hidden md:block dark:text-gray-100  dark:bg-gray-900" />
           Find your scene, live your dream !
         </p>
 
