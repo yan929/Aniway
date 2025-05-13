@@ -49,8 +49,8 @@ function DisplayDetailAniInfo({ aniData }) {
                   {aniData["site"]}
                 </a>
               </p>
-              <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
-                {/* {aniData["Copyrights"]} */}
+              <p className="text-sm leading-relaxed text-gray-800">
+              Copyright: {aniData["copyrights"]}
               </p>
             </div>
           </div>
