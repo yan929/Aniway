@@ -4,7 +4,7 @@ import usePlacePhoto from "../../hooks/usePlacePhoto.js";
 import { useDrag, useDrop } from "react-dnd";
 import { VscTrash } from "react-icons/vsc";
 
-const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete }) => {
+const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete, date }) => {
   const photoURL = usePlacePhoto(detail?.photos?.[0]?.photo_reference);
   const ref = useRef(null);
 
@@ -20,7 +20,11 @@ const ItineraryItem = ({ item, detail, itemIndex, moveItem, onDelete }) => {
 
   const [{ isDragging }, drag] = useDrag({
     type: "ITINERARY_ITEM",
-    item: { index: itemIndex },
+    item: {
+      index: itemIndex,
+      itemData: item,
+      fromDate: date,
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),

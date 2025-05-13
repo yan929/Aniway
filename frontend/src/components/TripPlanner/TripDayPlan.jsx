@@ -8,37 +8,72 @@ import { useContext } from "react";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng.js";
 import ItineraryItem from "./ItineraryItem.jsx";
 import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
+import { useDrop } from "react-dnd";
 
 export default function TripDayPlan({ day, index }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
-  const { currentTrip, updateItinerary, deleteTripItem, selectDay } =
+  const { currentTrip, updateItinerary, deleteTripItem, selectDay, moveItemAcrossDays } =
     useContext(AppContext);
   const [tripItems, setTripItems] = useState(day.itinerary);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [, drop] = useDrop({
+    accept: "ITINERARY_ITEM",
+    hover(draggedItem, monitor) {
+      console.log(`[TripDayPlan ${day.date}] Hovering with item from: ${draggedItem.fromDate}. Item:`, draggedItem.itemData);
+      if (!monitor.isOver({ shallow: true })) {
+        // console.log(`[TripDayPlan ${day.date}] Monitor not over shallowly.`);
+        return;
+      }
+      console.log(`[TripDayPlan ${day.date}] Monitor IS over shallowly.`);
+
+
+      if (draggedItem.fromDate !== day.date) {
+        console.log(`[TripDayPlan ${day.date}] Cross-day drag detected. From: ${draggedItem.fromDate}, To: ${day.date}`);
+        const itemToMove = { ...draggedItem.itemData }; // The item being dragged
+
+        // Call the new atomic function from AppContext
+        moveItemAcrossDays(draggedItem.fromDate, day.date, itemToMove, tripItems);
+
+        // Update the dragged item's source date marker *after* the move is processed
+        // This prevents issues if the hover triggers again immediately before the state updates
+        draggedItem.fromDate = day.date;
+      } else {
+        // console.log(`[TripDayPlan ${day.date}] Same-day hover (should be handled by ItineraryItem's drop).`);
+      }
+    },
+  });
 
   // When this component mounts, set this day as the selected day in context
   useEffect(() => {
     selectDay(day);
   }, [day, selectDay]);
 
-  // Update local state when day itinerary changes
+  // Update local state when day itinerary changes from context (e.g., after a drop)
   useEffect(() => {
-    setTripItems(day.itinerary);
-  }, [day.itinerary]);
+    // Check if the incoming day.itinerary is different from local tripItems
+    // This prevents potential infinite loops if setTripItems itself triggers a context update
+    // that then re-triggers this effect.
+    if (JSON.stringify(day.itinerary) !== JSON.stringify(tripItems)) {
+      setTripItems(day.itinerary);
+    }
+  }, [day.itinerary]); // Removed tripItems from dependency array to avoid loop with local state update
 
-  // Function to handle drag-and-drop reordering of itinerary items
+  // Function to handle drag-and-drop reordering of itinerary items WITHIN the same day
   const moveItem = (from, to) => {
     if (from === to) return;
-    const updatedItems = [...tripItems]; // Use a new name to avoid confusion with component state 'tripItems'
+    console.log(`[TripDayPlan ${day.date}] moveItem (intra-day) from ${from} to ${to}`);
+    const updatedItems = [...tripItems];
     const [moved] = updatedItems.splice(from, 1);
     updatedItems.splice(to, 0, moved);
-    setTripItems(updatedItems); // Update local state for immediate UI feedback
 
-    // Update global state via AppContext
-    updateItinerary(day.date, updatedItems); // Persist the reordered items
+    // Re-assign order for all items in this day
+    const correctlyOrderedItems = updatedItems.map((item, idx) => ({ ...item, order: idx }));
+
+    setTripItems(correctlyOrderedItems); // Update local state for immediate UI feedback
+    updateItinerary(day.date, correctlyOrderedItems); // Persist the reordered items
   };
 
-  // Function to add a new location to the day's itinerary
   const handleAddLocationToDay = async (loc) => {
     try {
       const newPlaceData = await fetchPlaceByLatLng(
@@ -47,8 +82,6 @@ export default function TripDayPlan({ day, index }) {
         loc.lng
       );
 
-      // Find the current day's data from currentTrip to get the most up-to-date itinerary
-      // This is important if other operations might have modified it in context
       const currentDayData =
         currentTrip && currentTrip.content
           ? currentTrip.content.find((d) => d.date === day.date)
@@ -56,24 +89,22 @@ export default function TripDayPlan({ day, index }) {
       const currentItinerary = currentDayData ? currentDayData.itinerary : [];
 
       const newItem = {
-        // date: day.date, // date is part of the day object, not needed in item for new model
         gpPlaceId: newPlaceData.place_id,
-        order: currentItinerary.length, // Order based on the current length of items for the day
-        // arrivalTime and note can be added here if defaults are desired or they come from newPlaceData
-        arrivalTime: "12:00", // Example default
-        note: "", // Example default
+        order: currentItinerary.length,
+        arrivalTime: "12:00",
+        note: "",
       };
 
       const newItemsArray = [...currentItinerary, newItem];
-      updateItinerary(day.date, newItemsArray); // Call with day.date and the new full array of items
+      updateItinerary(day.date, newItemsArray);
     } catch (error) {
       console.error("Error adding location to day:", error);
     }
   };
 
-  // Function to delete an itinerary item
-  const handleDelete = (item) => {
-    deleteTripItem(day, item);
+  const handleDelete = (itemToDelete) => {
+    console.log(`[TripDayPlan ${day.date}] handleDelete item:`, itemToDelete);
+    deleteTripItem(day, itemToDelete); // Pass the full day object and item object
   };
 
   return (
@@ -93,23 +124,37 @@ export default function TripDayPlan({ day, index }) {
           day={day}
         />
       </div>
-      <div className="flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800">
-        {tripItems.map((item, itemIndex) => {
-          const detail = placeDetailsMap[item.gpPlaceId];
-          return (
-            <ItineraryItem
-              key={itemIndex}
-              item={item}
-              detail={detail}
-              itemIndex={itemIndex}
-              moveItem={moveItem}
-              onDelete={handleDelete}
-            />
-          );
-        })}
+      <div
+        ref={drop} // Apply the drop connector here
+        className={`flex flex-col gap-2 mt-4 text-[1.375rem] font-semibold text-gray-800 
+                    min-h-[100px] border-2 border-transparent hover:border-dashed hover:border-blue-400 rounded-md p-2`}
+      >
+        {tripItems && tripItems.length > 0 ? (
+          tripItems.map((item, itemIndex) => {
+            if (!item || !item.gpPlaceId) {
+              console.warn("[TripDayPlan] Rendering item: Item or gpPlaceId is missing", item);
+              return null;
+            }
+            const detail = placeDetailsMap[item.gpPlaceId];
+            return (
+              <ItineraryItem
+                key={`${item.gpPlaceId}-${itemIndex}`}
+                date={day.date}
+                item={item}
+                detail={detail}
+                itemIndex={itemIndex}
+                moveItem={moveItem}
+                onDelete={() => handleDelete(item)} // Ensure correct item is passed to handleDelete
+              />
+            );
+          })
+        ) : (
+          <div className="text-sm text-gray-500 text-center py-4">
+            Drag and drop locations here or add them using the search below.
+          </div>
+        )}
       </div>
       <div className="mt-6 max-w-4xl">
-        {/* Pass the current day index to SearchBar */}
         <LocSearchBar
           setSelectedLocation={handleAddLocationToDay}
           dayIndex={index}
