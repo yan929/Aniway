@@ -8,12 +8,16 @@ const MainLayout = () => {
   const showFooter = location.pathname !== "/tripplanner";
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
       <NavBar />
-      {/* The same height as the NavBar */}
-      <div className="flex-col flex-shrink-0 h-14" />
-      <Outlet />
-      {showFooter && <Footer />}
+      {/* This main area will hold the Outlet. Its height should be viewport height minus NavBar height. */}
+      <main
+        className="flex-1 overflow-hidden"
+        style={{ paddingTop: '3.5rem', height: 'calc(100vh - 3.5rem)' }}
+      >
+        <Outlet />
+      </main>
+      {showFooter && <Footer className="shrink-0" />}
     </div>
   );
 };
