@@ -69,9 +69,6 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Anime not found");
   }
-
-  console.log("Test animeData:", animeData);
-
   const animeInfo = {
     id: animeData._id,
     name: animeData.name_en || animeData.name || animeData.name_cn,
@@ -87,8 +84,6 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
 
 const getAnimeIdByName = asyncHandler(async (req, res) => {
   const { anime_name } = req.params;
-
-console.log("Test anime_name:", anime_name);
 
   if (!anime_name) {
     res.status(400);
@@ -106,8 +101,6 @@ console.log("Test anime_name:", anime_name);
     throw new Error("Anime not found");
   }
 
-  console.log("Test animeData:", animeData);
-
   res.json({ id: animeData._id });
 });
 
@@ -122,16 +115,11 @@ const getAnimeLocation = async (req, res) => {
   });
 
   if (!anime || anime.length === 0) {
-    console.log("Test anime:", anime);
     return res.status(404).json({ message: "Anime not found" });
   }
 
   const locationData = anime[0].locations;
-  // console.log("Test locationData:", locationData);
-
   if (locationData.length === 0) {
-    console.log("Test locations:", anime.locations);
-
     return res
       .status(404)
       .json({ message: "No locations found for this anime" });
@@ -144,7 +132,6 @@ const getAnimeLocation = async (req, res) => {
       })
         .select("_id anitabi_names  anime_cn_names anime_en_names")
         .lean();
-      console.log("Test relatedAnime:", relatedAnime);
 
       return {
         id: location.id,
@@ -159,8 +146,6 @@ const getAnimeLocation = async (req, res) => {
       };
     })
   );
-
-  // console.log("Test locationList:", locationList);
 
   if (locationList && locationList.length > 0) {
     return res.status(200).json(locationList);

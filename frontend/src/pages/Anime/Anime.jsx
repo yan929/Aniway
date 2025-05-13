@@ -13,8 +13,7 @@ function AniDetail() {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   const fetchAniInfo = async () => {
-    console.log("Fetching anime info for ID:", id);
-
+ 
     try {
       const response = await apiClient.get(`/api/anime/info/${id}`);
 
@@ -37,17 +36,12 @@ function AniDetail() {
       if (!response) {
         console.log("Test response:", response);
       }
-      const data = await response.data;
-
-      console.log("Test data:", data);
-      
+      const data = await response.data;  
 
       const locData = data.map((location) => ({
         ...location,
         animeName: animeData.name,
       }));
-
-      console.log("Test locData:", locData);
 
       setAnimeLocData(locData);
     } catch (error) {
