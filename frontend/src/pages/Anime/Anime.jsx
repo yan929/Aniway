@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
@@ -16,7 +16,7 @@ function AniDetail() {
     console.log("Fetching anime info for ID:", id);
 
     try {
-      const response = await apiClient.get(`/api/anime/${id}`);
+      const response = await apiClient.get(`/api/anime/info/${id}`);
 
       const data = await response.data;
 
@@ -38,6 +38,9 @@ function AniDetail() {
         console.log("Test response:", response);
       }
       const data = await response.data;
+
+      console.log("Test data:", data);
+      
 
       const locData = data.map((location) => ({
         ...location,
