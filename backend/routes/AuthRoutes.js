@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
 import axios from "axios";
+import User from "../models/User.js";
 
 const router = express.Router();
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -74,8 +75,8 @@ router.get("/api/logout", (req, res, next) => {
 });
 
 router.post("/api/user/delete", async (req, res) => {
-  console.log("Test cookies: ", req.session);
   console.log("Test req.isAuth: ", req.isAuthenticated());
+  console.log("Test req.user: ", req.user);
 
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -83,6 +84,8 @@ router.post("/api/user/delete", async (req, res) => {
 
   const user = req.user;
   const accessToken = user?.accessToken;
+
+  console.log("Test req.token: ", accessToken);
 
   if (!accessToken) {
     return res.status(400).json({ message: "Access token is missing" });
@@ -101,6 +104,8 @@ router.post("/api/user/delete", async (req, res) => {
         user.id || user.displayName
       }`
     );
+
+    await User.findOneAndDelete({ google_id: user.id });
 
     req.logout((err) => {
       if (err) {

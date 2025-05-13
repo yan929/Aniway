@@ -1,14 +1,26 @@
 import React, { useState, useContext } from "react";
 import apiClient from "../../util/api";
 import { AppContext } from "../../context/AppContext";
+import { FaMagic } from "react-icons/fa";
+import SuccessToast from "../Modal/SuccessMessageToast";
+import ErrorToast from "../Modal/ErrorMessageToast";
+
 function UserForm({ user }) {
   const [name, setName] = useState(user.name);
-
+  const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { updateUser } = useContext(AppContext);
 
   const handleSave = async () => {
     // Save the updated user information
     console.log("User information saved:", { name });
+
+    if (!name.trim()) {
+      setError("Username cannot be empty");
+      setShowError(true); 
+      return;
+    }
 
     try {
       const response = await apiClient.patch(
@@ -28,6 +40,9 @@ function UserForm({ user }) {
       console.log("User information saved successfully:", data.user);
 
       setName(data.user.name);
+      setShowSuccess(true);
+      setError("");
+      setShowError(false);
       updateUser(data.user);
     } catch (error) {
       console.log("Error: ", error);
@@ -81,12 +96,31 @@ function UserForm({ user }) {
 
         <div className="mt-4 flex justify-start">
           <button
-            className="bg-gray-800 text-white font-semibold px-5 py-2 rounded-full hover:bg-gray-900 mt-4"
+            type="submit"
+            className="flex items-center gap-2 px-6 py-2 
+    bg-gradient-to-r from-green-500 to-emerald-500 
+    text-white font-semibold rounded-full 
+    shadow-md hover:shadow-lg hover:scale-[1.03]
+    transition-all duration-300 ease-in-out 
+    focus:outline-none 
+  "
             onClick={handleSave}
           >
+            <FaMagic className="text-white" />
             Save
           </button>
         </div>
+
+        {showSuccess && (
+          <SuccessToast
+            message="Your username was updated."
+            onClose={() => setShowSuccess(false)}
+          />
+        )}
+
+        {showError && (
+          <ErrorToast message={error} onClose={() => setShowSuccess(false)} />
+        )}
       </div>
     </>
   );

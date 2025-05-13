@@ -28,10 +28,14 @@ function NavigatePlanButton({ animeName }) {
     <>
       <button
         onClick={handleNavigateTrip}
-        className="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-200 z-50 group"
+        className="fixed bottom-6 right-6 
+  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl 
+  text-white px-5 py-3 rounded-full shadow-xl 
+  transition-all duration-300 ease-in-out hover:scale-105 
+  focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 
+  z-50 group"
       >
         <span className="flex items-center gap-2 justify-center">
-
           <span className="relative w-5 h-5">
             <FaRegPaperPlane className="absolute inset-0 group-hover:opacity-0 transition-opacity duration-200" />
             {/* Hover */}
