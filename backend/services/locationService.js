@@ -161,19 +161,36 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
     }
   }
 
-  // --- Original logic for theme-based search (now uses activeKeywords) ---
+  // --- Logic for theme-based search using combined Regex ---
   // This part is reached only if hasTheme is true.
 
-  const themeRegexPattern = activeThemeKeywords.map(escapeRegexChars).join("|");
-  const themeRegex = new RegExp(themeRegexPattern, "i");
+  // Split keywords from the input array
+  const keywords = activeThemeKeywords; // Already filtered and trimmed
 
-  const animeQuery = {
-    $or: [
-      { name: themeRegex },
-      { name_en: themeRegex },
-      { name_cn: themeRegex },
-    ]
-  };
+  // Build an $and query with regex conditions for each keyword
+  const regexConditions = keywords.map(keyword => {
+    const escapedKeyword = escapeRegexChars(keyword); // Use your existing helper
+    const regex = new RegExp(escapedKeyword, "i"); // Case-insensitive regex for each keyword
+    // Each keyword must match in at least one of the name fields
+    return {
+      $or: [
+        { name: regex },
+        { name_en: regex },
+        { name_cn: regex }
+      ]
+    };
+  });
+
+  let animeQuery = {};
+  if (regexConditions.length > 0) {
+    animeQuery = { $and: regexConditions };
+  } else {
+    // Should not happen if hasTheme is true, but handle defensively
+    console.warn("[searchRawLocationDataByLocateAnime] No valid keywords for Regex search, returning empty.");
+    return [];
+  }
+
+  console.log(`[searchRawLocationDataByLocateAnime] Using complex Regex search for anime:`, JSON.stringify(animeQuery));
 
   const animes = await Anime.find(animeQuery)
     .select("_id name name_en name_cn locations") // Select fields needed for output and filtering
