@@ -374,10 +374,8 @@ function AppContextProvider({ children }) {
             ...day,
             itinerary: day.itinerary.filter(
               (item) =>
-                !(
-                  item.gpPlaceId === deleteItem.gpPlaceId &&
-                  item.order === deleteItem.order
-                )
+                // Keep items that DO NOT match the gpPlaceId
+                item.gpPlaceId !== deleteItem.gpPlaceId
             ),
           };
         }
@@ -407,6 +405,75 @@ function AppContextProvider({ children }) {
       }
     } catch (error) {
       console.error("Error in deleteTripItem:", error);
+    }
+  }
+
+  // Function to handle moving an item from one day to another atomically
+  function moveItemAcrossDays(sourceDayDate, targetDayDate, itemToMove, targetDayCurrentItinerary) {
+    console.log(`Moving item across days:`, { sourceDayDate, targetDayDate, itemToMove, targetDayCurrentItinerary });
+
+    if (!currentTrip || !currentTrip.content) {
+      console.error("moveItemAcrossDays: currentTrip or content is missing.");
+      return;
+    }
+
+    try {
+      const newContent = currentTrip.content.map((day) => {
+        // Process source day: filter out the moved item and re-order
+        if (day.date === sourceDayDate) {
+          const filteredItinerary = day.itinerary.filter(
+            (item) => item.gpPlaceId !== itemToMove.gpPlaceId
+          );
+          // Re-calculate order for the remaining items in the source day
+          const reorderedSourceItinerary = filteredItinerary.map((item, index) => ({
+            ...item,
+            order: index,
+          }));
+          return { ...day, itinerary: reorderedSourceItinerary };
+        }
+
+        // Process target day: add the moved item and re-order
+        if (day.date === targetDayDate) {
+          // Ensure we avoid duplicates if hover triggers multiple times rapidly before state updates
+          const itemExists = targetDayCurrentItinerary.some(
+            (item) => item.gpPlaceId === itemToMove.gpPlaceId
+          );
+
+          let newTargetItinerary;
+          if (!itemExists) {
+            newTargetItinerary = [...targetDayCurrentItinerary, itemToMove];
+          } else {
+            console.warn(`[moveItemAcrossDays] Item ${itemToMove.gpPlaceId} already exists in target day ${targetDayDate} itinerary (rapid hover?), using current target itinerary.`);
+            newTargetItinerary = [...targetDayCurrentItinerary]; // Use the potentially already updated list
+          }
+
+          // Re-calculate order for all items in the target day
+          const reorderedTargetItinerary = newTargetItinerary.map((item, index) => ({
+            ...item,
+            order: index,
+          }));
+          return { ...day, itinerary: reorderedTargetItinerary };
+        }
+
+        // Return other days unchanged
+        return day;
+      });
+
+      console.log("After move calculation - newContent:", newContent);
+
+      // Replace the entire trip content with the modified data in one go
+      replaceEntireTrip({ ...currentTrip, content: newContent });
+
+      // Update selectedDay state if necessary (simplified logic)
+      const updatedTargetDay = newContent.find(d => d.date === targetDayDate);
+      if (selectedDay && updatedTargetDay && selectedDay.date === targetDayDate) {
+        console.log("Updating selectedDay to reflect moved item in target day:", updatedTargetDay);
+        setSelectedDay(updatedTargetDay);
+      }
+      // No need to explicitly update selectedDay for source, as it will reflect the removal automatically
+
+    } catch (error) {
+      console.error("Error in moveItemAcrossDays:", error);
     }
   }
 
@@ -549,6 +616,7 @@ function AppContextProvider({ children }) {
     updateTrip,
     updateItinerary,
     deleteTripItem,
+    moveItemAcrossDays,
     selectedDay,
     selectDay,
     user,
