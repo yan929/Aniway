@@ -106,7 +106,6 @@ const getAnimeIdByName = asyncHandler(async (req, res) => {
 
 const getAnimeLocation = async (req, res) => {
   const animeName = req.params.anime_name;
-  console.log("Test animeName:", animeName);
 
   const regex = new RegExp(animeName, "i");
 

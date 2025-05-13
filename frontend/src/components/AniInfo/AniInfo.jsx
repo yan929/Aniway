@@ -1,8 +1,4 @@
-
-
 function DisplayDetailAniInfo({ aniData }) {
-
-
   return (
     <>
       {/* Top Section */}
@@ -24,12 +20,14 @@ function DisplayDetailAniInfo({ aniData }) {
           />
           {/* Info */}
           <div
-            className={"bg-white/10 text-blackbackdrop-blur-md p-6 max-w-3xl h-full rounded-md text-left"}
+            className={
+              "bg-white/10 text-blackbackdrop-blur-md p-6 max-w-3xl h-full rounded-md text-left"
+            }
           >
             <h1 className="text-3xl font-bold mb-4">{aniData.name}</h1>
             <div className="mt-4">
               <h4 className="text-lg font-semibold mb-1">Description</h4>
-              <p className="text-sm leading-relaxed text-gray-200 dark:text-gray-700">
+              <p className="text-sm leading-relaxed dark:text-gray-700">
                 {aniData.description}
               </p>
             </div>
@@ -37,10 +35,10 @@ function DisplayDetailAniInfo({ aniData }) {
               <h4 className="text-lg font-semibold mb-1">
                 Production Information
               </h4>
-              <p className="text-sm leading-relaxed text-gray-200 dark:text-gray-700">
+              <p className="text-sm leading-relaxed dark:text-gray-700">
                 Director: {aniData["director"]}
               </p>
-              <p className="text-sm leading-relaxed text-gray-200 dark:text-gray-700">
+              <p className="text-sm leading-relaxed dark:text-gray-700">
                 Site:{" "}
                 <a
                   href={aniData["site"]}
