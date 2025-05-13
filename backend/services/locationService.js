@@ -63,8 +63,8 @@ export async function enrichLocationsWithAnime(locations) {
         animeName:
           relatedAnime.length > 0
             ? relatedAnime[0].name_en ||
-            relatedAnime[0].name ||
-            relatedAnime[0].name_cn
+              relatedAnime[0].name ||
+              relatedAnime[0].name_cn
             : null,
       };
     })
@@ -73,20 +73,21 @@ export async function enrichLocationsWithAnime(locations) {
   return enriched;
 }
 
-
 function createSearchRegexFromString(inputString) {
   if (!inputString || inputString.trim() === "") return null;
   const keywords = inputString.trim().split(/\s+/);
   // Escape special regex characters for each keyword and join with OR operator '|'
-  const regexPattern = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|");
+  const regexPattern = keywords
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
   return new RegExp(regexPattern, "i"); // Case-insensitive
 }
 
 // Helper to consistently format the location output object based on Anime.location subdocument structure
 function formatAnimeLocationObject(locSubDoc, animeDoc) {
   return {
-    id: locSubDoc.id,                         // e.g., "5c4dgq9t5"
-    name: locSubDoc.name,                     // e.g., "「CLANNAD」DVD: 第8巻 表紙"
+    id: locSubDoc.id, // e.g., "5c4dgq9t5"
+    name: locSubDoc.name, // e.g., "「CLANNAD」DVD: 第8巻 表紙"
     image: locSubDoc.image,
     ep: locSubDoc.ep,
     s: locSubDoc.s,
@@ -103,16 +104,23 @@ function formatAnimeLocationObject(locSubDoc, animeDoc) {
   };
 }
 
-const escapeRegexChars = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&');
+const escapeRegexChars = (string) =>
+  string.replace(/[.*+?^${}()|[\]\\]/g, "\\\\$&");
 
-
-export async function searchRawLocationDataByLocateAnime(locationKeywordsInput = [], themeKeywordsInput = []) {
+export async function searchRawLocationDataByLocateAnime(
+  locationKeywordsInput = [],
+  themeKeywordsInput = []
+) {
   // Filter out empty or whitespace-only keywords and ensure they are strings
   const activeLocationKeywords = Array.isArray(locationKeywordsInput)
-    ? locationKeywordsInput.map(k => String(k || '').trim()).filter(k => k !== "")
+    ? locationKeywordsInput
+        .map((k) => String(k || "").trim())
+        .filter((k) => k !== "")
     : [];
   const activeThemeKeywords = Array.isArray(themeKeywordsInput)
-    ? themeKeywordsInput.map(k => String(k || '').trim()).filter(k => k !== "")
+    ? themeKeywordsInput
+        .map((k) => String(k || "").trim())
+        .filter((k) => k !== "")
     : [];
 
   const hasLocation = activeLocationKeywords.length > 0;
@@ -121,7 +129,9 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
   if (!hasTheme) {
     if (hasLocation) {
       // New logic: Search only by locationKeywords from Location model, limit 50
-      const locationRegexPattern = activeLocationKeywords.map(escapeRegexChars).join("|");
+      const locationRegexPattern = activeLocationKeywords
+        .map(escapeRegexChars)
+        .join("|");
       const locationRegex = new RegExp(locationRegexPattern, "i");
 
       const foundLocations = await Location.find({
@@ -130,19 +140,25 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
           { anitabi_names: locationRegex },
           { anitabi_cn_names: locationRegex },
           // Assumes addresses is an array of strings in the Location model
-          { addresses: { $elemMatch: { $regex: locationRegex } } }
+          { addresses: { $elemMatch: { $regex: locationRegex } } },
         ],
       })
         .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
         .limit(50)
         .lean();
 
-      return foundLocations.map(loc => ({
+      return foundLocations.map((loc) => ({
         id: loc._id.toString(), // Master Location ID
-        name: loc.anitabi_names?.[0] || loc.anitabi_cn_names?.[0] || "Unknown Location",
-        image: (Array.isArray(loc.images) && loc.images.length > 0) ? loc.images[0] : null,
+        name:
+          loc.anitabi_names?.[0] ||
+          loc.anitabi_cn_names?.[0] ||
+          "Unknown Location",
+        image:
+          Array.isArray(loc.images) && loc.images.length > 0
+            ? loc.images[0]
+            : null,
         ep: null, // Not applicable for general location search
-        s: null,  // Not applicable
+        s: null, // Not applicable
         origin: null, // Not applicable
         originURL: null, // Not applicable
         locationRef: loc._id.toString(), // Refers to itself
@@ -152,11 +168,13 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
         anitabi_names: loc.anitabi_names || [], // From the Location doc
         anitabi_cn_names: loc.anitabi_cn_names || [], // From the Location doc
         animeName: null, // No specific anime context
-        animeId: null,   // No specific anime context
+        animeId: null, // No specific anime context
       }));
     } else {
       // No effective location or theme keywords provided
-      console.log("No effective location or theme keywords provided for searchRawLocationDataByLocateAnime.");
+      console.log(
+        "No effective location or theme keywords provided for searchRawLocationDataByLocateAnime."
+      );
       return [];
     }
   }
@@ -168,16 +186,12 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
   const keywords = activeThemeKeywords; // Already filtered and trimmed
 
   // Build an $and query with regex conditions for each keyword
-  const regexConditions = keywords.map(keyword => {
+  const regexConditions = keywords.map((keyword) => {
     const escapedKeyword = escapeRegexChars(keyword); // Use your existing helper
     const regex = new RegExp(escapedKeyword, "i"); // Case-insensitive regex for each keyword
     // Each keyword must match in at least one of the name fields
     return {
-      $or: [
-        { name: regex },
-        { name_en: regex },
-        { name_cn: regex }
-      ]
+      $or: [{ name: regex }, { name_en: regex }, { name_cn: regex }],
     };
   });
 
@@ -186,11 +200,16 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
     animeQuery = { $and: regexConditions };
   } else {
     // Should not happen if hasTheme is true, but handle defensively
-    console.warn("[searchRawLocationDataByLocateAnime] No valid keywords for Regex search, returning empty.");
+    console.warn(
+      "[searchRawLocationDataByLocateAnime] No valid keywords for Regex search, returning empty."
+    );
     return [];
   }
 
-  console.log(`[searchRawLocationDataByLocateAnime] Using complex Regex search for anime:`, JSON.stringify(animeQuery));
+  console.log(
+    `[searchRawLocationDataByLocateAnime] Using complex Regex search for anime:`,
+    JSON.stringify(animeQuery)
+  );
 
   const animes = await Anime.find(animeQuery)
     .select("_id name name_en name_cn locations") // Select fields needed for output and filtering
@@ -212,7 +231,11 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
       locationsToConsider = locationsToConsider.filter((loc) => {
         // Check against the location's own name and its addresses array
         const nameMatch = loc.name && locationRegex.test(loc.name);
-        const addressMatch = Array.isArray(loc.addresses) && loc.addresses.some(addr => typeof addr === 'string' && locationRegex.test(addr));
+        const addressMatch =
+          Array.isArray(loc.addresses) &&
+          loc.addresses.some(
+            (addr) => typeof addr === "string" && locationRegex.test(addr)
+          );
         return nameMatch || addressMatch;
       });
     }
@@ -221,7 +244,7 @@ export async function searchRawLocationDataByLocateAnime(locationKeywordsInput =
     // Map the filtered/all locations to the desired output object structure
     // using the formatAnimeLocationObject helper or direct mapping
     matchedLocations.push(
-      ...locationsToConsider.map(locSubDoc => ({
+      ...locationsToConsider.map((locSubDoc) => ({
         // Fields from the location sub-document (locSubDoc)
         id: locSubDoc.id,
         name: locSubDoc.name,

@@ -148,7 +148,7 @@ const searchAllLocations = asyncHandler(async (req, res) => {
 
     const searchAnime =
       anime && anime[0] && anime[0].locations ? anime[0].locations : [];
-      
+
     res.json({
       searchLocations,
       searchAnime,

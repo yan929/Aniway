@@ -1,6 +1,10 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import { IoSparklesOutline, IoCalendarOutline,IoCaretDownOutline } from "react-icons/io5";
+import {
+  IoSparklesOutline,
+  IoCalendarOutline,
+  IoCaretDownOutline,
+} from "react-icons/io5";
 import { FaSave } from "react-icons/fa";
 
 export default function Sidebar({ onToggleChat, onScrollToDay }) {
@@ -17,14 +21,14 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
 
   const daysData = Array.isArray(currentTrip?.content)
     ? currentTrip.content.map((day) => {
-      const dateObj = new Date(day.date);
-      const dayLabel = dateObj.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "numeric",
-        day: "numeric",
-      });
-      return { date: day.date, label: dayLabel };
-    })
+        const dateObj = new Date(day.date);
+        const dayLabel = dateObj.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "numeric",
+          day: "numeric",
+        });
+        return { date: day.date, label: dayLabel };
+      })
     : [];
 
   return (
@@ -39,7 +43,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
           Smart Assistant
         </button>
         <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded bg-white text-black font-semibold shadow-inner">
-          <IoCaretDownOutline size={18}/> Overview
+          <IoCaretDownOutline size={18} /> Overview
         </div>
 
         <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded font-semibold">

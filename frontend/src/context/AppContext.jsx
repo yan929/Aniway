@@ -8,12 +8,9 @@ dayjs.extend(isSameOrBefore);
 const AppContext = React.createContext({
   currentTrip: null,
   loadCurrentTrip: async () => {},
-  // eslint-disable-next-line no-unused-vars
-  appendItemsToContent: (itemsArray) => {},
-  // eslint-disable-next-line no-unused-vars
-  replaceEntireTrip: (newTripObject) => {},
-  // eslint-disable-next-line no-unused-vars
-  updateCurrentTripTitle: (newTitle) => {},
+  appendItemsToContent: () => {},
+  replaceEntireTrip: () => {},
+  updateCurrentTripTitle: () => {},
   saveCurrentTripToDb: async () => {},
   updateTrip: () => {},
   fetchTrip: () => {},

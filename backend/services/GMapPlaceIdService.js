@@ -23,7 +23,7 @@ const getPlaceDetails = async (placeId) => {
     "🌐 Final Request URL:",
     `${GMAP_PLACE_DETAILS_ENDPOINT}?${params.toString()}`
   );
-  
+
   try {
     const response = await axios.get(
       `${GMAP_PLACE_DETAILS_ENDPOINT}?${params.toString()}`
