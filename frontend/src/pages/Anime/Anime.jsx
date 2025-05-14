@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import apiClient from "../../util/api";
@@ -6,6 +5,7 @@ import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import NavigatePlanButton from "../../components/AniInfo/AniPlanButton";
+import LoadingImage from "../../components/Loading/Loading";
 function AniDetail() {
   const { id } = useParams();
   const [animeData, setAnimeData] = useState(null);
@@ -74,10 +74,9 @@ function AniDetail() {
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (
-        <p>Loading...</p>
+        <LoadingImage />
       )}
 
-      <br />
       <br />
       {animeLocData ? (
         <DisplayAniLoc
@@ -85,7 +84,7 @@ function AniDetail() {
           onLocationClick={handleLocationClick}
         />
       ) : (
-        <p>Loading...</p>
+        <LoadingImage />
       )}
 
       {selectedLocation && (

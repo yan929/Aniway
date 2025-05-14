@@ -18,7 +18,7 @@ function UserForm({ user }) {
 
     if (!name.trim()) {
       setError("Username cannot be empty");
-      setShowError(true); 
+      setShowError(true);
       return;
     }
 

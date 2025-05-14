@@ -14,13 +14,18 @@ function NavigatePlanButton({ animeName }) {
 
   const navigate = useNavigate();
 
-  const { setTripDetails } = useContext(AppContext);
+  const { setTripDetails, currentTrip, loadCurrentTrip } =
+    useContext(AppContext);
 
   const handleNavigateTrip = () => {
     const tripTitle = `Trip for ${animeName}`;
     console.log("Test date:", selectedDates);
 
-    setTripDetails(selectedLocation, tripTitle, selectedDates);
+    if (!currentTrip) {
+      setTripDetails(selectedLocation, tripTitle, selectedDates);
+    } else {
+      loadCurrentTrip();
+    }
 
     navigate("/tripplanner");
   };

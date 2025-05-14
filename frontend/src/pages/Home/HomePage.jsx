@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBarCity from "../../components/Search/SearchBarCity";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
+import DisplayContactBanner from "../../components/Contact/ContactBanner";
 import { AppContext } from "../../context/AppContext";
 import apiClient from "../../util/api";
 
@@ -159,6 +161,9 @@ function HomePage() {
           onClose={handleClosePopup}
         />
       )}
+
+      <br />
+      <DisplayContactBanner />
     </div>
   );
 }
