@@ -127,7 +127,7 @@ export default function TripDayPlan({ day, index }) {
         <span className="text-[#626fe3] font-bold">Day {index + 1}</span>
         <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
         <button
-          className="ml-auto bg-[#17c586] text-white rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300 "
+          className="ml-auto bg-[#17c586] text-white rounded-full py-1 px-4 text-[1rem] hover:bg-green-500 "
           onClick={() => setIsOpen(true)}
         >
           Smart Advice
