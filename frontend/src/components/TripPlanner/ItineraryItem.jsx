@@ -54,9 +54,7 @@ const ItineraryItem = ({
     >
       <div className="relative flex bg-white dark:bg-gray-600 rounded-xl shadow-sm overflow-visible ">
         <div className="flex-1 p-4 relative ">
-          <div
-            className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#a1a9ef]  text-white  text-sm rounded-full flex items-center justify-center z-10 shadow-[0_0_0_10px_white] dark:shadow-[0_0_0_10px_#4b5563]"
-          >
+          <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#a1a9ef]  text-white  text-sm rounded-full flex items-center justify-center z-10 shadow-[0_0_0_10px_white] dark:shadow-[0_0_0_10px_#4b5563]">
             {displayIndex + 1}
           </div>
 
@@ -85,10 +83,10 @@ const ItineraryItem = ({
         </div>
         <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
           <button
-            className=" hover:text-red-500 text-xs p-1 "
+            className=" hover:text-red-500 text-xs p-1 border-0 dark:bg-gray-600 dark:text-white"
             onClick={() => handleDelete()}
           >
-            <VscTrash className="w-5 h-5" />{" "}
+            <VscTrash className="w-5 h-5" />
           </button>
         </div>
       </div>

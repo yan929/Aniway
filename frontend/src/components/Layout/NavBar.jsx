@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import apiClient from "../../util/api.js";
 import { AppContext } from "../../context/AppContext.jsx";
 import UserDropdown from "../NavBar/UserDropdown.jsx";
@@ -15,6 +15,7 @@ function NavBar() {
   const [avatarLoadError, setAvatarLoadError] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,6 +43,10 @@ function NavBar() {
       setDropdownOpen(!dropdownOpen);
     } else {
       // Navigate to login page if not logged in
+      localStorage.setItem(
+        "redirectPath",
+        location.pathname + location.search + location.hash
+      );
       navigate("/login");
     }
   };

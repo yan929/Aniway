@@ -8,10 +8,10 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AppContextProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AppContextProvider>
         <App />
-      </BrowserRouter>
-    </AppContextProvider>
+      </AppContextProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { updateTripDate } from "../util/updateTripDate.js";
 import apiClient from "../util/api.js";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useNavigate, useLocation } from "react-router-dom";
 dayjs.extend(isSameOrBefore);
 
 const AppContext = React.createContext({
@@ -27,6 +27,23 @@ const AppContext = React.createContext({
   tripLocation: null,
   setTripDetails: () => {},
   clearCurrentTrip: () => {},
+  // For Generic Confirm Modal
+  isConfirmModalOpen: false,
+  confirmModalConfig: {
+    title: "",
+    message: "",
+    onConfirm: () => {},
+    onCancel: () => {},
+  },
+  // eslint-disable-next-line no-unused-vars
+  showConfirmModal: (config) => {},
+  hideConfirmModal: () => {},
+  // For Success Toast
+  isSuccessToastOpen: false,
+  successToastMessage: "",
+  // eslint-disable-next-line no-unused-vars
+  showSuccessToast: (message) => {},
+  hideSuccessToast: () => {},
 });
 
 function AppContextProvider({ children }) {
@@ -77,6 +94,66 @@ function AppContextProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
+  // State for Generic Confirm Modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState({
+    title: "Confirm Action",
+    message: "Are you sure?",
+    onConfirm: () => {},
+    confirmText: "Confirm", // Default confirm button text
+    cancelText: "Cancel", // Default cancel button text
+  });
+
+  // State for Success Toast
+  const [isSuccessToastOpen, setIsSuccessToastOpen] = useState(false);
+  const [successToastMessage, setSuccessToastMessage] = useState("");
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Function to show the confirm modal with specific configuration
+  const showConfirmModal = useCallback(
+    (config) => {
+      setConfirmModalConfig({
+        title: config.title || "Confirm Action",
+        message: config.message || "Are you sure?",
+        onConfirm: config.onConfirm || (() => {}),
+        confirmText: config.confirmText || "Confirm",
+        cancelText: config.cancelText || "Cancel",
+      });
+      setIsConfirmModalOpen(true);
+    },
+    [setIsConfirmModalOpen, setConfirmModalConfig]
+  );
+
+  // Function to hide the confirm modal
+  const hideConfirmModal = useCallback(() => {
+    setIsConfirmModalOpen(false);
+  }, [setIsConfirmModalOpen]);
+
+  // Specific handler for login confirmation, to be passed to showConfirmModal
+  const handleActualLoginConfirm = useCallback(() => {
+    localStorage.setItem(
+      "redirectPath",
+      location.pathname + location.search + location.hash
+    );
+    navigate("/login");
+    hideConfirmModal(); // Close modal after action
+  }, [location, navigate, hideConfirmModal]);
+
+  // Functions for Success Toast
+  const showSuccessToast = useCallback(
+    (message) => {
+      setSuccessToastMessage(message);
+      setIsSuccessToastOpen(true);
+    },
+    [setIsSuccessToastOpen, setSuccessToastMessage]
+  );
+
+  const hideSuccessToast = useCallback(() => {
+    setIsSuccessToastOpen(false);
+  }, [setIsSuccessToastOpen]);
+
   useEffect(() => {
     if (currentTrip && currentTrip.content.length > 0 && !selectedDay) {
       console.log("Initially setting selected day to:", currentTrip.content[0]);
@@ -124,6 +201,18 @@ function AppContextProvider({ children }) {
           );
           setUser(response.data);
           setIsAuthenticated(true);
+
+          // Handle redirection after setting auth state
+          const redirectPath = localStorage.getItem("redirectPath");
+          if (redirectPath) {
+            console.log(
+              "AppContext: Found redirectPath, navigating to:",
+              redirectPath
+            );
+            localStorage.removeItem("redirectPath");
+            navigate(redirectPath);
+          }
+          // If no redirectPath, user stays on the page they were sent to by backend OAuth flow
         } else {
           setUser(null);
           setIsAuthenticated(false);
@@ -141,163 +230,182 @@ function AppContextProvider({ children }) {
     };
 
     checkUserSession();
-  }, []);
+  }, [navigate, setUser, setIsAuthenticated, setIsAuthLoading]);
 
-  // Renamed and repurposed from appendDataToTrip
-  const appendItemsToContent = useCallback((itemsToAppend) => {
-    if (!Array.isArray(itemsToAppend)) {
-      console.error(
-        "appendItemsToContent expects an array, received:",
-        itemsToAppend
-      );
-      return;
-    }
-    setCurrentTrip((prevTrip) => {
-      if (!prevTrip) {
-        console.warn(
-          "appendItemsToContent called when prevTrip is null. Initializing with new content."
-        );
-        return { content: itemsToAppend }; // Or some other default structure if needed
-      }
-      return {
-        ...prevTrip,
-        content: [...(prevTrip.content || []), ...itemsToAppend],
-      };
-    });
-    console.log(
-      "AppContext: Appended items to currentTrip.content:",
-      itemsToAppend
-    );
-  }, []);
-
-  // New function to replace the entire trip object
-  const replaceEntireTrip = useCallback((newTripObject) => {
-    setCurrentTrip(newTripObject);
-    console.log("AppContext: Replaced entire currentTrip with:", newTripObject);
-  }, []);
-
-  // Function to update only the trip title
-  const updateCurrentTripTitle = useCallback(
-    (newTitle) => {
-      setCurrentTrip((prevTrip) => {
-        if (!prevTrip) {
-          // This case should ideally be prevented by UI logic (e.g., in TripHeader)
-          console.error(
-            "updateCurrentTripTitle: currentTrip is null, cannot set title."
-          );
-          // If a trip must be created, it needs more default fields:
-          // return { title: newTitle, content: [], _id: null, /* other initial fields */ };
-          return prevTrip; // Or return null/initialTestTrip if appropriate
-        }
-        return { ...prevTrip, title: newTitle };
-      });
-      setTripTitle(newTitle); // Update the separate tripTitle state for broader consistency
-      console.log(
-        "AppContext: currentTrip.title and standalone tripTitle updated to:",
-        newTitle
-      );
-    },
-    [setTripTitle]
-  ); // setTripTitle from useState is stable
-
-  const saveCurrentTripToDb = useCallback(async () => {
-    if (!currentTrip) {
-      console.error("saveCurrentTripToDb: No currentTrip to save.");
-      alert("No trip data to save.");
-      return;
-    }
-
-    if (!user || !user.id) {
-      console.error(
-        "saveCurrentTripToDb: User not logged in or user.id is missing. User object was:",
-        JSON.stringify(user, null, 2)
-      );
-      alert("You must be logged in to save a trip.");
-      return;
-    }
-
-    console.log(" ---> Save currentTrip", currentTrip);
-    const { id, title, content, image } = currentTrip;
-    // Add userId to the payload, using user.id as per the logged object structure
-    const payload = {
-      title,
-      content,
-      image,
-      userId: user.id,
-    };
-
-    if (!id) {
-      console.log("AppContext: Creating new trip with payload:", payload);
-      try {
-        const response = await apiClient.post("/api/tplan", payload, {
-          withCredentials: true,
-        });
-        setCurrentTrip(response.data);
-        console.log(
-          "AppContext: New trip created successfully.",
-          response.data
-        );
-        alert("Trip created and saved successfully!");
-      } catch (error) {
-        console.error(
-          "AppContext: Error creating new trip:",
-          error.response ? error.response.data : error.message
-        );
-        alert(
-          "Error creating trip. " +
-            (error.response?.data?.message || error.message)
-        );
-        throw error;
-      }
-    } else {
-      console.log(
-        `AppContext: Updating existing trip ${id} with payload:`,
-        payload
-      );
-      try {
-        const response = await apiClient.patch(`/api/tplan/${id}`, payload, {
-          withCredentials: true,
-        });
-        setCurrentTrip((prevTrip) => ({ ...prevTrip, ...response.data }));
-        console.log("AppContext: Trip updated successfully.", response.data);
-        alert("Trip updated successfully!");
-      } catch (error) {
-        console.error(
-          `AppContext: Error updating trip ${id}:`,
-          error.response ? error.response.data : error.message
-        );
-        alert(
-          "Error updating trip. " +
-            (error.response?.data?.message || error.message)
-        );
-        throw error;
-      }
-    }
-  }, [currentTrip, setCurrentTrip, user]);
-
-  const updateTrip = useCallback(
-    (newDayPlanArray) => {
+  const appendItemsToContent = useCallback(
+    (itemsToAppend) => {
       if (!currentTrip) {
         console.warn(
-          "AppContext: Cannot update trip content, currentTrip is null."
+          "AppContext: currentTrip is null, cannot append items. Consider initializing."
         );
         return;
       }
-      console.log("Updating trip with new range data:", newDayPlanArray);
-      const extendedContent = updateTripDate(newDayPlanArray);
-      // updateTrip now uses replaceEntireTrip to set the new content within the existing trip structure
+      setCurrentTrip((prevTrip) => {
+        // Ensure prevTrip and prevTrip.content are valid
+        const existingContent = prevTrip?.content || [];
+        // Check if itemsToAppend is an array, if not, wrap it in an array or handle error
+        const newItems = Array.isArray(itemsToAppend)
+          ? itemsToAppend
+          : [itemsToAppend];
+
+        // Create a new array for content to ensure immutability
+        const updatedContent = [...existingContent, ...newItems];
+
+        return {
+          ...prevTrip,
+          content: updatedContent,
+        };
+      });
+    },
+    [setCurrentTrip, currentTrip] // Added currentTrip to dependency array
+  );
+
+  // Added for replacing the entire trip (e.g., with AI suggestion)
+  const replaceEntireTrip = useCallback(
+    (newTripData) => {
+      // Update currentTrip with newTripData
+      setCurrentTrip(newTripData);
+      // Reset selected day based on new content
+      if (newTripData.content && newTripData.content.length > 0) {
+        setSelectedDay(newTripData.content[0]);
+      } else {
+        setSelectedDay(null);
+      }
+      // Update trip title from newTripData if it exists
+      if (newTripData.title) {
+        setTripTitle(newTripData.title);
+      }
+      // Update trip location from newTripData if it exists (assuming structure)
+      // if (newTripData.destination) { // Example: you might need to adjust the key
+      //   setTripLocation(newTripData.destination);
+      // }
+    },
+    [setCurrentTrip, setSelectedDay, setTripTitle] // setTripLocation can be added if used
+  );
+
+  // Added for updating the trip title from TripHeader
+  const updateCurrentTripTitle = useCallback(
+    (newTitle) => {
+      setCurrentTrip((prevTrip) => {
+        // If prevTrip is null, this could be an issue. Consider initializing it.
+        if (!prevTrip) {
+          console.warn(
+            "updateCurrentTripTitle: prevTrip is null. Initializing a new trip structure."
+          );
+          // Initialize with a basic structure if updating title on a non-existent trip
+          return { title: newTitle, content: [] }; // Adjust as necessary
+        }
+        return {
+          ...prevTrip,
+          title: newTitle,
+        };
+      });
+      setTripTitle(newTitle); // Also update the separate tripTitle state if still used for HomePage
+    },
+    [setCurrentTrip, setTripTitle] // setTripTitle from useState is stable
+  );
+
+  const saveCurrentTripToDb = useCallback(async () => {
+    if (!isAuthenticated) {
+      console.log("User not authenticated. Prompting for login.");
+      showConfirmModal({
+        title: "Login Required",
+        message:
+          "You need to be logged in to save your trip. Would you like to log in now?",
+        onConfirm: handleActualLoginConfirm,
+        confirmText: "Log In",
+        cancelText: "Cancel",
+      });
+      return;
+    }
+
+    if (!currentTrip) {
+      console.warn("AppContext: No currentTrip data to save.");
+      return;
+    }
+
+    try {
+      let response;
+      if (currentTrip.id) {
+        // User changed this from _id
+        console.log(`AppContext: Updating existing trip ID: ${currentTrip.id}`);
+        response = await apiClient.patch(
+          `/api/tplan/${currentTrip.id}`,
+          currentTrip,
+          { withCredentials: true }
+        );
+        console.log("AppContext: Trip updated successfully:", response.data);
+        showSuccessToast("Trip updated successfully!");
+      } else {
+        console.log("AppContext: Saving new trip.");
+        response = await apiClient.post("/api/tplan", currentTrip, {
+          withCredentials: true,
+        });
+        console.log("AppContext: New trip saved successfully:", response.data);
+        setCurrentTrip(response.data);
+        showSuccessToast("Trip created successfully!");
+      }
+    } catch (error) {
+      console.error("AppContext: Error saving trip:", error);
+      if (error.response && error.response.status === 401) {
+        console.log("AppContext: Unauthorized to save. Prompting for login.");
+        showConfirmModal({
+          title: "Login Required",
+          message:
+            "Your session may have expired. You need to be logged in to save your trip. Would you like to log in now?",
+          onConfirm: handleActualLoginConfirm,
+          confirmText: "Log In",
+          cancelText: "Cancel",
+        });
+      }
+    }
+  }, [
+    currentTrip,
+    isAuthenticated,
+    setCurrentTrip,
+    showConfirmModal, // Use generic showConfirmModal
+    handleActualLoginConfirm, // Pass the specific confirm handler
+    showSuccessToast,
+  ]);
+
+  const updateTrip = useCallback(
+    // This function updates the entire `content` array of `currentTrip`
+    // It's used, for example, when changing dates in TripHeader
+    (newDayPlanArray) => {
       if (currentTrip) {
-        // Ensure currentTrip exists before spreading
-        replaceEntireTrip({ ...currentTrip, content: extendedContent });
+        const updatedTrip = {
+          ...currentTrip,
+          content: newDayPlanArray,
+        };
+        setCurrentTrip(updatedTrip);
+
+        // If the selected day is no longer in the newDayPlanArray (e.g., date range changed),
+        // reset selectedDay to the first day of the new plan, or null if empty.
+        const selectedDayStillExists = newDayPlanArray.some(
+          (day) => day.date === selectedDay?.date
+        );
+
+        if (!selectedDayStillExists) {
+          if (newDayPlanArray.length > 0) {
+            setSelectedDay(newDayPlanArray[0]);
+            console.log(
+              "Selected day was outside new range, reset to:",
+              newDayPlanArray[0]
+            );
+          } else {
+            setSelectedDay(null);
+            console.log(
+              "Selected day was outside new range, and new range is empty, reset to null."
+            );
+          }
+        }
       } else {
         console.warn(
           "updateTrip: currentTrip is null, cannot create new trip structure with content only."
         );
-        // Potentially set to a new trip with just this content if that's desired:
-        // replaceEntireTrip({ title: 'New Trip', content: extendedContent, _id: null /* etc */ });
       }
     },
-    [currentTrip, replaceEntireTrip] // Dependency updated
+    [currentTrip, setCurrentTrip, selectedDay, setSelectedDay] // Added setSelectedDay
   );
 
   // Refactored function to update itinerary for a specific day
@@ -312,10 +420,6 @@ function AppContextProvider({ children }) {
         "AppContext: currentTrip is not initialized, cannot update itinerary.",
         { currentTrip }
       );
-      // Optionally, initialize to initialTestTrip if it's a desired fallback here
-      // setCurrentTrip(initialTestTrip);
-      // console.log("AppContext: Initialized currentTrip with initialTestTrip.");
-      // return; // Or proceed if initialized
       return;
     }
 
@@ -330,79 +434,64 @@ function AppContextProvider({ children }) {
     try {
       const updatedContent = currentTrip.content.map((day) => {
         if (day.date === dayDate) {
-          // Ensure order is maintained if newItemsArray isn't pre-sorted or doesn't have order
-          // For now, assuming newItemsArray is the complete, ordered list for the day.
           return { ...day, itinerary: newItemsArray };
         }
         return day;
       });
 
-      const newCurrentTrip = { ...currentTrip, content: updatedContent };
-      setCurrentTrip(newCurrentTrip);
-      console.log(
-        "AppContext: Itinerary updated, new currentTrip:",
-        newCurrentTrip
-      );
+      setCurrentTrip((prevTrip) => {
+        const newTripState = { ...prevTrip, content: updatedContent };
+        // console.log("New trip state after itinerary update:", newTripState);
+        return newTripState;
+      });
 
-      // If the updated day is the selected day, update selectedDay state
+      // If the updated day is the currently selected day, update selectedDay state too
+      // to ensure any components observing selectedDay (like SearchBar) get the fresh itinerary.
       if (selectedDay && selectedDay.date === dayDate) {
-        const updatedSelectedDayObject = updatedContent.find(
-          (day) => day.date === dayDate
-        );
-        if (updatedSelectedDayObject) {
-          setSelectedDay(updatedSelectedDayObject);
-          console.log(
-            "AppContext: Selected day was updated:",
-            updatedSelectedDayObject
-          );
-        }
+        setSelectedDay((prevSelectedDay) => ({
+          ...prevSelectedDay,
+          itinerary: newItemsArray,
+        }));
+        // console.log(
+        //   "Selected day itinerary updated directly in selectedDay state."
+        // );
       }
     } catch (error) {
-      console.error("AppContext: Error in updateItinerary:", error);
+      console.error("Error in updateItinerary:", error);
+      // Potentially revert or notify user
     }
   }
 
   function deleteTripItem(deleteTripDay, deleteItem) {
-    console.log("Deleting trip item:", { deleteTripDay, deleteItem });
+    console.log("Attempting to delete item:", deleteItem);
+    console.log("From day:", deleteTripDay);
 
-    try {
-      const newTripData = currentTrip.content.map((day) => {
-        if (day.date === deleteTripDay.date) {
-          return {
-            ...day,
-            itinerary: day.itinerary.filter(
-              (item) =>
-                // Keep items that DO NOT match the gpPlaceId
-                item.gpPlaceId !== deleteItem.gpPlaceId
-            ),
-          };
-        }
-        return day;
-      });
+    if (!currentTrip) {
+      console.error("Cannot delete item: currentTrip is null.");
+      return;
+    }
 
-      console.log("After deletion:", newTripData);
-      // deleteTripItem now uses replaceEntireTrip
-      if (currentTrip) {
-        // Ensure currentTrip exists
-        replaceEntireTrip({ ...currentTrip, content: newTripData });
-      } else {
-        console.warn("deleteTripItem: currentTrip is null.");
-      }
-
-      if (selectedDay && selectedDay.date === deleteTripDay.date) {
-        const updatedSelectedDay = newTripData.find(
-          (day) => day.date === selectedDay.date
+    const updatedContent = currentTrip.content.map((day) => {
+      if (day.date === deleteTripDay.date) {
+        const updatedItinerary = day.itinerary.filter(
+          (item) => item.id !== deleteItem.id
         );
-        if (updatedSelectedDay) {
-          console.log(
-            "Updating selected day after deletion:",
-            updatedSelectedDay
-          );
-          setSelectedDay(updatedSelectedDay);
-        }
+        return { ...day, itinerary: updatedItinerary };
       }
-    } catch (error) {
-      console.error("Error in deleteTripItem:", error);
+      return day;
+    });
+
+    setCurrentTrip((prev) => ({ ...prev, content: updatedContent }));
+
+    // If the deleted item was from the selected day, update selectedDay as well
+    if (selectedDay && selectedDay.date === deleteTripDay.date) {
+      setSelectedDay((prevSelectedDay) => ({
+        ...prevSelectedDay,
+        itinerary: prevSelectedDay.itinerary.filter(
+          (item) => item.id !== deleteItem.id
+        ),
+      }));
+      console.log("Item deleted from selected day, selectedDay state updated.");
     }
   }
 
@@ -411,125 +500,121 @@ function AppContextProvider({ children }) {
     sourceDayDate,
     targetDayDate,
     itemToMove,
-    targetDayCurrentItinerary
+    targetDayCurrentItinerary // Itinerary of the target day BEFORE adding the new item
   ) {
-    console.log(`Moving item across days:`, {
-      sourceDayDate,
-      targetDayDate,
-      itemToMove,
-      targetDayCurrentItinerary,
-    });
-
-    if (!currentTrip || !currentTrip.content) {
-      console.error("moveItemAcrossDays: currentTrip or content is missing.");
+    if (!currentTrip) {
+      console.error("Cannot move item: currentTrip is null.");
       return;
     }
 
-    try {
-      const newContent = currentTrip.content.map((day) => {
-        // Process source day: filter out the moved item and re-order
-        if (day.date === sourceDayDate) {
-          const filteredItinerary = day.itinerary.filter(
-            (item) => item.gpPlaceId !== itemToMove.gpPlaceId
-          );
-          // Re-calculate order for the remaining items in the source day
-          const reorderedSourceItinerary = filteredItinerary.map(
-            (item, index) => ({
-              ...item,
-              order: index,
-            })
-          );
-          return { ...day, itinerary: reorderedSourceItinerary };
+    let finalContent = [...currentTrip.content]; // Shallow copy
+    let operationSuccess = false;
+
+    // 1. Remove from source day
+    const sourceDayIndex = finalContent.findIndex(
+      (day) => day.date === sourceDayDate
+    );
+    if (sourceDayIndex === -1) {
+      console.error(`Source day ${sourceDayDate} not found.`);
+      return;
+    }
+
+    const sourceDay = { ...finalContent[sourceDayIndex] }; // Shallow copy day object
+    const itemIndexInSource = sourceDay.itinerary.findIndex(
+      (item) => item.id === itemToMove.id
+    );
+
+    if (itemIndexInSource === -1) {
+      console.warn(
+        `Item to move (ID: ${itemToMove.id}) not found in source day ${sourceDayDate}. It might have been already moved or deleted.`
+      );
+      // This can happen if a move operation is accidentally triggered twice or if the item was removed by another process.
+      // Depending on desired behavior, you might stop here or proceed to ensure it's added to the target if that's robust.
+      // For now, let's log and potentially proceed to add to target if it's not there.
+    } else {
+      sourceDay.itinerary = [
+        ...sourceDay.itinerary.slice(0, itemIndexInSource),
+        ...sourceDay.itinerary.slice(itemIndexInSource + 1),
+      ];
+      finalContent[sourceDayIndex] = sourceDay;
+      operationSuccess = true; // At least removal was attempted/successful
+    }
+
+    // 2. Add to target day (using the passed targetDayCurrentItinerary for correct placement)
+    const targetDayIndex = finalContent.findIndex(
+      (day) => day.date === targetDayDate
+    );
+    if (targetDayIndex === -1) {
+      console.error(`Target day ${targetDayDate} not found.`);
+      // If removal was successful, this would be a data inconsistency state.
+      // Consider how to handle this - revert removal or log error.
+      return; // For now, stop if target day doesn't exist.
+    }
+
+    const targetDay = { ...finalContent[targetDayIndex] }; // Shallow copy day object
+
+    // Use the provided targetDayCurrentItinerary which reflects the state *before* this item is added to it by dnd-kit's onDragEnd optimistic update.
+    // Then, add the itemToMove to this known state.
+    // This avoids duplicates if onDragEnd already optimistically added it to a copy of the target day's itinerary.
+    const newTargetItinerary = [...targetDayCurrentItinerary, itemToMove];
+
+    targetDay.itinerary = newTargetItinerary;
+    finalContent[targetDayIndex] = targetDay;
+    operationSuccess = true;
+
+    if (operationSuccess) {
+      setCurrentTrip((prevTrip) => ({ ...prevTrip, content: finalContent }));
+
+      // Update selectedDay if necessary
+      if (selectedDay) {
+        if (selectedDay.date === sourceDayDate) {
+          setSelectedDay(sourceDay);
         }
-
-        // Process target day: add the moved item and re-order
-        if (day.date === targetDayDate) {
-          // Ensure we avoid duplicates if hover triggers multiple times rapidly before state updates
-          const itemExists = targetDayCurrentItinerary.some(
-            (item) => item.gpPlaceId === itemToMove.gpPlaceId
-          );
-
-          let newTargetItinerary;
-          if (!itemExists) {
-            newTargetItinerary = [...targetDayCurrentItinerary, itemToMove];
-          } else {
-            console.warn(
-              `[moveItemAcrossDays] Item ${itemToMove.gpPlaceId} already exists in target day ${targetDayDate} itinerary (rapid hover?), using current target itinerary.`
-            );
-            newTargetItinerary = [...targetDayCurrentItinerary]; // Use the potentially already updated list
-          }
-
-          // Re-calculate order for all items in the target day
-          const reorderedTargetItinerary = newTargetItinerary.map(
-            (item, index) => ({
-              ...item,
-              order: index,
-            })
-          );
-          return { ...day, itinerary: reorderedTargetItinerary };
+        if (selectedDay.date === targetDayDate) {
+          setSelectedDay(targetDay);
         }
-
-        // Return other days unchanged
-        return day;
-      });
-
-      console.log("After move calculation - newContent:", newContent);
-
-      // Replace the entire trip content with the modified data in one go
-      replaceEntireTrip({ ...currentTrip, content: newContent });
-
-      // Update selectedDay state if necessary (simplified logic)
-      const updatedTargetDay = newContent.find((d) => d.date === targetDayDate);
-      if (
-        selectedDay &&
-        updatedTargetDay &&
-        selectedDay.date === targetDayDate
-      ) {
-        console.log(
-          "Updating selectedDay to reflect moved item in target day:",
-          updatedTargetDay
-        );
-        setSelectedDay(updatedTargetDay);
       }
-      // No need to explicitly update selectedDay for source, as it will reflect the removal automatically
-    } catch (error) {
-      console.error("Error in moveItemAcrossDays:", error);
+      console.log(
+        `Item ${itemToMove.id} moved from ${sourceDayDate} to ${targetDayDate}.`
+      );
+    } else {
+      console.warn("Move operation did not complete successfully.");
     }
   }
 
   // Function to set trip details from HomePage
   function setTripDetails(location, title, dates) {
-    // Explicitly check properties and log them
-    const hasStartDate = dates?.startDate instanceof Date;
-    const hasEndDate = dates?.endDate instanceof Date;
-    const isStartBeforeEnd =
-      hasStartDate && hasEndDate && dates.startDate <= dates.endDate;
+    setTripTitle(title || "My Trip"); // Set the separate tripTitle state
+    setTripLocation(location); // Set the separate tripLocation state
 
-    // --- Debugging End ---
-
-    // Update separate location/title states if they are used elsewhere independently
-    if (location) setTripLocation(location);
-    if (title) setTripTitle(title); // Keep this if tripTitle state is used directly
+    console.log("[setTripDetails] Received:", {
+      location,
+      title,
+      dates,
+    });
 
     let newContent = [];
-    // If dates are valid, generate the content array using dayjs
-    if (dates && hasStartDate && hasEndDate && isStartBeforeEnd) {
-      console.log(
-        "[setTripDetails] Date check passed. Generating content with dayjs..."
-      );
+    const hasStartDate = dates && dates.startDate;
+    const hasEndDate = dates && dates.endDate;
+    const isStartBeforeEnd =
+      hasStartDate &&
+      hasEndDate &&
+      dayjs(dates.startDate).isSameOrBefore(dayjs(dates.endDate), "day");
 
-      // Convert start and end dates to dayjs objects
-      let currentDay = dayjs(dates.startDate).startOf("day");
-      const endDay = dayjs(dates.endDate).startOf("day");
+    if (hasStartDate && hasEndDate && isStartBeforeEnd) {
+      let currentDay = dayjs(dates.startDate);
+      const endDay = dayjs(dates.endDate);
 
-      // Iterate using dayjs isSameOrBefore and add methods
-      while (currentDay.isSameOrBefore(endDay)) {
+      while (currentDay.isSameOrBefore(endDay, "day")) {
+        const currentDateStr = currentDay.format("YYYY-MM-DD");
+        // Try to find an existing day's itinerary if currentTrip and its content exist
+        const existingDayData = currentTrip?.content?.find(
+          (d) => d.date === currentDateStr
+        );
         newContent.push({
-          date: currentDay.format("YYYY-MM-DD"), // Format using dayjs
-          index: newContent.length,
-          itinerary: [],
+          date: currentDateStr,
+          itinerary: existingDayData?.itinerary || [],
         });
-        // Move to the next day
         currentDay = currentDay.add(1, "day");
       }
       console.log("[setTripDetails] Generated content:", newContent);
@@ -547,33 +632,28 @@ function AppContextProvider({ children }) {
 
     // Update the entire currentTrip state object AT ONCE
     setCurrentTrip((prevTrip) => {
-      const tripId = prevTrip?._id; // Preserve existing ID if any
+      const tripId = prevTrip?.id; // User changed this from _id // Preserve existing ID if any
       const newTrip = {
         ...prevTrip, // Preserve other fields like image, userId etc.
-        _id: tripId,
+        id: tripId, // User changed this from _id
         title: title || "My Trip", // Set title directly in currentTrip
         content: newContent, // Set content directly in currentTrip
-        // You might want to store the primary destination location here too:
-        // destination: location || prevTrip?.destination,
       };
       console.log("Setting new currentTrip context:", newTrip);
-      // LocalStorage update is handled by the useEffect hook watching currentTrip
       return newTrip;
     });
 
-    // Reset selected day based on the new content
     if (newContent.length > 0) {
-      setSelectedDay(newContent[0]); // Select the first day
+      setSelectedDay(newContent[0]);
       console.log("Resetting selectedDay to:", newContent[0]);
     } else {
-      setSelectedDay(null); // Clear selected day if no content generated
+      setSelectedDay(null);
       console.log("Resetting selectedDay to null as content is empty.");
     }
   }
 
   // Added function to select a specific day
   function selectDay(day) {
-    // console.log("Selecting day:", day);
     setSelectedDay(day);
   }
 
@@ -600,25 +680,44 @@ function AppContextProvider({ children }) {
     }
   }, []);
 
-  const loginUser = useCallback((userData) => {
-    setUser(userData);
-    setIsAuthenticated(true);
-    console.log("AppContext: User logged in, isAuthenticated set to true.");
-  }, []);
+  const loginUser = useCallback(
+    (userData) => {
+      setUser(userData);
+      setIsAuthenticated(true);
+      console.log("AppContext: User logged in, isAuthenticated set to true.");
+
+      const redirectPath = localStorage.getItem("redirectPath");
+      if (redirectPath) {
+        localStorage.removeItem("redirectPath");
+        navigate(redirectPath);
+      } else {
+        navigate("/profile"); // Default redirect path
+      }
+    },
+    [navigate, setUser, setIsAuthenticated]
+  );
 
   const logoutUser = useCallback(async () => {
+    const currentPath = location.pathname; // Store current path before logout
     try {
       await apiClient.post("/auth/logout");
       console.log("AppContext: Logout successful on backend.");
     } catch (error) {
       console.error("AppContext: Error during backend logout:", error);
-      // Still proceed with frontend logout
     }
     setUser(null);
     setIsAuthenticated(false);
-    setSelectedDay(null);
+    setSelectedDay(null); // Clear selected day
+    // setTripTitle("My Trip"); // Reset trip title to default
+    // setTripLocation(null); // Clear trip location
+    // setCurrentTrip(null); // Clear current trip data from state
+    // localStorage.removeItem("currentTrip"); // Clear current trip from localStorage
+    // localStorage.removeItem("tripTitle");
+    // localStorage.removeItem("tripLocation");
     console.log("AppContext: User logged out, isAuthenticated set to false.");
-  }, []);
+    // Navigate to the page the user was on, or a default like home
+    navigate(currentPath); // Redirect to the page user was on
+  }, [navigate, location, setUser, setIsAuthenticated, setSelectedDay]);
 
   const updateUser = useCallback((updatedUserData) => {
     setUser(updatedUserData);
@@ -626,11 +725,14 @@ function AppContextProvider({ children }) {
     console.log("AppContext: User update with new name.");
   }, []);
 
-  // Function to clear current trip from both state and localStorage
   const clearCurrentTrip = useCallback(() => {
     setCurrentTrip(null);
     localStorage.removeItem("currentTrip");
-  }, []);
+    // Optionally reset title and location as well if they are tied to a specific trip
+    // setTripTitle("My Trip");
+    // setTripLocation(null);
+    // setSelectedDay(null);
+  }, [setCurrentTrip]); // Removed setTripTitle, setTripLocation, setSelectedDay as they might not always need reset
 
   const context = {
     currentTrip,
@@ -655,6 +757,16 @@ function AppContextProvider({ children }) {
     isAuthenticated,
     isAuthLoading,
     clearCurrentTrip,
+    // For Generic Confirm Modal
+    isConfirmModalOpen,
+    confirmModalConfig,
+    showConfirmModal,
+    hideConfirmModal,
+    // For Success Toast
+    isSuccessToastOpen,
+    successToastMessage,
+    showSuccessToast, // Ensure the actual function is provided
+    hideSuccessToast,
   };
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
