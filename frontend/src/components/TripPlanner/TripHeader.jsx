@@ -144,7 +144,7 @@ export default function TripHeader() {
 
     <div className=" px-4 py-3 shadow-md w-full"
       style={{
-        background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/public/tripplanner-banner.jpg') center center / cover no-repeat`
+        background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/tripplanner-banner.jpg') center center / cover no-repeat`
       }}>
 
       {/* Top Row: Title and Save Button */}
