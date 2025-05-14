@@ -6,6 +6,8 @@ import connectDB from "./config/db.js";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import path from "path";
+
 import User from "./models/User.js";
 
 // Location Routes
@@ -46,12 +48,13 @@ const allowedOrigins =
   process.env.NODE_ENV === "production"
     ? [process.env.FRONTEND_URL, ...otherOrigins]
     : ["http://localhost:5173", ...otherOrigins];
+const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
-console.log("Allowed origins:", allowedOrigins);
+console.log("Allowed origins:", uniqueAllowedOrigins);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: uniqueAllowedOrigins,
     credentials: true,
   })
 );
@@ -141,10 +144,14 @@ app.use("/api/user", userRoutes); // Mount user routes
 
 app.use(authRoutes);
 
-// Root
-app.get("/", (req, res) => {
-  res.send("AniWay backend is running 🚀");
-});
+const __dirname = path.resolve();
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.use((req, res) =>
+    res.sendFile(path.resolve(__dirname, "../frontend/dist", "index.html"))
+  );
+}
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
