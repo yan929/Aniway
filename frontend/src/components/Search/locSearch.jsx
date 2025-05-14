@@ -59,8 +59,9 @@ function LocSearchBar({ setSelectedLocation }) {
       lng: loc.lng,
       gpPlaceId: loc.googlePlaceId,
     });
-    setInput(loc.name);
+    setInput("");
     setShowResult(false);
+    setLocResults([]);
   };
 
   return (
