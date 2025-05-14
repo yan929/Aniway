@@ -89,7 +89,7 @@ jobs:
 
             echo "Creating/Updating frontend .env file..."
             mkdir -p $PROJECT_DIR/frontend
-            echo "VITE_Maps_API_KEY=${{ secrets.VITE_Maps_API_KEY }}" > $PROJECT_DIR/frontend/.env
+            echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" > $PROJECT_DIR/frontend/.env
             echo "VITE_BACKEND_API=${{ secrets.VITE_BACKEND_API }}" >> $PROJECT_DIR/frontend/.env
 
             echo "Installing backend dependencies..."
