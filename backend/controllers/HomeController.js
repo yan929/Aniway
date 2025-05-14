@@ -81,7 +81,6 @@ const getTrendingData = asyncHandler(async (req, res) => {
 // @access  Public
 const searchAllLocations = asyncHandler(async (req, res) => {
   const { q } = req.query;
-  console.log("Search query:", q);
 
   if (!q) {
     return res.status(400).json({ message: "Search query 'q' is required" });
@@ -90,12 +89,15 @@ const searchAllLocations = asyncHandler(async (req, res) => {
   try {
     const regex = new RegExp(q, "i"); // Case-insensitive regex
 
-    // Search Locations without limit
-    const searchLocationsData = await Location.find({
+    // Search Locations
+    const locations = await Location.find({
       isValid: true, // Filter valid locations
       $or: [
         { anitabi_names: regex },
         { anitabi_cn_names: regex },
+        { anime_en_names: regex },
+        { anime_names: regex },
+        { anime_cn_names: regex },
         {
           addresses: {
             $elemMatch: { $regex: `^[^,]*${q}[^,]*`, $options: "i" },
@@ -103,55 +105,14 @@ const searchAllLocations = asyncHandler(async (req, res) => {
         },
       ],
     })
-      .select("_id anitabi_names anitabi_cn_names lat lng addresses images")
+      .select(
+        "_id anitabi_names anitabi_cn_names lat lng addresses images anime_names anime_en_names anime_cn_names"
+      )
+      .limit(50)
       .lean();
 
-    // For each location, find related anime
-    const searchLocations = await Promise.all(
-      searchLocationsData.map(async (loc) => {
-        // Find anime that reference this location
-        const relatedAnime = await Anime.find({
-          "locations.lat": loc.lat,
-          "locations.lng": loc.lng,
-        })
-          .select("_id name name_en name_cn")
-          .limit(1) // Get just the first related anime
-          .lean();
-
-        return {
-          id: loc._id,
-          names:
-            loc.anitabi_names && loc.anitabi_names.length > 0
-              ? loc.anitabi_names[0]
-              : "",
-          name_cn:
-            loc.anitabi_cn_names && loc.anitabi_cn_names.length > 0
-              ? loc.anitabi_cn_names[0]
-              : "",
-          lat: loc.lat,
-          lng: loc.lng,
-          addresses: loc.addresses || [],
-          images: loc.images || [],
-          animeName:
-            relatedAnime.length > 0
-              ? relatedAnime[0].name_en ||
-              relatedAnime[0].name ||
-              relatedAnime[0].name_cn
-              : null,
-        };
-      })
-    );
-
-    const anime = await Anime.find({
-      $or: [{ name_en: regex }, { name_cn: regex }, { name: regex }],
-    });
-
-    const searchAnime =
-      anime && anime[0] && anime[0].locations ? anime[0].locations : [];
-
     res.json({
-      searchLocations,
-      searchAnime,
+      locations,
     });
   } catch (error) {
     console.error("Error searching all locations:", error);
