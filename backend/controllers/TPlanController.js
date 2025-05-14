@@ -32,6 +32,7 @@ const getAllPlans = asyncHandler(async (req, res) => {
 const addPlan = asyncHandler(async (req, res) => {
   try {
     const data = req.body;
+    data.userId = req.user.id;
 
     // If content exists and has elements, set startDate and endDate
     if (Array.isArray(data.content) && data.content.length > 0) {
