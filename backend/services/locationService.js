@@ -63,8 +63,8 @@ export async function enrichLocationsWithAnime(locations) {
         animeName:
           relatedAnime.length > 0
             ? relatedAnime[0].name_en ||
-              relatedAnime[0].name ||
-              relatedAnime[0].name_cn
+            relatedAnime[0].name ||
+            relatedAnime[0].name_cn
             : null,
       };
     })
@@ -105,7 +105,72 @@ function formatAnimeLocationObject(locSubDoc, animeDoc) {
 }
 
 const escapeRegexChars = (string) =>
-  string.replace(/[.*+?^${}()|[\]\\]/g, "\\\\$&");
+  string.replace(/[.*+?^${}()|[\\\]\\]/g, "\\\\$&");
+
+// Helper function to calculate relevance score
+function calculateRelevanceScore(
+  locSubDoc,
+  animeDoc,
+  activeThemeKeywords,
+  activeLocationKeywords
+) {
+  let score = 0;
+  // Ensure keywords are strings and lowercased, filter out empty ones after trimming
+  const lowerCaseThemeKeywords = activeThemeKeywords
+    .map(k => String(k || "").trim().toLowerCase())
+    .filter(k => k.length > 0);
+  const lowerCaseLocationKeywords = activeLocationKeywords
+    .map(k => String(k || "").trim().toLowerCase())
+    .filter(k => k.length > 0);
+
+  // Score based on theme keywords matching anime names
+  if (animeDoc && lowerCaseThemeKeywords.length > 0) {
+    const animeNameSources = [
+      animeDoc.name,
+      animeDoc.name_en,
+      animeDoc.name_cn,
+    ].filter(Boolean).map(name => String(name || "").toLowerCase()); // Ensure string
+
+    lowerCaseThemeKeywords.forEach(themeKeyword => {
+      // themeKeyword is already guaranteed to be a non-empty string here
+      if (animeNameSources.some(nameSource => nameSource.includes(themeKeyword))) {
+        score += 2; // Higher weight for theme/anime match
+      }
+    });
+  }
+
+  // Score based on location keywords matching location details
+  if (lowerCaseLocationKeywords.length > 0) {
+    const locationName = typeof locSubDoc.name === 'string' ? locSubDoc.name.toLowerCase() : "";
+    const locationAddresses = Array.isArray(locSubDoc.addresses)
+      ? locSubDoc.addresses.map(addr => String(addr || "").toLowerCase())
+      : [];
+    const locationAnitabiNames = Array.isArray(locSubDoc.anitabi_names)
+      ? locSubDoc.anitabi_names.map(name => String(name || "").toLowerCase())
+      : [];
+    const locationAnitabiCnNames = Array.isArray(locSubDoc.anitabi_cn_names)
+      ? locSubDoc.anitabi_cn_names.map(name => String(name || "").toLowerCase())
+      : [];
+
+    lowerCaseLocationKeywords.forEach(locKeyword => {
+      // locKeyword is already guaranteed to be a non-empty string here
+      if (locationName.includes(locKeyword)) {
+        score += 1;
+      }
+      if (locationAddresses.some(addr => addr.includes(locKeyword))) {
+        score += 1;
+      }
+      if (locationAnitabiNames.some(name => name.includes(locKeyword))) {
+        score += 1;
+      }
+      if (locationAnitabiCnNames.some(name => name.includes(locKeyword))) {
+        score += 1;
+      }
+    });
+  }
+
+  return score;
+}
 
 export async function searchRawLocationDataByLocateAnime(
   locationKeywordsInput = [],
@@ -114,13 +179,13 @@ export async function searchRawLocationDataByLocateAnime(
   // Filter out empty or whitespace-only keywords and ensure they are strings
   const activeLocationKeywords = Array.isArray(locationKeywordsInput)
     ? locationKeywordsInput
-        .map((k) => String(k || "").trim())
-        .filter((k) => k !== "")
+      .map((k) => String(k || "").trim())
+      .filter((k) => k !== "")
     : [];
   const activeThemeKeywords = Array.isArray(themeKeywordsInput)
     ? themeKeywordsInput
-        .map((k) => String(k || "").trim())
-        .filter((k) => k !== "")
+      .map((k) => String(k || "").trim())
+      .filter((k) => k !== "")
     : [];
 
   const hasLocation = activeLocationKeywords.length > 0;
@@ -182,54 +247,46 @@ export async function searchRawLocationDataByLocateAnime(
   // --- Logic for theme-based search using combined Regex ---
   // This part is reached only if hasTheme is true.
 
-  // Split keywords from the input array
-  const keywords = activeThemeKeywords; // Already filtered and trimmed
-
-  // Build an $and query with regex conditions for each keyword
-  const regexConditions = keywords.map((keyword) => {
-    const escapedKeyword = escapeRegexChars(keyword); // Use your existing helper
-    const regex = new RegExp(escapedKeyword, "i"); // Case-insensitive regex for each keyword
-    // Each keyword must match in at least one of the name fields
+  const keywords = activeThemeKeywords;
+  const animeTitleMatchConditions = keywords.map((keyword) => {
+    if (!keyword) return null;
+    const escapedKeyword = escapeRegexChars(keyword);
+    const regex = new RegExp(escapedKeyword, "i");
     return {
       $or: [{ name: regex }, { name_en: regex }, { name_cn: regex }],
     };
-  });
+  }).filter(condition => condition !== null);
 
   let animeQuery = {};
-  if (regexConditions.length > 0) {
-    animeQuery = { $and: regexConditions };
+  if (animeTitleMatchConditions.length > 0) {
+    animeQuery = { $or: animeTitleMatchConditions };
   } else {
-    // Should not happen if hasTheme is true, but handle defensively
     console.warn(
-      "[searchRawLocationDataByLocateAnime] No valid keywords for Regex search, returning empty."
+      "[searchRawLocationDataByLocateAnime] No valid theme keywords resulted in conditions for Anime search, returning empty."
     );
     return [];
   }
 
   console.log(
-    `[searchRawLocationDataByLocateAnime] Using complex Regex search for anime:`,
+    `[searchRawLocationDataByLocateAnime] Using complex Regex search for anime with $or logic:`,
     JSON.stringify(animeQuery)
   );
 
   const animes = await Anime.find(animeQuery)
-    .select("_id name name_en name_cn locations") // Select fields needed for output and filtering
-    .lean(); // Use lean() for performance
+    .select("_id name name_en name_cn locations")
+    .lean();
 
-  let matchedLocations = [];
+  let matchedLocationsWithScores = []; // Store locations with their scores
 
-  // Create regex for location keywords only if they are provided (and hasTheme is true)
-  const locationRegex = hasLocation // hasLocation is already based on activeLocationKeywords
+  const locationRegex = hasLocation
     ? new RegExp(activeLocationKeywords.map(escapeRegexChars).join("|"), "i")
     : null;
 
   for (const anime of animes) {
     let locationsToConsider = anime.locations || [];
 
-    // If locationKeywords are provided (hasLocation is true) and we have a locationRegex,
-    // filter the locations from the current anime
     if (hasLocation && locationRegex) {
       locationsToConsider = locationsToConsider.filter((loc) => {
-        // Check against the location's own name and its addresses array
         const nameMatch = loc.name && locationRegex.test(loc.name);
         const addressMatch =
           Array.isArray(loc.addresses) &&
@@ -239,32 +296,45 @@ export async function searchRawLocationDataByLocateAnime(
         return nameMatch || addressMatch;
       });
     }
-    // If !hasLocation (but hasTheme is true), all locationsToConsider from this anime will be processed.
 
-    // Map the filtered/all locations to the desired output object structure
-    // using the formatAnimeLocationObject helper or direct mapping
-    matchedLocations.push(
-      ...locationsToConsider.map((locSubDoc) => ({
-        // Fields from the location sub-document (locSubDoc)
-        id: locSubDoc.id,
-        name: locSubDoc.name,
-        image: locSubDoc.image,
-        ep: locSubDoc.ep,
-        s: locSubDoc.s,
-        origin: locSubDoc.origin,
-        originURL: locSubDoc.originURL,
-        locationRef: locSubDoc.locationRef?.toString(),
-        lat: locSubDoc.lat,
-        lng: locSubDoc.lng,
-        addresses: locSubDoc.addresses || [],
-        anitabi_names: locSubDoc.anitabi_names || [],
-        anitabi_cn_names: locSubDoc.anitabi_cn_names || [],
-        // Add anime information
-        animeName: anime.name_en || anime.name || anime.name_cn,
-        animeId: anime._id?.toString(),
-      }))
-    );
+    locationsToConsider.forEach((locSubDoc) => {
+      const score = calculateRelevanceScore(
+        locSubDoc,
+        anime, // Pass the parent anime document
+        activeThemeKeywords,
+        activeLocationKeywords
+      );
+
+      if (score > 0) { // Only include locations that matched at least something for scoring
+        matchedLocationsWithScores.push({
+          // Fields from the location sub-document (locSubDoc)
+          id: locSubDoc.id,
+          name: locSubDoc.name,
+          image: locSubDoc.image,
+          ep: locSubDoc.ep,
+          s: locSubDoc.s,
+          origin: locSubDoc.origin,
+          originURL: locSubDoc.originURL,
+          locationRef: locSubDoc.locationRef?.toString(),
+          lat: locSubDoc.lat,
+          lng: locSubDoc.lng,
+          addresses: locSubDoc.addresses || [],
+          anitabi_names: locSubDoc.anitabi_names || [],
+          anitabi_cn_names: locSubDoc.anitabi_cn_names || [],
+          animeName: anime.name_en || anime.name || anime.name_cn,
+          animeId: anime._id?.toString(),
+          score: score, // Add the calculated score
+        });
+      }
+    });
   }
 
-  return matchedLocations;
+  // Sort locations by score in descending order
+  matchedLocationsWithScores.sort((a, b) => b.score - a.score);
+
+  // Optional: remove the score if you don't want to send it to the client
+  // const sortedLocations = matchedLocationsWithScores.map(({ score, ...rest }) => rest);
+  // return sortedLocations;
+
+  return matchedLocationsWithScores; // Return with scores for now, can be removed if not needed by frontend
 }
