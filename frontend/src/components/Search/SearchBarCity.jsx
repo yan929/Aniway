@@ -160,78 +160,88 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
               setShowResult(true);
             }
           }}
-          className="bg-transparent border-none h-full text-lg w-full focus:outline-none text-gray-800 placeholder-gray-500 font-normal"
+          className="flex-grow p-2 text-lg text-gray-800 focus:outline-none bg-transparent dark:text-gray-200 dark:placeholder-gray-400 dark:caret-slate-300"
         />
       </div>
 
-      {showResult && (
-        <div className="absolute top-full w-full rounded-lg shadow-lg border border-gray-200 flex flex-col items-start z-50 h-auto mt-1 bg-white">
-          {isLoading ? (
-            <div className="w-full px-6 py-3 text-gray-500">Searching...</div>
-          ) : searchResults.cities.length > 0 ||
-            searchResults.countries.length > 0 ? (
-            <div className="w-full max-h-[400px] overflow-y-auto">
-              {/* Cities Section */}
-              {searchResults.cities.length > 0 && (
-                <>
-                  <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 border-b border-gray-200">
-                    Cities
-                  </p>
-                  {searchResults.cities.map((city, id) => {
-                    const currentIndex = id;
-                    return (
-                      <div
-                        key={`city-${id}`}
-                        className={`flex items-start px-4 py-2 w-full border-b border-gray-100 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${
-                          selectedIndex === currentIndex ? "bg-gray-50" : ""
-                        }`}
-                        onClick={() =>
-                          handleSelect({ name: city, type: "city" })
-                        }
-                      >
-                        <FaLocationDot />
-                        <p className="font-semibold m-0 text-sm text-left">
-                          {city}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
+      {showResult &&
+        (searchResults.cities.length > 0 ||
+          searchResults.countries.length > 0) && (
+          <div className="absolute top-full w-full rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col items-start z-50 h-auto mt-1 bg-white dark:bg-gray-800">
+            {isLoading ? (
+              <div className="w-full px-6 py-3 text-gray-500 dark:text-gray-200">
+                Searching...
+              </div>
+            ) : searchResults.cities.length > 0 ||
+              searchResults.countries.length > 0 ? (
+              <div className="w-full max-h-[400px] overflow-y-auto">
+                {/* Cities Section */}
+                {searchResults.cities.length > 0 && (
+                  <>
+                    <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
+                      Cities
+                    </p>
+                    {searchResults.cities.map((city, id) => {
+                      const currentIndex = id;
+                      return (
+                        <div
+                          key={`city-${id}`}
+                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                            selectedIndex === currentIndex
+                              ? "bg-gray-50 dark:bg-gray-700"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleSelect({ name: city, type: "city" })
+                          }
+                        >
+                          <FaLocationDot />
+                          <p className="font-semibold m-0 text-sm text-left">
+                            {city}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
 
-              {/* Countries Section */}
-              {searchResults.countries.length > 0 && (
-                <>
-                  <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 border-b border-gray-200">
-                    Countries and Regions
-                  </p>
-                  {searchResults.countries.map((country, id) => {
-                    const currentIndex = searchResults.cities.length + id;
-                    return (
-                      <div
-                        key={`country-${id}`}
-                        className={`flex items-start px-4 py-2 w-full border-b border-gray-100 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${
-                          selectedIndex === currentIndex ? "bg-gray-50" : ""
-                        }`}
-                        onClick={() =>
-                          handleSelect({ name: country, type: "country" })
-                        }
-                      >
-                        <FaLocationDot />
-                        <p className="font-semibold m-0 text-sm text-left">
-                          {country}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-            </div>
-          ) : (
-            !isLoading && <p className="noResult">No result found</p>
-          )}
-        </div>
-      )}
+                {/* Countries Section */}
+                {searchResults.countries.length > 0 && (
+                  <>
+                    <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
+                      Countries and Regions
+                    </p>
+                    {searchResults.countries.map((country, id) => {
+                      const currentIndex = searchResults.cities.length + id;
+                      return (
+                        <div
+                          key={`country-${id}`}
+                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                            selectedIndex === currentIndex
+                              ? "bg-gray-50 dark:bg-gray-700"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleSelect({ name: country, type: "country" })
+                          }
+                        >
+                          <FaLocationDot />
+                          <p className="font-semibold m-0 text-sm text-left">
+                            {country}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            ) : (
+              !isLoading && (
+                <p className="noResult dark:text-gray-200">No result found</p>
+              )
+            )}
+          </div>
+        )}
     </div>
   );
 }
