@@ -69,7 +69,7 @@ function AniDetail() {
   }, [animeData]);
 
   return (
-    <>
+    <div className="dark:bg-gray-800">
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (
@@ -91,7 +91,7 @@ function AniDetail() {
       )}
 
       {animeData && <NavigatePlanButton animeName={animeData.name} />}
-    </>
+    </div>
   );
 }
 
