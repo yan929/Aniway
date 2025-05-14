@@ -143,8 +143,8 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
 
   return (
     <div className="relative flex flex-col items-center w-full" ref={searchRef}>
-      <div className="flex items-center bg-white w-full rounded-l-full h-12 px-6">
-        <FaSearch className="text-gray-400 text-lg mr-3" />
+      <div className="flex items-center bg-white w-full rounded-l-full h-12 px-6 dark:bg-gray-800">
+        <FaSearch className="text-gray-400 text-lg mr-3 dark:text-gray-200" />
         <input
           type="text"
           placeholder={placeholder}

@@ -9,7 +9,11 @@ import { FaCalendarAlt } from "react-icons/fa";
  * @param {Function} props.onDateSelect - Callback when dates are selected
  * @param {string} props.mainDisplayTextColor - Color for the main display text
  */
-function DatePicker({ selectedDates, onDateSelect, mainDisplayTextColor = "text-gray-700" }) {
+function DatePicker({
+  selectedDates,
+  onDateSelect,
+  mainDisplayTextColor = "text-gray-700",
+}) {
   // Helper function to format date as MM/DD
   const getFormattedDate = (date) => {
     if (!date) return null; // Handle null or undefined dates
@@ -239,27 +243,29 @@ function DatePicker({ selectedDates, onDateSelect, mainDisplayTextColor = "text-
         onClick={() => setShowCalendar(!showCalendar)}
       >
         <FaCalendarAlt className={`${mainDisplayTextColor} mr-3 text-lg`} />
-        <span className={`${mainDisplayTextColor} text-base`}>{formatDisplayDate()}</span>
+        <span className={`${mainDisplayTextColor} text-base`}>
+          {formatDisplayDate()}
+        </span>
       </div>
 
       {/* Date Picker Popup - Single Month View */}
       {showCalendar && (
-        <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-40 w-64">
-          <div className="flex justify-between items-center px-4 py-2 border-b">
+        <div className="absolute right-0 mt-2 bg-white border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-40 w-64">
+          <div className="flex justify-between items-center px-4 py-2 border-b dark:bg-gray-800 dark:border-gray-700">
             <button
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-100"
               onClick={goToPreviousMonth}
               type="button"
             >
               &larr;
             </button>
             <div className="text-center">
-              <span className="font-medium text-gray-800">
+              <span className="font-medium text-gray-800 dark:text-gray-200">
                 {monthNames[displayMonth]} {displayYear}
               </span>
             </div>
             <button
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-100"
               onClick={goToNextMonth}
               type="button"
             >
@@ -267,38 +273,43 @@ function DatePicker({ selectedDates, onDateSelect, mainDisplayTextColor = "text-
             </button>
           </div>
 
-          <div className="p-2">
-            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-1">
+          <div className="p-2 dark:bg-gray-800">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-1 dark:text-gray-200 dark:hover:text-gray-100">
               {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                <div key={day} className="text-gray-500">
+                <div
+                  key={day}
+                  className="text-gray-500 dark:text-gray-200 dark:hover:text-gray-100"
+                >
                   {day}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-1 text-center">
+            <div className="grid grid-cols-7 gap-1 text-center dark:text-gray-200 dark:hover:text-gray-100">
               {calendarDays.map((day, index) => {
                 const isStartDate =
                   localSelectedDates.startDate &&
                   localSelectedDates.startDate.getTime() ===
-                  new Date(displayYear, displayMonth, day).getTime();
+                    new Date(displayYear, displayMonth, day).getTime();
                 const isEndDate =
                   localSelectedDates.endDate &&
                   localSelectedDates.endDate.getTime() ===
-                  new Date(displayYear, displayMonth, day).getTime();
+                    new Date(displayYear, displayMonth, day).getTime();
                 const isInRangeDay = isInRange(day);
 
                 return (
                   <div
                     key={index}
-                    className={`w-8 h-8 flex items-center justify-center text-sm relative ${day ? "cursor-pointer" : ""
-                      } ${isStartDate || isEndDate
-                        ? "bg-green-500 text-white"
+                    className={`w-8 h-8 flex items-center justify-center text-sm relative dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 ${
+                      day ? "cursor-pointer" : ""
+                    } ${
+                      isStartDate || isEndDate
+                        ? "bg-green-500 text-white dark:bg-green-800 dark:text-white"
                         : isInRangeDay
-                          ? "bg-green-100 text-green-800"
-                          : day
-                            ? "text-gray-700 hover:bg-gray-100"
-                            : ""
-                      }`}
+                        ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                        : day
+                        ? "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+                        : ""
+                    }`}
                     onClick={() => day && handleDateSelect(day)}
                     onMouseEnter={() => day && handleMouseEnter(day)}
                     onMouseLeave={handleMouseLeave}

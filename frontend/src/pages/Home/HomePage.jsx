@@ -129,10 +129,11 @@ function HomePage() {
             </div>
 
             {/* Date Picker - Full width on small screens, fixed width on medium+ screens */}
-            <div className="w-full md:w-64 border-t md:border-t-0 md:border-l border-gray-200 relative">
+            <div className="w-full md:w-64 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-700 dark:bg-gray-800 relative">
               <DatePicker
                 selectedDates={selectedDates}
                 onDateSelect={setSelectedDates}
+                mainDisplayTextColor="text-gray-800 dark:text-gray-200"
               />
             </div>
 
@@ -148,7 +149,7 @@ function HomePage() {
       </div>
 
       {/* Popular Destinations and Anime Sections with reduced top spacing */}
-      <div className="mt-6 md:mt-8">
+      <div className="mt-6 md:mt-8 dark:bg-gray-800">
         <DisplayPopLocInfo
           sectionTitle="Popular Destinations"
           locList={locData}

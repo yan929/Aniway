@@ -5,16 +5,18 @@ function DisplayPopAniInfo({ sectionTitle, aniList }) {
   const navigate = useNavigate();
   return (
     <>
-      <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-wide">
+      <div className="flex items-center justify-between mb-4 md:mb-6 dark:bg-gray-800">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-wide dark:text-gray-200">
           {sectionTitle}
         </h2>
         {/* Show scrolling hint on all screen sizes */}
-        <span className="text-xs text-gray-500">← Scroll for more →</span>
+        <span className="text-xs text-gray-500 dark:text-gray-200">
+          ← Scroll for more →
+        </span>
       </div>
-      
+
       {/* Horizontal scrolling on ALL screen sizes */}
-      <div className="overflow-x-auto flex -mx-4 px-4 pb-6 md:pb-8">
+      <div className="overflow-x-auto flex -mx-4 px-4 pb-6 md:pb-8 ">
         {aniList.map((data) => (
           <div
             key={data.id}
@@ -32,14 +34,18 @@ function DisplayPopAniInfo({ sectionTitle, aniList }) {
               />
             </div>
 
-            <div className="p-2 md:p-3 flex-grow">
-              <h3 className="text-sm md:text-lg font-bold truncate">{data.name}</h3>
+            <div className="p-2 md:p-3 flex-grow dark:bg-gray-800">
+              <h3 className="text-sm md:text-lg font-bold truncate dark:text-gray-200">
+                {data.name}
+              </h3>
               {data.description ? (
-                <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words line-clamp-1 md:line-clamp-2">
+                <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words line-clamp-1 md:line-clamp-2 dark:text-gray-200">
                   {data.description}
                 </p>
               ) : (
-                <p className="text-xs md:text-sm text-gray-500 truncate">Description...</p>
+                <p className="text-xs md:text-sm text-gray-500 truncate dark:text-gray-200">
+                  Description...
+                </p>
               )}
             </div>
           </div>

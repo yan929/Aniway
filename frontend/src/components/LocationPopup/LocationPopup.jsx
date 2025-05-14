@@ -119,7 +119,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
       {/* Add ref to the modal content and prevent click propagation */}
       <div
         ref={modalContentRef}
-        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl"
+        className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl"
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
       >
         {/* Header */}
@@ -168,8 +168,8 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
                     position={center}
                     // onCloseClick={() => setShowInfoWindow(false)}
                   >
-                    <div className="max-w-xs">
-                      <h3 className="font-bold text-lg">
+                    <div className="max-w-xs dark:bg-gray-800">
+                      <h3 className="font-bold text-lg dark:text-gray-200">
                         {placeDetails.name || location.names}
                       </h3>
                       <p className="text-sm mt-1">{placeDetails.address}</p>
@@ -193,14 +193,14 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
           style={{ maxHeight: "calc(90vh - 400px - 2rem)" }}
         >
           {/* Location title and Add button */}
-          <div className="mb-6 flex justify-center items-start">
+          <div className="mb-6 flex justify-center items-start dark:bg-gray-800">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2 ">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-200 mb-2 ">
                 {location.names || placeDetails?.name || location.city}
               </h2>
 
               {/* Address */}
-              <p className="text-lg text-gray-600">
+              <p className="text-lg text-gray-600 dark:text-gray-200">
                 {placeDetails?.address ||
                   location.addresses?.[0] ||
                   "Address not available"}
@@ -234,21 +234,23 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
           </div>
 
           {/* Related Anime */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Related Anime</h3>
+          <div className="dark:bg-gray-800">
+            <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">
+              Related Anime
+            </h3>
             {getAnimeNames().length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {getAnimeNames().map((anime, index) => (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-gray-800"
                     onClick={() => handleNavigateAnime(anime.en_name)}
                   >
-                    <p className="text-base font-semibold text-gray-900">
+                    <p className="text-base font-semibold text-gray-900 dark:text-gray-200">
                       {anime.en_name}
                     </p>
                     {anime.jp_name && (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 mt-1 dark:text-gray-200">
                         {anime.jp_name}
                       </p>
                     )}
@@ -256,7 +258,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-200">
                 No related anime information available
               </p>
             )}
