@@ -14,10 +14,11 @@ const openai = new OpenAI({
 
 // Helper function to build prompt for itinerary generation
 function buildItineraryPrompt(prompt, startDate, endDate) {
-  return `You are a travel planner.
+  return `You are a travel planner specializing in Japanese anime tourism.
 I will give you a request in natural language, along with a start and end date.
 Generate a structured JSON plan. For each day from ${startDate} to ${endDate},
-provide a full-day travel schedule, with time and activity description.
+provide a full-day travel schedule, with time and activity description, focusing on anime-related attractions, events, and experiences.
+Use your knowledge base and information from the web to find relevant anime locations.
 Keep all responses in this exact JSON format:
 {
   "itinerary": [
@@ -53,7 +54,7 @@ router.post("/itinerary", async (req, res) => {
         {
           role: "system",
           content:
-            "You are a helpful travel assistant. Reply in valid JSON only, following the given format strictly.",
+            "You are a helpful travel assistant specializing in Japanese anime tourism. Reply in valid JSON only, following the given format strictly, and ensure the itinerary focuses on anime-related content.",
         },
         {
           role: "user",
@@ -120,11 +121,11 @@ router.post("/augment-itinerary", async (req, res) => {
     console.log(" Performing extraction step...");
     try {
       const extractionResponse = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are a helpful travel planner assistant. Extract key information from the user's request. Respond ONLY with the JSON object, nothing else. Prioritize extracting specific anime/manga/movie titles mentioned by the user as 'interests' over the general term 'anime'. Structure: {"destination": "...", "interests": ["...", "..."], "budget": "...", "startDate": "YYYY-MM-DD or null", "endDate": "YYYY-MM-DD or null"}`,
+            content: `You are a helpful travel planner assistant specializing in Japanese anime. Extract key information from the user's request, with a particular focus on anime-related interests. Respond ONLY with the JSON object, nothing else. Prioritize extracting specific anime/manga/movie titles mentioned by the user as 'interests' over the general term 'anime'. Structure: {"destination": "...", "interests": ["...", "..."], "budget": "...", "startDate": "YYYY-MM-DD or null", "endDate": "YYYY-MM-DD or null"}`,
           },
           { role: "user", content: buildExtractionPrompt(userMessageText) },
         ],
@@ -181,16 +182,17 @@ router.post("/augment-itinerary", async (req, res) => {
     const systemPrompt = {
       role: "system",
       content:
-        "You are a helpful travel planner. Generate a detailed, day-by-day itinerary based on the user's request and conversation history. " +
+        "You are a helpful travel planner specializing in Japanese anime tourism. Generate a detailed, day-by-day itinerary based on the user's request and conversation history, with a strong focus on anime-related attractions, events, and experiences. \n" +
+        "**Crucially, when a specific anime, manga, or movie title (e.g., 'Your Name', 'Spirited Away') is provided by the user, you MUST prioritize researching and including real-world locations prominently featured in or significantly associated with that title. Use your knowledge base and, if necessary, simulate web searches to find these specific, iconic locations.** For example, for 'Your Name,' this would include places like the Suga Shrine stairs in Yotsuya, Tokyo, or locations around Lake Suwa if Hida is too far. Generic locations should only be used if specific ones cannot be found or if the user requests them.\n" +
         "You will be provided with a list of [Context Places] that have known coordinates. " +
-        "**When suggesting specific activities at named locations, YOU MUST PRIORITIZE using place names EXACTLY as they appear in the [Context Places] list if you want them to be geocoded in the final structured output.** " +
-        "If a suitable place name from the [Context Places] cannot be found for an activity, you can suggest a generic activity (e.g., 'Lunch at a local restaurant') or clearly state that a specific named place from the context wasn't suitable." +
+        "**When suggesting specific activities at named locations, YOU MUST PRIORITIZE using place names EXACTLY as they appear in the [Context Places] list if you want them to be geocoded in the final structured output, especially if these are the anime-specific locations you researched.** " +
+        "If a suitable place name from the [Context Places] cannot be found for an activity, or if your research didn't yield a geocodable context place for an iconic anime spot, you can suggest a generic activity (e.g., 'Lunch at a local anime-themed cafe') or clearly state that a specific named place from the context wasn't suitable or that a well-known anime location couldn't be precisely mapped to the provided context places." +
         "\n\n**Behavior Instructions:**" +
         "\n- When the user asks to modify an existing itinerary (e.g., add a day, change an activity), update the *existing* itinerary accordingly, incorporating previous turns of the conversation and context. Do not generate a completely new, unrelated itinerary unless the user explicitly asks for one." +
         "\n- **Crucially, do NOT include latitude and longitude coordinates (e.g., '(lat: ..., lng: ...)') in the descriptive text for activities or locations.**" +
-        "\n- If, for any given day, no relevant activities or places (especially from the [Context Places]) can be suggested based on the user's request, clearly state that and do not generate an empty schedule for that day. You can suggest the user provide more details or try a different interest for that day." +
-        "\n- Include practical tips at the end if relevant." +
-        "\n- Be conversational and enthusiastic!" +
+        "\n- If, for any given day, no relevant anime-focused activities or places (especially from the [Context Places]) can be suggested based on the user's request, clearly state that and do not generate an empty schedule for that day. You can suggest the user provide more details or try a different anime-related interest for that day." +
+        "\n- Include practical anime-related travel tips at the end if relevant (e.g., where to buy merchandise, information on specific anime studios or museums)." +
+        "\n- Be conversational and enthusiastic, sharing your passion for anime!" +
         "\n\n**Formatting Instructions:**" +
         "\n- Structure the response clearly using Markdown, following the Day -> Time Section -> Activity format." +
         "\n- For each day, include sections for 'Morning:', 'Afternoon:', and 'Evening:'. Use ONLY bold Markdown for these section titles (e.g., `**Morning:**`). DO NOT use heading syntax (`###`)." +
@@ -232,8 +234,7 @@ router.post("/augment-itinerary", async (req, res) => {
       const contextString = retrievedPlaces
         .map(
           (p) =>
-            `${p.addresses[0] || "Unknown Address"} (lat: ${p.lat}, lng: ${
-              p.lng
+            `${p.addresses[0] || "Unknown Address"} (lat: ${p.lat}, lng: ${p.lng
             })`
         )
         .join("; ");
@@ -423,12 +424,11 @@ async function convertMarkdownItineraryToJson(
       messages: [
         {
           role: "system",
-          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary and convert it STRICTLY into a JSON object matching the structure below. Generate a title based on the whole trip as the 'title' field in the JSON object, no more than 50 characters including spaces.\n\n
+          content: `You are a data conversion assistant. Parse the provided Markdown travel itinerary, which is focused on Japanese anime tourism, and convert it STRICTLY into a JSON object matching the structure below. Generate a title based on the whole trip as the 'title' field in the JSON object, no more than 50 characters including spaces, reflecting the anime theme of the trip if possible (e.g., "Anime Pilgrimage to Tokyo", "Exploring Akihabara").\n\n
           **Date Handling Instructions:**\n
           1. The **required format** for the 'date' field is **'YYYY-MM-DD'**. \n
-          2. Use the provided 'Start Date' (${
-            extractedInfo.startDate
-          }) as the date for the first day (the object with index: 1).\n
+          2. Use the provided 'Start Date' (${extractedInfo.startDate
+            }) as the date for the first day (the object with index: 1).\n
           3. The same place (same lat and lng) can only appear ONCE in the itinerary.\n
           4. For each subsequent day object (index: 2, index: 3, etc.), calculate the date by **adding one day** to the date of the previous day object. \n
           5. The 'date' field **MUST** contain a valid 'YYYY-MM-DD' string based on these rules. **Do not output null or invalid date strings.**\n\n
