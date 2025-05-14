@@ -8,6 +8,7 @@ const ItineraryItem = ({
   item,
   detail,
   itemIndex,
+  displayIndex,
   moveItem,
   onDelete,
   date,
@@ -56,7 +57,7 @@ const ItineraryItem = ({
           <div
             className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#a1a9ef]  text-white  text-sm rounded-full flex items-center justify-center z-10 shadow-[0_0_0_10px_white] dark:shadow-[0_0_0_10px_#4b5563]"
           >
-            {itemIndex + 1}
+            {displayIndex + 1}
           </div>
 
           <div className="pl-4 pr-2">

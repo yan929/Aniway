@@ -34,22 +34,38 @@ export default function ItinerarySection({ onRefsCreated }) {
     );
   }
 
+  let globalItemCounter = 0;
+
   return (
-    <div className="flex flex-col bg-[f3f2f3] dark:bg-gray-700 shadow-md  py-3 px-8 dark:text-white">
-      {dayPlans.map((day, index) => (
-        <div
-          key={day.date || index}
-          className="mb-4"
-          ref={(el) => {
-            if (el) dayRefs.current[day.date || `day-${index}`] = el;
-            else delete dayRefs.current[day.date || `day-${index}`];
-          }}
-        >
-          {" "}
-          {/* Prefer day.date for key if available and unique */}
-          <TripDayPlan day={day} index={index} />
-        </div>
-      ))}
+
+    <div className="flex flex-col bg-[f3f2f3] dark:bg-gray-700 shadow-md  py-3 px-8">
+      {dayPlans.map((day, index) => {
+        const dayStartingGlobalIndex = globalItemCounter;
+        // Ensure day.itinerary is an array before accessing its length
+        const itineraryLength = Array.isArray(day.itinerary) ? day.itinerary.length : 0;
+        globalItemCounter += itineraryLength;
+
+        return (
+          <div
+            key={day.date || index}
+            className="mb-4"
+            // Assign a ref to this div using the day's date as the key
+            ref={(el) => {
+              if (el) dayRefs.current[day.date || `day-${index}`] = el;
+              else delete dayRefs.current[day.date || `day-${index}`];
+            }}
+          >
+            {" "}
+            {/* Prefer day.date for key if available and unique */}
+            <TripDayPlan
+              day={day}
+              index={index}
+              dayStartingGlobalIndex={dayStartingGlobalIndex}
+            />
+          </div>
+        );
+      })}
+
     </div>
   );
 }

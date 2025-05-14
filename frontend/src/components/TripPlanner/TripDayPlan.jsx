@@ -10,7 +10,7 @@ import ItineraryItem from "./ItineraryItem.jsx";
 import SmartAdviceWindow from "./SmartAdviceWindow.jsx";
 import { useDrop } from "react-dnd";
 
-export default function TripDayPlan({ day, index }) {
+export default function TripDayPlan({ day, index, dayStartingGlobalIndex }) {
   const placeDetailsMap = usePlaceDetails(day.itinerary);
   const {
     currentTrip,
@@ -153,6 +153,8 @@ export default function TripDayPlan({ day, index }) {
               return null;
             }
             const detail = placeDetailsMap[item.gpPlaceId];
+            const displayIndex = dayStartingGlobalIndex + itemIndex;
+
             return (
               <ItineraryItem
                 key={`${item.gpPlaceId}-${itemIndex}`}
@@ -160,8 +162,9 @@ export default function TripDayPlan({ day, index }) {
                 item={item}
                 detail={detail}
                 itemIndex={itemIndex}
+                displayIndex={displayIndex}
                 moveItem={moveItem}
-                onDelete={() => handleDelete(item)} // Ensure correct item is passed to handleDelete
+                onDelete={() => handleDelete(item)}
               />
             );
           })
