@@ -123,8 +123,8 @@ export default function TripDayPlan({ day, index }) {
 
   return (
     <>
-      <div className="flex items-center gap-6 text-[1.375rem] font-semibold text-gray-800">
-        <span>Day {index + 1}</span>
+      <div className="flex items-center gap-6 text-[1.375rem] font-semibold  text-gray-800">
+        <span className="text-[#626fe3] font-bold">Day {index + 1}</span>
         <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
         <button
           className="ml-auto bg-orange-400 text-black rounded-full py-1 px-4 text-[1rem] hover:bg-orange-300 "

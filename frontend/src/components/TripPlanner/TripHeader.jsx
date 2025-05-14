@@ -139,58 +139,62 @@ export default function TripHeader() {
   };
 
   return (
-    <div className="bg-slate-800 px-4 py-3 shadow-md w-full">
-      <div className="bg-white rounded-xl px-6 py-4 max-w-3xl mx-auto">
-        {/* Top Row: Title and Save Button */}
-        <div className="flex items-center w-full mb-2">
-          {/* Trip Title Section (Left) */}
-          <div className="flex-grow flex items-center justify-center">
-            {isEditingTitle ? (
-              <>
-                <input
-                  type="text"
-                  value={editableTitle}
-                  onChange={(e) => setEditableTitle(e.target.value)}
-                  className="text-xl font-bold border-b-2 border-green-500 focus:outline-none"
-                  autoFocus
-                />
-                <button
-                  onClick={handleSaveTitle}
-                  className="p-1 text-green-600 hover:text-green-800 ml-2"
-                >
-                  <FaSave size={18} />
-                </button>
-                <button
-                  onClick={handleCancelEditTitle}
-                  className="p-1 text-red-500 hover:text-red-700 ml-1"
-                >
-                  <FaTimes size={18} />
-                </button>
-              </>
-            ) : (
-              <>
-                <h1 className="text-xl font-bold truncate">{editableTitle}</h1>
-                <button
-                  onClick={handleEditTitle}
-                  className="p-1 text-gray-500 hover:text-gray-700 ml-2"
-                >
-                  <FaEdit size={18} />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+    <div className=" px-4 py-3 shadow-md w-full"
+      style={{
+        background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/public/tripplanner-banner.jpg') center center / cover no-repeat`
+      }}>
 
-        {/* Bottom Row: Date Picker (Centered) */}
-        <div className="flex items-center justify-center text-gray-600 text-sm gap-2 mt-2">
-          <div className="relative">
-            <DatePicker
-              selectedDates={{ startDate, endDate }}
-              onDateSelect={handleDatesChange}
-            />
-          </div>
+      {/* Top Row: Title and Save Button */}
+      <div className="flex items-center w-full mb-2">
+        {/* Trip Title Section (Left) */}
+        <div className="flex-grow flex items-center justify-center">
+          {isEditingTitle ? (
+            <>
+              <input
+                type="text"
+                value={editableTitle}
+                onChange={(e) => setEditableTitle(e.target.value)}
+                className="text-xl font-bold border-b-2 border-green-500 focus:outline-none"
+                autoFocus
+              />
+              <button
+                onClick={handleSaveTitle}
+                className="p-1 text-green-600 hover:text-green-800 ml-2"
+              >
+                <FaSave size={18} />
+              </button>
+              <button
+                onClick={handleCancelEditTitle}
+                className="p-1 text-red-500 hover:text-red-700 ml-1"
+              >
+                <FaTimes size={18} />
+              </button>
+            </>
+          ) : (
+            <>
+              <h1 className="text-xl  text-white font-bold truncate ">{editableTitle}</h1>
+              <button
+                onClick={handleEditTitle}
+                className="p-1 text-white hover:text-gray-700 ml-2"
+              >
+                <FaEdit size={18} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Row: Date Picker (Centered) */}
+      <div className="flex items-center justify-center text-gray-600 text-sm gap-2 mt-2 font-semibold">
+        <div className="relative">
+          <DatePicker
+            selectedDates={{ startDate, endDate }}
+            onDateSelect={handleDatesChange}
+            mainDisplayTextColor="text-white"
+          />
         </div>
       </div>
     </div>
+
   );
 }

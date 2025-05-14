@@ -55,7 +55,7 @@ export default function ItinerarySection({ onRefsCreated }) {
   }
 
   return (
-    <div className="flex flex-col bg-white shadow-md rounded-lg py-3 px-15">
+    <div className="flex flex-col bg-[f3f2f3] shadow-md rounded-lg py-3 px-15">
       {dayPlans.map((day, index) => (
         <div
           key={day.date || index}
