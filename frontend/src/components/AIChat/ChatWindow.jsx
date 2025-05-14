@@ -377,7 +377,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Ask for an itinerary or other travel help..."
-            className="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm"
+            className="flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 focus:border-transparent text-sm text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             disabled={isStreaming}
           />
           <button
