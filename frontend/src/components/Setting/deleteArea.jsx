@@ -1,10 +1,13 @@
 import apiClient from "../../util/api";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useNavigate } from "react-router-dom";
 
+import ConfirmDeleteModal from "../Modal/ConfirmModal.jsx";
+
 function DeleteAccountSection() {
   const { user, logoutUser } = useContext(AppContext);
+  const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -47,8 +50,13 @@ function DeleteAccountSection() {
 
           <div className="mt-4 flex justify-start">
             <button
-              className="bg-gray-800 text-white font-semibold px-5 py-2 rounded-full hover:bg-gray-900"
-              onClick={handleUserDelete}
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-6 py-2 
+    bg-gradient-to-r from-red-500 to-rose-500
+    text-white font-semibold rounded-full 
+    shadow-md hover:shadow-lg hover:scale-[1.03] 
+    transition-all duration-300 ease-in-out 
+    focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800"
             >
               Delete
             </button>
@@ -57,6 +65,19 @@ function DeleteAccountSection() {
       ) : (
         <p>no setting</p>
       )}
+
+      <ConfirmDeleteModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={"Delete Account"}
+        message={
+          "Are you sure you want to delete your account? This action is irreversible."
+        }
+        onConfirm={() => {
+          handleUserDelete();
+          setShowModal(false);
+        }}
+      />
     </>
   );
 }

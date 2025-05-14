@@ -110,6 +110,7 @@ passport.use(
           displayName: profile.displayName,
           photos: profile.photos,
           emails: profile.emails,
+          accessToken,
         });
       } catch (error) {
         return done(error, null);

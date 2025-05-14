@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
 import SearchBarCity from "../../components/Search/SearchBarCity";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
+import DisplayContactBanner from "../../components/Contact/ContactBanner";
+import WaveText from "../../components/Animation/TextWave";
 import { AppContext } from "../../context/AppContext";
 import apiClient from "../../util/api";
 
@@ -99,14 +102,17 @@ function HomePage() {
       {/* Hero Section with Search - Optimized spacing for mobile */}
       <div className="text-center mb-8 md:mb-12 lg:mb-16">
         {/* Responsive heading sizes */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 md:mb-6 dark:text-gray-100  dark:bg-gray-900">
-          Aniway — The Anime Traveler's Way
+        <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 md:mb-6">
+          <WaveText
+            className="dark:text-gray-100"
+            text="Aniway — The Anime Traveler's Way"
+          />
         </h1>
         {/* Responsive paragraph with optimized spacing */}
         <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 lg:mb-12 max-w-3xl mx-auto dark:text-gray-100  dark:bg-gray-900">
-          From screen to scenes, find the anime in your advanture.
+          From screen to scenes, find the anime in your adventure.
           <br className="hidden md:block dark:text-gray-100  dark:bg-gray-900" />
-          Find your scene, live your dream !
+          Find your scene, live your dream!
         </p>
 
         {/* Search Container */}
@@ -159,6 +165,9 @@ function HomePage() {
           onClose={handleClosePopup}
         />
       )}
+
+      <br />
+      <DisplayContactBanner />
     </div>
   );
 }

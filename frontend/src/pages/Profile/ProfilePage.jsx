@@ -206,19 +206,19 @@ const ProfilePage = () => {
   return (
     <>
       <NavBar />
-      <div className="bg-gray-100 min-h-screen pt-20 px-4">
+      <div className="bg-gray-100 min-h-screen pt-20 px-4 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto">
           {user && ( // Check user again before accessing its properties
             <div className="text-center mb-4 pt-4">
-              <h2 className="text-2xl font-bold text-gray-700">
+              <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-100">
                 Welcome, {user.displayName || user.name || user.email}!
               </h2>
             </div>
           )}
           <h1 className="text-2xl font-bold text-center mb-8">My Trip</h1>
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-8 dark:bg-gray-800">
             <button
-              className="w-full py-4 bg-gray-100 text-purple-600 rounded-md flex items-center justify-center hover:bg-purple-50"
+              className="w-full py-4 bg-gray-100 text-purple-600 rounded-md flex items-center justify-center hover:bg-purple-50 dark:bg-gray-700 dark:text-purple-300 dark:hover:bg-gray-600"
               onClick={() => {
                 clearCurrentTrip();
                 navigate("/tripplanner");
@@ -230,8 +230,8 @@ const ProfilePage = () => {
           </div>
 
           {trips.length === 0 && !isDataLoading && (
-            <div className="bg-white rounded-lg shadow-sm p-8 mb-8 text-center">
-              <p className="text-gray-500">
+            <div className="bg-white rounded-lg shadow-sm p-8 mb-8 text-center dark:bg-gray-800">
+              <p className="text-gray-500 dark:text-gray-400">
                 Your active trips will appear here.
               </p>
             </div>
@@ -265,7 +265,7 @@ const ProfilePage = () => {
 
           {completedTrips.length === 0 && !isDataLoading && (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-gray-400">
                 Your completed trips will appear here.
               </p>
             </div>

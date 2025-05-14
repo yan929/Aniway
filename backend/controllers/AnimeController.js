@@ -64,11 +64,12 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
     throw new Error("Anime ID is required");
   }
 
-  const animeData = await Anime.findById(anime_id);
+  const animeData = await Anime.findById(anime_id).lean();
   if (!animeData) {
     res.status(404);
     throw new Error("Anime not found");
-  }
+  } 
+  
   const animeInfo = {
     id: animeData._id,
     name: animeData.name_en || animeData.name || animeData.name_cn,
@@ -77,7 +78,7 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
     description: animeData.overview || animeData.summary,
     director: animeData.director,
     site: animeData.site,
-    // copyrights: animeData.info.copyrights,
+    copyrights: animeData.info?.Copyright ||[],
   };
   res.json(animeInfo);
 });
@@ -106,7 +107,6 @@ const getAnimeIdByName = asyncHandler(async (req, res) => {
 
 const getAnimeLocation = async (req, res) => {
   const animeName = req.params.anime_name;
-  console.log("Test animeName:", animeName);
 
   const regex = new RegExp(animeName, "i");
 
@@ -132,7 +132,7 @@ const getAnimeLocation = async (req, res) => {
       })
         .select("_id anitabi_names  anime_cn_names anime_en_names")
         .lean();
-
+              
       return {
         id: location.id,
         locationName: location.name,
@@ -140,7 +140,6 @@ const getAnimeLocation = async (req, res) => {
         anime_en_names: relatedAnime.anime_en_names,
         addresses: location.addresses,
         ep: location.ep,
-        s: location.s, // have bug
         lat: location.lat,
         lng: location.lng,
       };

@@ -16,7 +16,9 @@ export default function TripHeader() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editableTitle, setEditableTitle] = useState(() =>
-    currentTrip && currentTrip.title ? currentTrip.title : "Trip Title"
+    currentTrip && currentTrip.title
+      ? currentTrip.title.slice(0, 50)
+      : "Trip Title"
   );
   // Store dates as Date objects or null
   const [startDate, setStartDate] = useState(null);
@@ -24,7 +26,7 @@ export default function TripHeader() {
 
   useEffect(() => {
     if (currentTrip && currentTrip.title) {
-      setEditableTitle(currentTrip.title);
+      setEditableTitle(currentTrip.title.slice(0, 50));
     } else {
       setEditableTitle("Trip Title"); // Default title if none exists
     }
@@ -125,20 +127,21 @@ export default function TripHeader() {
       alert("Error: Could not save trip title. Trip data is missing.");
       return;
     }
-    updateCurrentTripTitle(editableTitle);
+    updateCurrentTripTitle(editableTitle.slice(0, 50));
     setIsEditingTitle(false);
   };
 
   const handleCancelEditTitle = () => {
     setIsEditingTitle(false);
     if (currentTrip && currentTrip.title) {
-      setEditableTitle(currentTrip.title);
+      setEditableTitle(currentTrip.title.slice(0, 50));
     } else {
       setEditableTitle("Trip Title");
     }
   };
 
   return (
+
     <div className=" px-4 py-3 shadow-md w-full"
       style={{
         background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/public/tripplanner-banner.jpg') center center / cover no-repeat`
@@ -181,6 +184,7 @@ export default function TripHeader() {
               </button>
             </>
           )}
+
         </div>
       </div>
 
