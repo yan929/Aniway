@@ -38,17 +38,43 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }} # This is for GitHub Actions runner to SSH into VPS
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
+            echo "--- Setting up ASDF environment on VPS ---"
+            ASDF_SCRIPT_PATH="$HOME/.asdf/asdf.sh"
+            if [ -f "$ASDF_SCRIPT_PATH" ]; then
+              echo "Sourcing ASDF from $ASDF_SCRIPT_PATH"
+              . "$ASDF_SCRIPT_PATH"
+              echo "Node version via asdf: $(node -v)"
+              echo "NPM version via asdf: $(npm -v)"
+              if command -v pm2 &> /dev/null; then
+                echo "PM2 version: $(pm2 --version)"
+              else
+                echo "WARNING: pm2 command not found after ASDF setup. Ensure it's installed globally via npm with an asdf-managed Node version."
+              fi
+            else
+              echo "ERROR: ASDF script not found at $ASDF_SCRIPT_PATH. Cannot set up Node.js environment."
+              echo "Please ensure ASDF is installed correctly for the user '${{ secrets.VPS_USERNAME }}' and the path is correct."
+              exit 1
+            fi
+            echo "--- ASDF setup complete ---"
+
             export PROJECT_DIR="/home/shibang/Code/group-project-team-rocket-webmasters"
-            export GIT_REPO_URL="git@github.com:${{ github.repository }}.git"
 
-            cd $PROJECT_DIR
+            echo "Changing to project directory: $PROJECT_DIR"
+            cd $PROJECT_DIR || { echo "ERROR: Failed to cd into $PROJECT_DIR"; exit 1; }
+
+            echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+            echo "Checking out main branch..."
             git checkout main
-            git pull origin main
+            echo "Fetching latest changes from origin..."
+            git fetch origin
+            echo "Resetting main branch to origin/main..."
+            git reset --hard origin/main
 
-            # Create/Update .env file
+            echo "Creating/Updating backend .env file..."
+            mkdir -p $PROJECT_DIR/backend
             echo "NODE_ENV=production" > $PROJECT_DIR/backend/.env
             echo "PORT=5050" >> $PROJECT_DIR/backend/.env
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $PROJECT_DIR/backend/.env
@@ -60,17 +86,34 @@ jobs:
             echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> $PROJECT_DIR/backend/.env
             echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $PROJECT_DIR/backend/.env
             echo "OTHER_ORIGINS=${{ secrets.OTHER_ORIGINS }}" >> $PROJECT_DIR/backend/.env
-            echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" >> $PROJECT_DIR/frontend/.env
+
+            echo "Creating/Updating frontend .env file..."
+            mkdir -p $PROJECT_DIR/frontend
+            echo "VITE_Maps_API_KEY=${{ secrets.VITE_Maps_API_KEY }}" > $PROJECT_DIR/frontend/.env
             echo "VITE_BACKEND_API=${{ secrets.VITE_BACKEND_API }}" >> $PROJECT_DIR/frontend/.env
 
-            # Install/Update backend dependencies on VPS
-            cd $PROJECT_DIR/backend
-            npm install --omit=dev
+            echo "Installing backend dependencies..."
+            cd $PROJECT_DIR/backend || { echo "ERROR: Failed to cd into $PROJECT_DIR/backend"; exit 1; }
+            npm install --omit=dev --verbose
 
-            # Install/Update frontend dependencies
-            cd $PROJECT_DIR/frontend
-            npm install --omit=dev
-            npm run build
+            echo "Installing frontend dependencies and building..."
+            cd $PROJECT_DIR/frontend || { echo "ERROR: Failed to cd into $PROJECT_DIR/frontend"; exit 1; }
+            # For frontend build, you typically NEED devDependencies
+            npm install --verbose 
+            npm run build --verbose
 
-            # Restart application with PM2
-            pm2 restart aniway || pm2 start $PROJECT_DIR/backend/server.js --name aniway
+            echo "Restarting application with PM2..."
+            if command -v pm2 &> /dev/null
+            then
+                if pm2 describe aniway &> /dev/null; then
+                  pm2 restart aniway
+                else
+                  pm2 start $PROJECT_DIR/backend/server.js --name aniway
+                fi
+                pm2 save
+                echo "PM2 tasks completed."
+            else
+                echo "ERROR: PM2 command not found. Cannot start/restart application."
+                exit 1
+            fi
+            echo "Deployment script finished successfully."
