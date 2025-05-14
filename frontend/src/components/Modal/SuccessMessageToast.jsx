@@ -10,10 +10,7 @@ export default function SuccessToast({ message, onClose }) {
   }, [onClose]);
 
   return (
-    <div
-      className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50fixed top-6 left-1/2 transform -translate-x-1/2 
-            z-50 "
-    >
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
       <div className="bg-green-500 text-white px-6 py-4 rounded-md shadow-lg flex items-center gap-3 animate-fade-in-down pointer-events-auto">
         <FaCheckCircle className="text-2xl" />
         <div className="text-sm text-left">

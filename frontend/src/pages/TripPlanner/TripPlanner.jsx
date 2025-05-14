@@ -190,12 +190,10 @@ export default function TripPlanner() {
         className="relative z-10 overflow-y-auto bg-gray-100 dark:bg-gray-800 min-h-0 grow-0 min-w-[500px] max-w-[600px]"
         style={{ boxShadow: "6px 0px 5px -3px rgba(0, 0, 0, 0.25)" }}
       >
-        {" "}
         <TripHeader />
         <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
       <div className="flex-1 bg-gray-200 dark:bg-gray-800 h-full">
-        {" "}
         <TripMapDisplay />
       </div>
 
