@@ -37,10 +37,12 @@ function DeleteAccountSection() {
   return (
     <>
       {user ? (
-        <div className="pt-6 pr-6 pb-6 rounded-md">
-          <h2 className="text-xl font-bold mb-1 text-left">Delete Account</h2>
-          <hr className="border-gray-400 mb-2" />
-          <p className="text-sm text-gray-600 mb-4 text-left">
+        <div className="pt-6 pr-6 pb-6 rounded-md dark:bg-gray-800 bg-gray-100">
+          <h2 className="text-xl font-bold mb-1 text-left dark:text-white">
+            Delete Account
+          </h2>
+          <hr className="border-gray-400 mb-2 dark:border-gray-700" />
+          <p className="text-sm text-gray-600 mb-4 text-left dark:text-gray-400">
             This page section lets you permanently delete your account from the
             application. When you click the button, your account and all related
             data will be removed, you will be logged out, and redirected to the
@@ -52,7 +54,7 @@ function DeleteAccountSection() {
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-6 py-2 
-    bg-gradient-to-r from-red-500 to-rose-500
+    bg-gradient-to-r from-red-500 to-rose-500 dark:from-red-600 dark:to-rose-600
     text-white font-semibold rounded-full 
     shadow-md hover:shadow-lg hover:scale-[1.03] 
     transition-all duration-300 ease-in-out 

@@ -8,22 +8,21 @@ const MainLayout = () => {
   const showFooter = location.pathname !== "/tripplanner";
 
   // Determine the class name based on the current path
-  let mainClassName = "flex-1"; // Default for other pages
+  let mainClassName = "flex-1 dark:bg-gray-800 bg-gray-100"; // Default for other pages
   if (location.pathname === "/tripplanner") {
-    mainClassName = "flex-1  overflow-hidden"; // No overflow-hidden for HomePage and TripPlanner
+    mainClassName = "flex-1  overflow-hidden dark:bg-gray-800 bg-gray-100"; // No overflow-hidden for HomePage and TripPlanner
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen dark:bg-gray-800 bg-gray-100">
       <NavBar />
       {/* This main area will hold the Outlet. Its height should be viewport height minus NavBar height. */}
-      <main
-        className={mainClassName}
-        style={{ paddingTop: '3.5rem' }}
-      >
+      <main className={mainClassName} style={{ paddingTop: "3.5rem" }}>
         <Outlet />
       </main>
-      {showFooter && <Footer className="shrink-0" />}
+      {showFooter && (
+        <Footer className="shrink-0 dark:bg-gray-800 bg-gray-100" />
+      )}
     </div>
   );
 };
