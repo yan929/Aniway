@@ -50,7 +50,6 @@ function AniDetail() {
 
   const handleLocationClick = (location) => {
     setSelectedLocation(location);
-    console.log("Selected location:", location);
   };
 
   const handleClosePopup = () => {

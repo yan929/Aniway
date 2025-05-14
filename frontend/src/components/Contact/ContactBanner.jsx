@@ -15,7 +15,6 @@ function DisplayContactBanner() {
 
   const handleNavigateTrip = () => {
     const tripTitle = `Trip for anywhere`;
-    console.log("Test date:", selectedDates);
 
     if (!currentTrip) {
       setTripDetails(selectedLocation, tripTitle, selectedDates);

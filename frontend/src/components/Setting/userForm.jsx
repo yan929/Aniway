@@ -14,8 +14,6 @@ function UserForm({ user }) {
 
   const handleSave = async () => {
     // Save the updated user information
-    console.log("User information saved:", { name });
-
     if (!name.trim()) {
       setError("Username cannot be empty");
       setShowError(true);
@@ -28,16 +26,13 @@ function UserForm({ user }) {
         { name },
         { withCredentials: true }
       );
-      console.log("Response: ", response);
+
       if (!response) {
         console.log("Error: ", response);
         return;
       }
 
       const data = response.data;
-      console.log("User information saved successfully:", response.data);
-
-      console.log("User information saved successfully:", data.user);
 
       setName(data.user.name);
       setShowSuccess(true);
