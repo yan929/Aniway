@@ -135,12 +135,7 @@ function LocationsSearchPage() {
 
         const searchData = response.data;
 
-        const combinedLocations = [
-          ...(searchData.searchLocations || []),
-          ...(searchData.searchAnime || []),
-        ];
-
-        setLocations(combinedLocations || []);
+        setLocations(searchData.locations || []);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching locations:", err);
@@ -153,12 +148,12 @@ function LocationsSearchPage() {
   }, [searchQuery]);
 
   return (
-    <div className="p-5 max-w-7xl mx-auto relative">
+    <div className="p-5 max-w-7xl mx-auto relative dark:bg-gray-800">
       {/* Fixed position Back to Planner button - shown conditionally */}
       {showBackButton && (
         <button
           onClick={handleBackClick}
-          className="fixed top-22 left-8 z-10 inline-flex items-center gap-2 text-blue-500 no-underline text-base hover:underline bg-white px-4 py-2 rounded-lg shadow-md"
+          className="fixed top-22 left-8 z-10 inline-flex items-center gap-2 text-blue-500 no-underline text-base hover:underline bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-md"
         >
           <FaArrowLeft /> Back to Planner
         </button>
@@ -168,15 +163,15 @@ function LocationsSearchPage() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <h1 className="text-3xl font-bold">Locations for "{searchQuery}"</h1>
           {currentDay && (
-            <div className="px-4 py-2 bg-orange-100 rounded-lg mt-2 sm:mt-0">
+            <div className="px-4 py-2 bg-orange-100 dark:bg-orange-800 rounded-lg mt-2 sm:mt-0">
               <p className="font-semibold">
                 Adding to: {new Date(currentDay.date).toLocaleDateString()}
               </p>
             </div>
           )}
           {!currentDay && (
-            <div className="px-4 py-2 bg-red-100 rounded-lg mt-2 sm:mt-0">
-              <p className="font-semibold text-red-600">
+            <div className="px-4 py-2 bg-red-100 dark:bg-red-800 rounded-lg mt-2 sm:mt-0">
+              <p className="font-semibold text-red-600 dark:text-white">
                 No day selected! Please go to trip planner first.
               </p>
             </div>
@@ -185,11 +180,11 @@ function LocationsSearchPage() {
       </header>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-600 text-base">
+        <div className="text-center py-10 text-gray-600 dark:text-white text-base">
           <LoadingImage />
         </div>
       ) : error ? (
-        <div className="text-center py-10 text-red-500 text-base">
+        <div className="text-center py-10 text-red-500 dark:text-white text-base">
           <p>Error: {error}</p>
         </div>
       ) : locations.length > 0 ? (
@@ -202,7 +197,7 @@ function LocationsSearchPage() {
           addedLocations={addedLocations}
         />
       ) : (
-        <div className="text-center py-10 text-gray-600 text-base">
+        <div className="text-center py-10 text-gray-600 dark:text-white text-base">
           <p>No locations found for "{searchQuery}"</p>
         </div>
       )}

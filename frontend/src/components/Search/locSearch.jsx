@@ -65,41 +65,39 @@ function LocSearchBar({ setSelectedLocation }) {
   };
 
   return (
-    <>
-      <div
-        className="relative flex flex-col items-center"
-        tabIndex={0}
-        onFocus={() => {
-          if (locResults.length > 0) {
-            setShowResult(true);
-          }
-        }}
-        onBlur={() => setTimeout(() => setShowResult(false), 200)}
-      >
-        <SearchInput
-          resultList={locResults}
-          fetchKeyword={debouncedFetch}
-          selectedIndexChange={(index) => setSelectedIndex(index)}
-          selectedIndex={selectedIndex}
-          onSelectItem={handleSelectLocation}
-          inputValue={input}
-          onInputChange={(value) => setInput(value)}
-        />
+    <div
+      className="relative flex flex-col items-center"
+      tabIndex={0}
+      onFocus={() => {
+        if (locResults.length > 0) {
+          setShowResult(true);
+        }
+      }}
+      onBlur={() => setTimeout(() => setShowResult(false), 200)}
+    >
+      <SearchInput
+        resultList={locResults}
+        fetchKeyword={debouncedFetch}
+        selectedIndexChange={(index) => setSelectedIndex(index)}
+        selectedIndex={selectedIndex}
+        onSelectItem={handleSelectLocation}
+        inputValue={input}
+        onInputChange={(value) => setInput(value)}
+      />
 
-        {showResult && (
-          <div className="absolute top-full bg-white dark:bg-gray-800 w-full rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-20 dark:border dark:border-gray-700">
-            <SearchLocItem
-              icon={FaLocationDot}
-              title={"Location"}
-              resultList={locResults}
-              selectedIndex={selectedIndex}
-              onSelectLocation={(loc) => handleSelectLocation(loc)}
-              searchTerm={input}
-            />
-          </div>
-        )}
-      </div>
-    </>
+      {showResult && (
+        <div className="absolute top-full bg-white dark:bg-gray-800 w-full rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-20 dark:border dark:border-gray-700">
+          <SearchLocItem
+            icon={FaLocationDot}
+            title={"Location"}
+            resultList={locResults}
+            selectedIndex={selectedIndex}
+            onSelectLocation={(loc) => handleSelectLocation(loc)}
+            searchTerm={input}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
