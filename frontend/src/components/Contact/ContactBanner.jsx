@@ -39,7 +39,7 @@ function DisplayContactBanner() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={handleNavigateTrip}
-              className="bg-orange-400 text-white hover:bg-orange-500 font-bold py-3 px-8 rounded-lg transition-colors inline-block shadow-md hover:shadow-lg"
+              className="bg-[#626fe3] text-white hover:bg-orange-500 font-bold py-3 px-8 rounded-lg transition-colors inline-block shadow-md hover:shadow-lg"
             >
               Get Started
             </button>

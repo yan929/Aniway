@@ -218,7 +218,7 @@ const ProfilePage = () => {
           <h1 className="text-2xl font-bold text-center mb-8">My Trip</h1>
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8 dark:bg-gray-800">
             <button
-              className="w-full py-4 bg-gray-100 text-purple-600 rounded-md flex items-center justify-center hover:bg-purple-50 dark:bg-gray-700 dark:text-purple-300 dark:hover:bg-gray-600"
+              className="w-full py-4 bg-gray-100 text-[#626fe3] font-bold rounded-md flex items-center justify-center hover:bg-purple-50 dark:bg-gray-700 dark:text-purple-300 dark:hover:bg-gray-600"
               onClick={() => {
                 clearCurrentTrip();
                 navigate("/tripplanner");
