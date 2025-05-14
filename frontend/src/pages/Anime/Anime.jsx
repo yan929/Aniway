@@ -5,7 +5,7 @@ import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import NavigatePlanButton from "../../components/AniInfo/AniPlanButton";
-import LoadingImage from "../../components/Loading/Loading";
+import LoadingImage from "../../components/Animation/Loading";
 function AniDetail() {
   const { id } = useParams();
   const [animeData, setAnimeData] = useState(null);
