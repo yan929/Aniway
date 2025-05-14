@@ -6,6 +6,7 @@ import { AppContext } from "../../context/AppContext";
 import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import HorizontalLocationCard from "../../components/PopularItem/HorizontalLocationCard";
+import LoadingImage from "../../components/Animation/Loading";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
@@ -46,6 +47,8 @@ function LocationsSearchPage() {
   // Function to add a location to the current day's itinerary
   // This closely follows the pattern from TripDayPlan.jsx
   const handleAddToItinerary = async (location) => {
+    console.log("Check location:", location);
+
     if (!currentDay) {
       alert(
         "No day selected. Please go to the trip planner first to select a day."
@@ -68,15 +71,18 @@ function LocationsSearchPage() {
         loc.lng
       );
 
+      const currentItinerary = currentDay ? currentDay.itinerary : [];
       // Create the update item exactly like in TripDayPlan
       const updateItem = {
-        date: currentDay.date,
         gpPlaceId: newPlaceData.place_id,
-        order: currentDay.itinerary ? currentDay.itinerary.length : 0,
+        order: currentItinerary.length,
+        arrivalTime: "14:00",
+        note: "",
       };
 
+      const newItemArray = [...currentItinerary, updateItem];
       // Call updateItinerary exactly like in TripDayPlan
-      updateItinerary(tripData, updateItem);
+      updateItinerary(currentDay.date, newItemArray);
 
       // Mark as added in UI
       setAddedLocations((prev) => {
@@ -180,7 +186,7 @@ function LocationsSearchPage() {
 
       {loading ? (
         <div className="text-center py-10 text-gray-600 text-base">
-          Loading locations...
+          <LoadingImage />
         </div>
       ) : error ? (
         <div className="text-center py-10 text-red-500 text-base">
