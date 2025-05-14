@@ -175,7 +175,7 @@ export default function TripHeader() {
             </>
           ) : (
             <>
-              <h1 className="text-xl  text-white font-bold truncate ">{editableTitle}</h1>
+              <h1 className="text-2xl  text-white font-bold truncate ">{editableTitle}</h1>
               <button
                 onClick={handleEditTitle}
                 className="p-1 text-white hover:text-gray-700 ml-2"
