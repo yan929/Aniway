@@ -233,6 +233,8 @@ Built the location search page display functionality and implemented frontend fe
 ### Nicholas Travis ([nkaw981@aucklanduni.ac.nz](mailto:nkaw981@aucklanduni.ac.nz)) [@nkaw981](https://github.com/nkaw981)
 
 **Backend Developer**  
-_To be completed_
+Focused on middleware development for use by routes to access external resources (e.g. databases, Google Maps and ChatGPT).
+Created the user dropdown functionality.
+Developed unit tests for AnimeController, LocationController, and UserController.
 
 ---
