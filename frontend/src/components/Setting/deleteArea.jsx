@@ -56,7 +56,7 @@ function DeleteAccountSection() {
     text-white font-semibold rounded-full 
     shadow-md hover:shadow-lg hover:scale-[1.03] 
     transition-all duration-300 ease-in-out 
-    focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800"
+    focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 dark:text-black"
             >
               Delete
             </button>
