@@ -35,7 +35,7 @@ function SearchLocItem({
 
   return (
     <div className="w-full">
-      <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 border-b border-gray-200">
+      <p className="font-bold text-base px-4 py-2 pb-1 text-gray-800 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
         {title}
       </p>
       {resultList.length > 0 ? (
@@ -44,21 +44,26 @@ function SearchLocItem({
           {resultList.slice(0, 5).map((result, id) => (
             <div
               key={`loc-${id}`}
-              className={`flex items-start px-4 py-2 w-full border-b border-gray-100 cursor-pointer transition-colors duration-200 hover:bg-gray-50 ${selectedIndex === id ? "bg-gray-50" : ""
-                }`}
+              className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                selectedIndex === id ? "bg-gray-50 dark:bg-gray-700" : ""
+              }`}
               onClick={() => handleResultClick(result)}
             >
-              <div className="itemIcon w-6 h-6 flex-shrink-0 flex items-center justify-center mr-2">
+              <div className="itemIcon w-6 h-6 flex-shrink-0 flex items-center justify-center mr-2 dark:text-gray-300">
                 {icon && React.createElement(icon)}
               </div>
 
               <div className="flex-1 min-w-0 relative min-h-[72px]">
                 <div className="flex flex-col overflow-hidden pr-20">
-                  <p className="font-semibold m-0 text-sm text-left">{result.name || result.locationName}</p>
-                  <p className="truncate whitespace-nowrap overflow-hidden text-ellipsis text-sm m-0 text-gray-600 text-left">
+                  <p className="font-semibold m-0 text-sm text-left dark:text-gray-300">
+                    {result.name || result.locationName}
+                  </p>
+                  <p className="truncate whitespace-nowrap overflow-hidden text-ellipsis text-sm m-0 text-gray-600 dark:text-gray-300 text-left">
                     {result.addresses[0]}
                   </p>
-                  <p className="text-sm m-0 text-gray-600 text-left">{result.animeName}</p>
+                  <p className="text-sm m-0 text-gray-600 dark:text-gray-300 text-left">
+                    {result.animeName}
+                  </p>
                 </div>
 
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-16 rounded-md overflow-hidden z-10">
@@ -75,15 +80,16 @@ function SearchLocItem({
           <Link
             to={`/locations/search?q=${encodeURIComponent(
               searchTerm || ""
-            )}&backButton=${showBackButton}${currentDayIndex !== null ? `&day=${currentDayIndex}` : ""
-              }`}
-            className="block py-2.5 px-4 mt-1.5 text-center text-blue-500 text-sm cursor-pointer transition-colors duration-200 no-underline hover:bg-blue-50 hover:underline"
+            )}&backButton=${showBackButton}${
+              currentDayIndex !== null ? `&day=${currentDayIndex}` : ""
+            }`}
+            className="block py-2.5 px-4 mt-1.5 text-center text-blue-500 dark:text-blue-400 text-sm cursor-pointer transition-colors duration-200 no-underline hover:bg-blue-50 dark:hover:bg-blue-900 hover:underline"
           >
             Find more locations
           </Link>
         </div>
       ) : (
-        <p className="noResult">No result found</p>
+        <p className="noResult dark:text-gray-300 p-4">No result found</p>
       )}
     </div>
   );

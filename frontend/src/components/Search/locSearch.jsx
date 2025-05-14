@@ -87,7 +87,7 @@ function LocSearchBar({ setSelectedLocation }) {
         />
 
         {showResult && (
-          <div className="absolute top-full bg-white w-full rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-20">
+          <div className="absolute top-full bg-white dark:bg-gray-800 w-full rounded-[10px] px-[15px] shadow-md flex flex-col items-start z-20 dark:border dark:border-gray-700">
             <SearchLocItem
               icon={FaLocationDot}
               title={"Location"}
