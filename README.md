@@ -21,7 +21,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 - **🔍 Scene Search by Anime/Episode** — Find exact places where your anime scenes happen.
 - **🌏 Popular Destinations & Recommendations** — Discover trending spots for anime fans.
 - **🔑 Google One-Click Login** — Simple, secure login & profile management.
-- **👤 Itinerary Save & Email** — Access your plans online & offline.
+- **👤 Itinerary Save & View** — Easy access your plans history
 
 ---
 
@@ -101,7 +101,10 @@ npm test
 ### Environment Variables (.env example):
 
 📦 Frontend Environment Variables
-Please create a .env file in the /frontend directory.
+Please create a .env file in the /frontend directory.<br />
+**Important** <br />
+If you downloaded the key from canvas, there is a .env called "frontend.env". Please put that file in the frontend folder and modify its file name as ".env"
+<br />
 Example: /frontend/.env.example
 
 ```bash
@@ -114,6 +117,9 @@ VITE_BACKEND_API=http://127.0.0.1:5050/
 
 🖥️ Backend Environment Variables
 Please create a .env file in the /backend directory.
+**Important** <br />
+If you downloaded the key from canvas, there is a .env called "backend.env". Please put that file in the frontend folder and modify its file name as ".env"
+<br />
 Example: /backend/.env.example
 
 ```bash
