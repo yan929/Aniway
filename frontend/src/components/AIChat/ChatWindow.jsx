@@ -19,7 +19,6 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
 
   const messagesEndRef = useRef(null);
   const currentStreamIdRef = useRef(null); // Ref to track the ID of the message being streamed into
-  const isInitialMount = useRef(true); // Add this ref
 
   const { user } = useContext(AppContext);
 
@@ -30,7 +29,8 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
   useEffect(() => {
     // Scroll only when new messages are added, not on initial render
     // Check if chatHistory has more than the initial AI message
-    if (chatHistory.length > 1) { // Modify the condition here
+    if (chatHistory.length > 1) {
+      // Modify the condition here
       scrollToBottom();
     }
   }, [chatHistory]); // <--- Keep chatHistory as dependency
@@ -288,8 +288,8 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
   };
 
   return (
-    <div className="bg-white rounded-r-lg  w-full h-full flex flex-col">
-      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50 rounded-tr-lg shrink-0">
+    <div className="bg-white dark:bg-gray-800 rounded-r-lg  w-full h-full flex flex-col">
+      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50 dark:bg-gray-800 rounded-tr-lg shrink-0">
         <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 transition-colors mr-3 p-1 rounded-full hover:bg-gray-200"
@@ -297,31 +297,34 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
         >
           <IoClose size={24} />
         </button>
-        <div className="flex items-center">
-          <h2 className="text-lg font-semibold text-gray-800">
+        <div className="flex items-center dark:text-white">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
             Smart Assistant
           </h2>
         </div>
       </div>
 
       {/* Chat history area */}
-      <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-100">
+      <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-100 dark:bg-gray-800">
         {chatHistory.map((msg) => {
           return (
             <Fragment key={msg.id}>
               <div
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
-                  className={`flex items-start max-w-[80%] ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"
-                    }`}
+                  className={`flex items-start max-w-[80%] ${
+                    msg.sender === "user" ? "flex-row-reverse" : "flex-row"
+                  }`}
                 >
                   <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white ${msg.sender === "user"
-                      ? "bg-blue-500 ml-2"
-                      : "bg-orange-500 mr-2"
-                      }`}
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white ${
+                      msg.sender === "user"
+                        ? "bg-blue-500 ml-2"
+                        : "bg-orange-500 mr-2"
+                    }`}
                   >
                     {msg.sender === "user" ? (
                       user && user.avatar ? (
@@ -338,10 +341,11 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                     )}
                   </div>
                   <div
-                    className={`px-4 py-2 rounded-lg inline-block text-left text-sm whitespace-pre-wrap prose prose-sm max-w-none ${msg.sender === "user"
-                      ? "bg-blue-100 text-gray-800 rounded-br-none"
-                      : "bg-white text-gray-800 rounded-bl-none"
-                      }`}
+                    className={`px-4 py-2 rounded-lg inline-block text-left text-sm whitespace-pre-wrap prose prose-sm max-w-none ${
+                      msg.sender === "user"
+                        ? "bg-blue-100 text-gray-800 rounded-br-none dark:bg-blue-800 dark:text-white"
+                        : "bg-white text-gray-800 rounded-bl-none dark:bg-gray-800 dark:text-white"
+                    }`}
                   >
                     <div className="chat-message-content">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -369,7 +373,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-br-lg shrink-0">
+      <div className="p-4 border-t border-gray-200 bg-gray-50 dark:bg-gray-800 rounded-br-lg shrink-0">
         <div className="flex items-center space-x-2">
           <input
             type="text"
@@ -383,10 +387,11 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || isStreaming}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 shadow-sm flex items-center justify-center shrink-0 ${!message.trim() || isStreaming
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-              }`}
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 shadow-sm flex items-center justify-center shrink-0 ${
+              !message.trim() || isStreaming
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
             aria-label="Send message"
           >
             <LuSendHorizontal size={18} />
