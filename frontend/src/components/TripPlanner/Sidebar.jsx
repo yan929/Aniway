@@ -33,7 +33,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
       <nav className="flex flex-col gap-2 shrink-0">
         <button
           onClick={onToggleChat}
-          className="flex items-center justify-center gap-2  text-left py-1 px-3 h-12 rounded bg-[#17c686] hover:bg-orange-400 text-white leading-4.5 font-semibold transition-colors"
+          className="flex items-center justify-center gap-2  text-left py-1 px-3 h-12 rounded bg-[#17c686] hover:bg-green-600 text-white leading-4.5 font-semibold transition-colors"
           style={{ fontSize: "18px" }}
         >
           <IoSparkles size={20} color="white" />
