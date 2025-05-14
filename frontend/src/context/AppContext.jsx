@@ -573,7 +573,7 @@ function AppContextProvider({ children }) {
 
   // Added function to select a specific day
   function selectDay(day) {
-    console.log("Selecting day:", day);
+    // console.log("Selecting day:", day);
     setSelectedDay(day);
   }
 

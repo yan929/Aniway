@@ -54,7 +54,7 @@ function LocSearchBar({ setSelectedLocation }) {
 
   const handleSelectLocation = (loc) => {
     setSelectedLocation({
-      label: loc.name,
+      label: loc.label,//very important: will cause placeid returen vague if not using label or null
       lat: loc.lat,
       lng: loc.lng,
       gpPlaceId: loc.googlePlaceId,
