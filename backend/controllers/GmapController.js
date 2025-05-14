@@ -4,9 +4,7 @@ const GOOGLE_API_HOST = "https://maps.googleapis.com/maps/api";
 
 // New service function for core logic of fetching nearby place details
 async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
-  console.log("[Service] keyword:", keyword, "lat:", lat, "lng:", lng);
-
-  let nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
+  let nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=30&key=${process.env.GOOGLE_API_KEY}`;
   if (keyword) {
     nearbyUrl += `&keyword=${encodeURIComponent(keyword)}`;
   }
