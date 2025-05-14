@@ -20,27 +20,7 @@ export default function ItinerarySection({ onRefsCreated }) {
   console.log("ItinerarySection - currentTrip:", currentTrip);
   console.log("ItinerarySection - dayPlans (currentTrip.content):", dayPlans);
 
-  // Check if dayPlans is an array and not empty
-  if (!currentTrip) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "200px",
-        }}
-      >
-        <span className="text-gray-500">
-          Please select a date range to create the itinerary.
-        </span>
-      </div>
-    );
-  }
-
   if (!dayPlans || !Array.isArray(dayPlans)) {
-    // This case might occur if currentTrip exists but content is missing/invalid
-    // or if currentTrip is null and the above check didn't catch it (though it should)
     return (
       <div className="text-red-500">
         Error: Trip data (content) is invalid or not loaded.
@@ -55,12 +35,11 @@ export default function ItinerarySection({ onRefsCreated }) {
   }
 
   return (
-    <div className="flex flex-col bg-[f3f2f3] dark:bg-gray-700 shadow-md  py-3 px-8">
+    <div className="flex flex-col bg-[f3f2f3] dark:bg-gray-700 shadow-md  py-3 px-8 dark:text-white">
       {dayPlans.map((day, index) => (
         <div
           key={day.date || index}
           className="mb-4"
-          // Assign a ref to this div using the day's date as the key
           ref={(el) => {
             if (el) dayRefs.current[day.date || `day-${index}`] = el;
             else delete dayRefs.current[day.date || `day-${index}`];
