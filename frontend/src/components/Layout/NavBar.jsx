@@ -70,8 +70,8 @@ function NavBar() {
     user && user.name ? user.name.charAt(0).toUpperCase() : "A";
 
   return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-14 dark:text-gray-100  dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+    <nav className="shadow-md fixed top-0 left-0 right-0 z-50 h-14 bg-white dark:text-gray-100  dark:bg-gray-900">
+      <div className="px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <img
             src="/aniway.png"
@@ -107,7 +107,7 @@ function NavBar() {
               )
             ) : (
               // Show "Sign In" text if not logged in
-              <span className="text-gray-700 hover:text-blue-500 font-medium">
+              <span className="text-gray-700 hover:text-blue-500 font-medium dark:text-gray-100">
                 Sign In
               </span>
             )}

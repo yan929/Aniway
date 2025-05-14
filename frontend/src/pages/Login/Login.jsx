@@ -2,22 +2,22 @@ const LoginPage = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_API;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-700 rounded-3xl shadow-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img src="/aniway.png" alt="Aniway Logo" className="h-16" />
+          <img src="/aniway.png" alt="Aniway Logo" className="h-16 dark:h-20" />
         </div>
 
         {/* Welcome Text */}
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-10">
+        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-10">
           Welcome to Aniway
         </h1>
 
         {/* Google Sign In Button */}
         <a
           href={`${backendUrl}/auth/google`}
-          className="flex items-center justify-center w-full border border-gray-300 rounded-lg py-3 px-4 mb-4 hover:bg-gray-50 transition-colors duration-200"
+          className="flex items-center justify-center w-full border border-gray-300 dark:border-gray-600 rounded-lg py-3 px-4 mb-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
         >
           <svg
             viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ const LoginPage = () => {
             />
             <path d="M1 1h22v22H1z" fill="none" />
           </svg>
-          <span className="text-gray-600 font-medium">
+          <span className="text-gray-600 dark:text-gray-100 font-medium">
             Continue with Google
           </span>
         </a>
