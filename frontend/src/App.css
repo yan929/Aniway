@@ -1,10 +1,21 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
+  padding: 2rem;
+  /* Default padding for other pages */
   padding: 0;
   text-align: center;
   height: 100%;
 }
+
+/* Class for fullscreen #root element */
+.root-fullscreen #root,
+body.root-fullscreen #root {
+  /* Added body.root-fullscreen for robustness */
+  padding: 0;
+  max-width: none;
+}
+
 
 /* Add custom scrollbar styles for elements with overflow-y-auto */
 .overflow-y-auto::-webkit-scrollbar {
