@@ -124,8 +124,8 @@ export default function TripDayPlan({ day, index }) {
   return (
     <>
       <div className="flex items-center gap-6 text-[1.375rem] font-semibold  text-gray-800">
-        <span className="text-[#626fe3] font-bold">Day {index + 1}</span>
-        <span>{dayjs(day.date).format("dddd, MMMM D")}</span>
+        <span className="text-[#626fe3] dark:text-white font-bold">Day {index + 1}</span>
+        <span className="dark:text-white gap-2 px-2">{dayjs(day.date).format("dddd, MMMM D")}</span>
         <button
           className="ml-auto bg-[#17c586] text-white rounded-full py-1 px-4 text-[1rem] hover:bg-green-500 "
           onClick={() => setIsOpen(true)}
@@ -166,7 +166,7 @@ export default function TripDayPlan({ day, index }) {
             );
           })
         ) : (
-          <div className="text-sm text-gray-500 text-center py-4">
+          <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
             Drag and drop locations here or add them using the search below.
           </div>
         )}
