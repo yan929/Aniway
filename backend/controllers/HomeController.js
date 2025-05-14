@@ -57,8 +57,8 @@ const getTrendingData = asyncHandler(async (req, res) => {
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
-                relatedAnime[0].name ||
-                relatedAnime[0].name_cn
+              relatedAnime[0].name ||
+              relatedAnime[0].name_cn
               : null,
         };
       })
@@ -135,8 +135,8 @@ const searchAllLocations = asyncHandler(async (req, res) => {
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
-                relatedAnime[0].name ||
-                relatedAnime[0].name_cn
+              relatedAnime[0].name ||
+              relatedAnime[0].name_cn
               : null,
         };
       })
@@ -194,15 +194,15 @@ const searchData = asyncHandler(async (req, res) => {
 
     const searchAnimeLocations = searchAnimeData?.[0]?.locations
       ? searchAnimeData[0].locations
-          .map((loc) => ({
-            id: loc.id,
-            name: loc.name,
-            image: loc.image,
-            lat: loc.lat,
-            lng: loc.lng,
-            addresses: loc.addresses,
-          }))
-          .slice(0, limit)
+        .map((loc) => ({
+          id: loc.id,
+          name: loc.name,
+          image: loc.image,
+          lat: loc.lat,
+          lng: loc.lng,
+          addresses: loc.addresses,
+        }))
+        .slice(0, limit)
       : [];
 
     // Search Locations
@@ -256,8 +256,8 @@ const searchData = asyncHandler(async (req, res) => {
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
-                relatedAnime[0].name ||
-                relatedAnime[0].name_cn
+              relatedAnime[0].name ||
+              relatedAnime[0].name_cn
               : null,
         };
       })
@@ -280,12 +280,14 @@ const searchData = asyncHandler(async (req, res) => {
 const searchCitiesAndCountries = asyncHandler(async (req, res) => {
   const { q } = req.query;
 
-  if (!q) {
+  if (!q || !q.trim()) {
     return res.status(400).json({ message: "Search query 'q' is required" });
   }
 
+  const trimmedQ = q.trim();
+
   try {
-    const regex = new RegExp(q, "i"); // Case-insensitive regex
+    const regex = new RegExp(trimmedQ, "i");
 
     const searchLocationsData = await Location.find({
       $or: [{ city: regex }, { country: regex }],
@@ -298,10 +300,10 @@ const searchCitiesAndCountries = asyncHandler(async (req, res) => {
     let countries = new Set();
 
     searchLocationsData.forEach((loc) => {
-      if (loc.city && loc.city.toLowerCase().includes(q.toLowerCase())) {
+      if (loc.city && loc.city.toLowerCase().includes(trimmedQ.toLowerCase())) {
         cities.add(loc.city);
       }
-      if (loc.country && loc.country.toLowerCase().includes(q.toLowerCase())) {
+      if (loc.country && loc.country.toLowerCase().includes(trimmedQ.toLowerCase())) {
         countries.add(loc.country);
       }
     });
