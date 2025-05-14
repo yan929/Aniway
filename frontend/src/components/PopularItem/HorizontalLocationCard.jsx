@@ -9,8 +9,7 @@ function HorizontalLocationCard({
   onRemoveFromItinerary, 
   addedLocations = new Set() 
 }) {
- console.log("HorizontalLocationCard - locList:", locList);
- 
+
   // Extract all anime names (English and Japanese) from arrays
   const getAnimeNames = (location) => {
     if (location?.anime_en_names?.length > 0) {
