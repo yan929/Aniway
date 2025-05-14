@@ -46,39 +46,43 @@ function UserForm({ user }) {
 
   return (
     <>
-      <div className=" pt-6 pr-6 pb-6  rounded-md">
+      <div className=" pt-6 pr-6 pb-6  rounded-md dark:bg-gray-800 bg-gray-100">
         <div className="flex flex-col items-left mb-8 relative">
           <div className="flex items-center space-x-4 mb-4">
             <img
               src={user.avatar}
               alt={user.name || "User Avatar"}
-              className="w-15 h-15 rounded-full object-cover"
+              className="w-15 h-15 rounded-full object-cover dark:border-gray-700"
             />
             <div>
-              <p className="font-semibold text-gray-800 text-left">
+              <p className="font-semibold text-gray-800 text-left dark:text-white">
                 {user.name}
               </p>
-              <p className="text-sm text-gray-500 text-left">{user.email}</p>
-              <p className="text-sm text-gray-500 text-left">User</p>
+              <p className="text-sm text-gray-500 text-left dark:text-gray-400">
+                {user.email}
+              </p>
+              <p className="text-sm text-gray-500 text-left dark:text-gray-400">
+                User
+              </p>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="text-sm text-gray-500 mb-1 block text-left">
+            <label className="text-sm text-gray-500 mb-1 block text-left dark:text-gray-400">
               Username
             </label>
             <input
               type="text"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
             />
           </div>
           <div>
-            <label className="text-sm text-gray-500 mb-1 block text-left">
+            <label className="text-sm text-gray-500 mb-1 block text-left dark:text-gray-400">
               Email
             </label>
             <input
@@ -93,7 +97,7 @@ function UserForm({ user }) {
           <button
             type="submit"
             className="flex items-center gap-2 px-6 py-2 
-    bg-gradient-to-r from-green-500 to-emerald-500 
+    bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600
     text-white font-semibold rounded-full 
     shadow-md hover:shadow-lg hover:scale-[1.03]
     transition-all duration-300 ease-in-out 
