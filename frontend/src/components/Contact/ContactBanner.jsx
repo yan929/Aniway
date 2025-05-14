@@ -27,7 +27,7 @@ function DisplayContactBanner() {
 
   return (
     <>
-      <div className="bg-gray-800 text-white py-16">
+      <div className="dark:bg-gray-800 bg-white text-dark py-16">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6">
             Ready to Start Your Anime Adventure?
