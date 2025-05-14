@@ -94,7 +94,7 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
 
   return (
     <div
-      className="flex bg-white rounded-lg shadow-md overflow-hidden w-full hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      className="flex bg-white rounded-lg shadow-md overflow-hidden w-full hover:shadow-lg transition-shadow duration-200 cursor-pointer dark:bg-gray-800"
       onClick={onClick}
     >
       {/* Image Section */}
@@ -116,12 +116,12 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
         {/* Top: Title and Delete Icon */}
         <div>
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-lg font-semibold text-gray-800 mr-2">
+            <h2 className="text-lg font-semibold text-gray-800 mr-2 dark:text-gray-100">
               {title}
             </h2>
             <button
               onClick={handleDeleteClick}
-              className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 -mt-1 -mr-1"
+              className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 -mt-1 -mr-1 dark:text-gray-400"
               aria-label={`Delete ${title}`}
             >
               <FaTrash size={18} />
@@ -129,14 +129,14 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
           </div>
 
           {/* Middle: Date and Destination */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm text-gray-600 dark:text-gray-400">
             <span className="flex items-center">
-              <FaCalendarAlt className="mr-1.5 text-gray-500" />
+              <FaCalendarAlt className="mr-1.5 text-gray-500 dark:text-gray-400" />
               {formattedDate}
             </span>
             {destination && (
               <span className="flex items-center">
-                <FaMapMarkerAlt className="mr-1.5 text-gray-500" />
+                <FaMapMarkerAlt className="mr-1.5 text-gray-500 dark:text-gray-400" />
                 {destination}
               </span>
             )}
@@ -144,11 +144,11 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
         </div>
 
         {/* Bottom Right: User Icon */}
-        <div className="absolute bottom-3 right-3 text-gray-400">
+        <div className="absolute bottom-3 right-3 text-gray-400 dark:text-gray-400">
           <img
             src={user.avatar}
             alt="User"
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover dark:text-gray-400"
           />
         </div>
       </div>
