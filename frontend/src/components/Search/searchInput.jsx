@@ -39,7 +39,7 @@ function SearchInput({
         <FaSearch id="search-icon" className="text-gray-600 dark:text-gray-300" />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search by anime name or location..."
           className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-500 bg-transparent text-gray-800 dark:text-gray-300"
           value={inputValue ?? ""}
           onChange={(e) => {
