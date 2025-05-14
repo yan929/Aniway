@@ -7,8 +7,9 @@ import { FaCalendarAlt } from "react-icons/fa";
  * @param {Object} props - Component props
  * @param {Object} props.selectedDates - Currently selected dates { startDate: Date, endDate: Date }
  * @param {Function} props.onDateSelect - Callback when dates are selected
+ * @param {string} props.mainDisplayTextColor - Color for the main display text
  */
-function DatePicker({ selectedDates, onDateSelect }) {
+function DatePicker({ selectedDates, onDateSelect, mainDisplayTextColor = "text-gray-700" }) {
   // Helper function to format date as MM/DD
   const getFormattedDate = (date) => {
     if (!date) return null; // Handle null or undefined dates
@@ -237,8 +238,8 @@ function DatePicker({ selectedDates, onDateSelect }) {
         className="flex items-center h-12 px-4 cursor-pointer"
         onClick={() => setShowCalendar(!showCalendar)}
       >
-        <FaCalendarAlt className="text-gray-600 mr-3 text-lg" />
-        <span className="text-gray-700 text-base">{formatDisplayDate()}</span>
+        <FaCalendarAlt className={`${mainDisplayTextColor} mr-3 text-lg`} />
+        <span className={`${mainDisplayTextColor} text-base`}>{formatDisplayDate()}</span>
       </div>
 
       {/* Date Picker Popup - Single Month View */}
@@ -253,7 +254,7 @@ function DatePicker({ selectedDates, onDateSelect }) {
               &larr;
             </button>
             <div className="text-center">
-              <span className="font-medium">
+              <span className="font-medium text-gray-800">
                 {monthNames[displayMonth]} {displayYear}
               </span>
             </div>
@@ -279,27 +280,25 @@ function DatePicker({ selectedDates, onDateSelect }) {
                 const isStartDate =
                   localSelectedDates.startDate &&
                   localSelectedDates.startDate.getTime() ===
-                    new Date(displayYear, displayMonth, day).getTime();
+                  new Date(displayYear, displayMonth, day).getTime();
                 const isEndDate =
                   localSelectedDates.endDate &&
                   localSelectedDates.endDate.getTime() ===
-                    new Date(displayYear, displayMonth, day).getTime();
+                  new Date(displayYear, displayMonth, day).getTime();
                 const isInRangeDay = isInRange(day);
 
                 return (
                   <div
                     key={index}
-                    className={`w-8 h-8 flex items-center justify-center text-sm relative ${
-                      day ? "cursor-pointer" : ""
-                    } ${
-                      isStartDate || isEndDate
+                    className={`w-8 h-8 flex items-center justify-center text-sm relative ${day ? "cursor-pointer" : ""
+                      } ${isStartDate || isEndDate
                         ? "bg-green-500 text-white"
                         : isInRangeDay
-                        ? "bg-green-100 text-green-800"
-                        : day
-                        ? "hover:bg-gray-100"
-                        : ""
-                    }`}
+                          ? "bg-green-100 text-green-800"
+                          : day
+                            ? "text-gray-700 hover:bg-gray-100"
+                            : ""
+                      }`}
                     onClick={() => day && handleDateSelect(day)}
                     onMouseEnter={() => day && handleMouseEnter(day)}
                     onMouseLeave={handleMouseLeave}

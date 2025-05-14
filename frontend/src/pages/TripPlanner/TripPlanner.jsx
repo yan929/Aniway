@@ -164,12 +164,12 @@ export default function TripPlanner() {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <Sidebar onToggleChat={toggleChatWindow} onScrollToDay={scrollToDay} />
-      <main className="flex-1 overflow-y-auto bg-gray-100 min-h-0">
+      <main className="relative z-10 overflow-y-auto bg-gray-100 min-h-0 grow-0 min-w-[500px] max-w-[600px]" style={{ boxShadow: "6px 0px 5px -3px rgba(0, 0, 0, 0.25)" }}>
         {" "}
         <TripHeader />
         <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
-      <div className="w-3/7 bg-gray-200 h-full shrink-0">
+      <div className="flex-1 bg-gray-200 h-full">
         {" "}
         <TripMapDisplay />
       </div>
