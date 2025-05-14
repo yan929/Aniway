@@ -51,20 +51,19 @@ const ItineraryItem = ({
       className={`flex items-center group ${isDragging ? "opacity-50" : ""}`}
       style={{ cursor: "move" }}
     >
-      <div className="relative flex bg-white rounded-xl shadow-sm overflow-visible ">
-        <div className="flex-1 p-4 relative">
+      <div className="relative flex bg-white dark:bg-gray-600 rounded-xl shadow-sm overflow-visible ">
+        <div className="flex-1 p-4 relative ">
           <div
-            className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#a1a9ef]  text-white text-sm rounded-full flex items-center justify-center z-10 shadow"
-            style={{ boxShadow: "0 0 0 10px white" }}
+            className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#a1a9ef]  text-white  text-sm rounded-full flex items-center justify-center z-10 shadow-[0_0_0_10px_white] dark:shadow-[0_0_0_10px_#4b5563]"
           >
             {itemIndex + 1}
           </div>
 
           <div className="pl-4 pr-2">
-            <h3 className="text-lg font-bold text-gray-700 text-left">
+            <h3 className="text-lg font-bold text-gray-700 dark:text-white text-left">
               {detail?.name || item.gpPlaceId}
             </h3>
-            <p className="text-sm text-gray-700 text-left">
+            <p className="text-sm text-gray-700 dark:text-gray-200 text-left">
               {detail?.editorial_summary?.overview || detail?.formatted_address}
             </p>
           </div>

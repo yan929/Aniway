@@ -29,7 +29,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
     : [];
 
   return (
-    <aside className="relative z-20 bg-[#e6e5e6] text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0 h-full">
+    <aside className="relative z-20 bg-[#e6e5e6] dark:bg-gray-800 text-white w-48 p-4 flex flex-col gap-1 flex-shrink-0 h-full">
       <nav className="flex flex-col gap-2 shrink-0">
         <button
           onClick={onToggleChat}
@@ -45,13 +45,13 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
           <IoCaretDownOutline size={18} /> Overview
         </div>
 
-        <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded font-semibold text-black"
+        <div className="flex items-center justify-left gap-2 text-xl py-2 px-3 rounded font-semibold text-black dark:text-white"
           style={{ fontSize: "17px" }}>
           <IoCalendarOutline size={18} />
           <span>Itinerary</span>
         </div>
       </nav>
-      <div className="flex-grow flex flex-col gap-1 text-gray-800 overflow-y-auto w-full min-h-0">
+      <div className="flex-grow flex flex-col gap-1 text-gray-800 dark:text-white overflow-y-auto w-full min-h-0">
         {daysData.length > 0 ? (
           daysData.map((dayData, index) => (
             <div
@@ -71,7 +71,7 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
       </div>
       <button
         onClick={handleSave}
-        className="flex mt-auto items-center justify-center gap-2 text-left py-2 px-3 rounded bg-[#242423] hover:bg-green-600 text-white font-semibold transition-colors shrink-0"
+        className="flex mt-auto items-center justify-center gap-2 text-left py-2 px-3 rounded bg-[#242423] dark:bg-gray-100 dark:text-black hover:bg-green-600 text-white font-semibold transition-colors shrink-0"
       >
         <FaSave size={16} />
         Save Trip

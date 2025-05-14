@@ -35,11 +35,12 @@ function SearchInput({
 
   return (
     <>
-      <div className="bg-white w-full rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] flex items-center">
+      <div className="bg-white w-full rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] dark:shadow-[0_0_1px_#ddd] flex items-center dark:text-gray-800">
         <FaSearch id="search-icon" />
         <input
           type="text"
           placeholder="Search..."
+          className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500"
           value={inputValue ?? ""}
           onChange={(e) => {
             handleChange(e.target.value);
