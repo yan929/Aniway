@@ -1,34 +1,57 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
 import ItinerarySection from "../../components/TripPlanner/ItinerarySection.jsx";
 import ChatWindow from "../../components/AIChat/ChatWindow.jsx";
-import TripMapDisplay from "../../components/TripPlanner/TripMapDisplay.jsx"; // Added import
+import TripMapDisplay from "../../components/TripPlanner/TripMapDisplay.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 import apiClient from "../../util/api.js"; // Added import
 
 export default function TripPlanner() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { currentTrip, tripLocation, replaceEntireTrip } =
+  const { currentTrip, tripLocation, replaceEntireTrip, isAuthLoading } =
     useContext(AppContext);
-  const navigate = useNavigate();
   const location = useLocation(); // Get current location
 
   // Effect to add/remove class from body based on route
   useEffect(() => {
     const rootElement = document.body; // Target body for class manipulation
-    if (location.pathname === '/tripplanner') {
-      rootElement.classList.add('root-fullscreen');
+    if (location.pathname === "/tripplanner") {
+      rootElement.classList.add("root-fullscreen");
     } else {
-      rootElement.classList.remove('root-fullscreen');
+      rootElement.classList.remove("root-fullscreen");
     }
     // Cleanup function to remove the class if the component unmounts
     // or if the path changes away from /tripplanner before unmount
     return () => {
-      rootElement.classList.remove('root-fullscreen');
+      rootElement.classList.remove("root-fullscreen");
     };
   }, [location.pathname]); // Re-run effect if location.pathname changes
+
+  // Effect to create a default 'New Trip' if none exists on load for an authenticated user
+  useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+
+    if (!currentTrip) {
+      console.log(
+        "TripPlanner: No currentTrip found after auth check, creating default 'New Trip'."
+      );
+      const defaultNewTrip = {
+        title: "New Trip",
+        content: [],
+      };
+      replaceEntireTrip(defaultNewTrip);
+    }
+  }, [currentTrip, replaceEntireTrip, isAuthLoading]);
 
   // Ref to store the refs of each day section from ItinerarySection
   const daySectionRefs = useRef({});
@@ -39,26 +62,26 @@ export default function TripPlanner() {
   };
 
   // Function to scroll to a specific day
-  const scrollToDay = (date) => {
-    const ref = daySectionRefs.current[date];
-    if (ref) {
-      ref.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      console.warn(`Ref for date ${date} not found.`);
-    }
-  };
+  const scrollToDay = useCallback(
+    (date) => {
+      const ref = daySectionRefs.current[date];
+      if (ref) {
+        ref.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        console.warn(`Ref for date ${date} not found.`);
+      }
+    },
+    [daySectionRefs]
+  );
 
   // Check if trip data exists when component mounts
   useEffect(() => {
-    // If tripData or tripLocation is missing, you might want to redirect or show a message
     if (!currentTrip || !tripLocation) {
       console.warn(
         "Missing trip data or location. Consider selecting destination and dates from the homepage."
       );
-      // Optional: Uncomment to redirect back to homepage if no data
-      // navigate('/');
     }
-  }, [currentTrip, tripLocation, navigate]);
+  }, [currentTrip, tripLocation]);
 
   // Toggle chat window visibility
   const toggleChatWindow = () => {
@@ -76,7 +99,7 @@ export default function TripPlanner() {
             (day.itinerary || []).map(async (item) => {
               if (item.lat == null || item.lng == null) {
                 console.warn("Skipping item due to missing lat/lng:", item);
-                return null; // Return null to be filtered out later
+                return null;
               }
               try {
                 const response = await apiClient.post(
@@ -98,10 +121,9 @@ export default function TripPlanner() {
                     `Skipping item due to missing place_id, name, or 'Unknown' name for lat: ${item.lat}, lng: ${item.lng}. Data:`,
                     placeData
                   );
-                  return null; // Return null to be filtered out
+                  return null;
                 }
 
-                // Return a new object with all original item fields, plus gpPlaceId and essential display data
                 return {
                   ...item,
                   gpPlaceId: placeData.place_id,
@@ -144,10 +166,10 @@ export default function TripPlanner() {
           "https://placehold.co/300x200?text=No+Image",
         destination:
           updatedContent.length > 0 &&
-            updatedContent[updatedContent.length - 1].itinerary.length > 0
+          updatedContent[updatedContent.length - 1].itinerary.length > 0
             ? updatedContent[updatedContent.length - 1].itinerary[
-              updatedContent[updatedContent.length - 1].itinerary.length - 1
-            ].city || undefined
+                updatedContent[updatedContent.length - 1].itinerary.length - 1
+              ].city || undefined
             : undefined,
       };
       console.log(
@@ -164,12 +186,15 @@ export default function TripPlanner() {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <Sidebar onToggleChat={toggleChatWindow} onScrollToDay={scrollToDay} />
-      <main className="relative z-10 overflow-y-auto bg-gray-100 min-h-0 grow-0 min-w-[500px] max-w-[600px]" style={{ boxShadow: "6px 0px 5px -3px rgba(0, 0, 0, 0.25)" }}>
+      <main
+        className="relative z-10 overflow-y-auto bg-gray-100 dark:bg-gray-800 min-h-0 grow-0 min-w-[500px] max-w-[600px]"
+        style={{ boxShadow: "6px 0px 5px -3px rgba(0, 0, 0, 0.25)" }}
+      >
         {" "}
         <TripHeader />
         <ItinerarySection onRefsCreated={handleRefsCreated} />
       </main>
-      <div className="flex-1 bg-gray-200 h-full">
+      <div className="flex-1 bg-gray-200 dark:bg-gray-800 h-full">
         {" "}
         <TripMapDisplay />
       </div>
