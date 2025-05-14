@@ -13,11 +13,15 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
   // console.log("[Service] nearbyUrl (initial attempt):", nearbyUrl);
 
   let nearbyRes = await axios.get(nearbyUrl);
-  let nearbyData = nearbyRes.data;
-  let operationalResults =
-    nearbyData.results?.filter(
-      (result) => result.business_status === "OPERATIONAL"
-    ) || [];
+  console.log("[Service] response status:", nearbyRes.status);
+  let operationalResults = [];
+  if (nearbyRes.status === 200) {
+    let nearbyData = nearbyRes.data;
+    operationalResults =
+      nearbyData.results?.filter(
+        (result) => result.business_status === "OPERATIONAL"
+      ) || [];
+  }
 
   // Fallback if no operational results (not just if results is empty)
   if (!operationalResults.length) {
@@ -97,6 +101,7 @@ const fetchPlaceInfo = async (req, res) => {
     const detailsRes = await axios.get(
       `${GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
     );
+    console.log("[Service] detailsRes:", detailsRes);
 
     if (!detailsRes || !detailsRes.data || !detailsRes.data.result) {
       return res.status(404).json({ error: "Place not found" });
@@ -142,15 +147,14 @@ const fetchPlacePhoto = async (req, res) => {
   }
 };
 
-const fetchPlaceNearby = async (req, res, next) => {
+const fetchPlaceNearby = async (req, res) => {
   const { keyword, lat, lng } = req.query;
   try {
     const placeDetails = await getNearbyPlaceDetailsService(lat, lng, keyword);
     res.json(placeDetails);
   } catch (err) {
-    // Pass the error to the centralized error handler
-    // console.error("[Route Handler] Error in fetchPlaceNearby:", err.message);
-    next(err);
+    console.error("[Route Handler] Error in fetchPlaceNearby:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
