@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import apiClient from "../../util/api";
 import DisplayAniLoc from "../../components/AniInfo/AniLoc";
 import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
-
+import NavigatePlanButton from "../../components/AniInfo/AniPlanButton";
+import LoadingImage from "../../components/Animation/Loading";
 function AniDetail() {
   const { id } = useParams();
   const [animeData, setAnimeData] = useState(null);
@@ -13,7 +13,6 @@ function AniDetail() {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   const fetchAniInfo = async () => {
- 
     try {
       const response = await apiClient.get(`/api/anime/info/${id}`);
 
@@ -36,7 +35,7 @@ function AniDetail() {
       if (!response) {
         console.log("Test response:", response);
       }
-      const data = await response.data;  
+      const data = await response.data;
 
       const locData = data.map((location) => ({
         ...location,
@@ -51,7 +50,6 @@ function AniDetail() {
 
   const handleLocationClick = (location) => {
     setSelectedLocation(location);
-    console.log("Selected location:", location);
   };
 
   const handleClosePopup = () => {
@@ -75,10 +73,9 @@ function AniDetail() {
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (
-        <p>Loading...</p>
+        <LoadingImage />
       )}
 
-      <br />
       <br />
       {animeLocData ? (
         <DisplayAniLoc
@@ -86,12 +83,14 @@ function AniDetail() {
           onLocationClick={handleLocationClick}
         />
       ) : (
-        <p>Loading...</p>
+        <LoadingImage />
       )}
 
       {selectedLocation && (
         <LocationPopup location={selectedLocation} onClose={handleClosePopup} />
       )}
+
+      {animeData && <NavigatePlanButton animeName={animeData.name} />}
     </>
   );
 }

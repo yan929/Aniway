@@ -12,7 +12,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
   try {
     // Fetch top 5 trending anime
     const trendingAnimeData = await Anime.find()
-      .sort({ search_ranking: -1 }) // Sort by ranking descending
+      .sort({ searchRanking: -1 }) // Sort by ranking descending
       .limit(limit)
       .select(
         "_id name name_cn name_en images cover overview summary locations"
@@ -30,7 +30,7 @@ const getTrendingData = asyncHandler(async (req, res) => {
 
     // Fetch top 5 trending locations
     const trendingLocationsData = await Location.find({ isValid: true }) // Filter valid locations
-      .sort({ search_ranking: -1 }) // Sort by ranking descending
+      .sort({ searchRanking: -1 }) // Sort by ranking descending
       .limit(limit)
       .select("_id anitabi_names lat lng addresses images")
       .lean(); // Get plain JS objects

@@ -69,6 +69,20 @@
     @apply mb-1;
     /* Add small bottom margin to list items */
   }
+
+   @keyframes loading-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-35px);
+    }
+  }
+
+  .animate-loading-bounce {
+    animation: loading-bounce 0.6s ease-in-out infinite;
+  }
 }
 
 @tailwind utilities;
+
