@@ -16,7 +16,9 @@ export default function TripHeader() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editableTitle, setEditableTitle] = useState(() =>
-    currentTrip && currentTrip.title ? currentTrip.title : "Trip Title"
+    currentTrip && currentTrip.title
+      ? currentTrip.title.slice(0, 50)
+      : "Trip Title"
   );
   // Store dates as Date objects or null
   const [startDate, setStartDate] = useState(null);
@@ -24,7 +26,7 @@ export default function TripHeader() {
 
   useEffect(() => {
     if (currentTrip && currentTrip.title) {
-      setEditableTitle(currentTrip.title);
+      setEditableTitle(currentTrip.title.slice(0, 50));
     } else {
       setEditableTitle("Trip Title"); // Default title if none exists
     }
@@ -125,14 +127,14 @@ export default function TripHeader() {
       alert("Error: Could not save trip title. Trip data is missing.");
       return;
     }
-    updateCurrentTripTitle(editableTitle);
+    updateCurrentTripTitle(editableTitle.slice(0, 50));
     setIsEditingTitle(false);
   };
 
   const handleCancelEditTitle = () => {
     setIsEditingTitle(false);
     if (currentTrip && currentTrip.title) {
-      setEditableTitle(currentTrip.title);
+      setEditableTitle(currentTrip.title.slice(0, 50));
     } else {
       setEditableTitle("Trip Title");
     }
@@ -150,9 +152,12 @@ export default function TripHeader() {
                 <input
                   type="text"
                   value={editableTitle}
-                  onChange={(e) => setEditableTitle(e.target.value)}
-                  className="text-xl font-bold border-b-2 border-green-500 focus:outline-none"
+                  onChange={(e) =>
+                    setEditableTitle(e.target.value.slice(0, 50))
+                  }
+                  className="text-xl font-bold border-b-2 border-green-500 focus:outline-none truncate"
                   autoFocus
+                  maxLength={50}
                 />
                 <button
                   onClick={handleSaveTitle}
