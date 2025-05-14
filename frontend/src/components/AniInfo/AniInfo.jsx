@@ -1,5 +1,4 @@
 function DisplayDetailAniInfo({ aniData }) {
-
   return (
     <>
       {/* Top Section */}
@@ -22,47 +21,55 @@ function DisplayDetailAniInfo({ aniData }) {
           {/* Info */}
           <div
             className={
-              "bg-white/10 text-blackbackdrop-blur-md p-6 max-w-3xl h-full rounded-md text-left"
+              "bg-white/10 text-black dark:bg-gray-800/30 dark:text-gray-200 backdrop-blur-md p-6 max-w-3xl h-full rounded-md text-left"
             }
           >
-            <h1 className="text-3xl font-bold mb-4">{aniData.name}</h1>
+            <h1 className="text-3xl font-bold mb-4 dark:text-white">
+              {aniData.name}
+            </h1>
             <div className="mt-4">
-              <h4 className="text-lg font-semibold mb-1">Description</h4>
-              <p className="text-sm leading-relaxed dark:text-gray-700">
+              <h4 className="text-lg font-semibold mb-1 dark:text-gray-100">
+                Description
+              </h4>
+              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                 {aniData.description}
               </p>
             </div>
             <div className="mt-4">
               {aniData.director ||
               aniData.site ||
-              aniData.copyrights.length > 0 ? (
+              (aniData.copyrights && aniData.copyrights.length > 0) ? (
                 <>
-                  <h4 className="text-lg font-semibold mb-1">
+                  <h4 className="text-lg font-semibold mb-1 dark:text-gray-100">
                     Production Information
                   </h4>
                   {aniData.director && (
-                    <p className="text-sm leading-relaxed dark:text-gray-700">
+                    <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       Director: {aniData.director}
                     </p>
                   )}
                   {aniData.site && (
-                    <p className="text-sm leading-relaxed dark:text-gray-700">
+                    <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       Site:{" "}
                       <a
                         href={aniData.site}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-500 hover:underline dark:text-blue-400"
                       >
                         {aniData.site}
                       </a>
                     </p>
                   )}
-                  {aniData.copyrights.length > 0 && (
-                    <p className="text-sm leading-relaxed text-gray-800">
-                      Copyright: {aniData.copyrights}
-                    </p>
-                  )}
+                  {aniData.copyrights &&
+                    aniData.copyrights.map((copyright, index) => (
+                      <p
+                        key={index}
+                        className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+                      >
+                        {copyright}
+                      </p>
+                    ))}
                 </>
               ) : null}
             </div>
