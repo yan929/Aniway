@@ -1,0 +1,76 @@
+name: Deploy Aniway to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+
+      # --- Frontend Build ---
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+        # If your server expects the build in a specific backend folder:
+        # cp -r build ../server/public # Adjust as needed
+
+      # --- Backend Setup & Deployment ---
+      - name: Install Backend Dependencies & Prepare for Deploy
+        run: |
+          cd backend
+          npm install --omit=dev
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            export PROJECT_DIR="/home/shibang/Code/group-project-team-rocket-webmasters"
+            export GIT_REPO_URL="git@github.com:${{ github.repository }}.git"
+
+            cd $PROJECT_DIR
+            git checkout main
+            git pull origin main
+
+            # Create/Update .env file
+            echo "NODE_ENV=production" > $PROJECT_DIR/backend/.env
+            echo "PORT=5050" >> $PROJECT_DIR/backend/.env
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $PROJECT_DIR/backend/.env
+            echo "GOOGLE_API_HOST=${{ secrets.GOOGLE_API_HOST }}" >> $PROJECT_DIR/backend/.env
+            echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> $PROJECT_DIR/backend/.env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> $PROJECT_DIR/backend/.env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> $PROJECT_DIR/backend/.env
+            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $PROJECT_DIR/backend/.env
+            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> $PROJECT_DIR/backend/.env
+            echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $PROJECT_DIR/backend/.env
+            echo "OTHER_ORIGINS=${{ secrets.OTHER_ORIGINS }}" >> $PROJECT_DIR/backend/.env
+            echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" >> $PROJECT_DIR/frontend/.env
+            echo "VITE_BACKEND_API=${{ secrets.VITE_BACKEND_API }}" >> $PROJECT_DIR/frontend/.env
+
+            # Install/Update backend dependencies on VPS
+            cd $PROJECT_DIR/backend
+            npm install --omit=dev
+
+            # Install/Update frontend dependencies
+            cd $PROJECT_DIR/frontend
+            npm install --omit=dev
+            npm run build
+
+            # Restart application with PM2
+            pm2 restart aniway || pm2 start $PROJECT_DIR/backend/server.js --name aniway
