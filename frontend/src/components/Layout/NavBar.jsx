@@ -12,6 +12,7 @@ import ThemeToggleButton from "../ThemeToggleButton/ThemeToggleButton.jsx";
 function NavBar() {
   const { user, logoutUser } = useContext(AppContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -28,6 +29,12 @@ function NavBar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (user && user.avatar) {
+      setAvatarLoadError(false);
+    }
+  }, [user]);
 
   // Handle profile icon click
   const handleProfileClick = () => {
@@ -71,7 +78,9 @@ function NavBar() {
             alt="Aniway Logo"
             className="w-10 h-10 rounded-full object-contain mr-2"
           />
-          <span className="text-gray-600 font-medium dark:text-gray-100  dark:bg-gray-900">Aniway</span>
+          <span className="text-gray-600 font-medium dark:text-gray-100  dark:bg-gray-900">
+            Aniway
+          </span>
         </Link>
 
         <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
@@ -82,12 +91,13 @@ function NavBar() {
           >
             {user ? (
               // User is logged in
-              user.avatar ? (
-                // If avatar URL exists (user.avatar), display it
+              user.avatar && !avatarLoadError ? (
+                // If avatar URL exists and no load error, display it
                 <img
                   src={user.avatar}
                   alt={user.name || "User Avatar"}
                   className="w-8 h-8 rounded-full object-cover"
+                  onError={() => setAvatarLoadError(true)} // Set error on load failure
                 />
               ) : (
                 // Otherwise, show user initial in a circle
@@ -101,9 +111,8 @@ function NavBar() {
                 Sign In
               </span>
             )}
-          
           </div>
-          <ThemeToggleButton/>
+          <ThemeToggleButton />
           {user && (
             <UserDropdown
               user={user}
