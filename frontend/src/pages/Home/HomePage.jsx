@@ -118,7 +118,7 @@ function HomePage() {
         {/* Search Container */}
         <div className="max-w-4xl mx-auto px-2 md:px-4 relative">
           {/* Search wrapper with flexbox and responsive layout */}
-          <div className="flex flex-col md:flex-row rounded-lg md:rounded-full bg-white shadow-lg border border-gray-200 overflow-visible">
+          <div className="flex flex-col md:flex-row rounded-lg md:rounded-full bg-white dark:bg-gray-700 shadow-lg border border-gray-200 dark:border-gray-600 overflow-visible">
             {/* Search Input - Takes all available space */}
             <div className="flex-grow relative">
               <SearchBarCity
