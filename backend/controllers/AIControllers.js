@@ -149,8 +149,9 @@ function buildUserQueryPrompt(prompt, startDate, endDate) {
 
 Your task:
 - Carefully extract any locations (e.g., cities, places, landmarks).
-- Identify any specific anime, manga, or movie titles mentioned (e.g., "Your Name", "Attack on Titan", "Haruhi Suzumiya", "Suzumiya Haruhi"). List the exact titles found.
-- Extract any *other* general themes (e.g., nature, culture) if mentioned separately from titles.
+- Identify any specific anime, manga, or movie titles mentioned (e.g., "Your Name", "Attack on Titan", "Haruhi Suzumiya", "Suzumiya Haruhi").
+- If the user provides short phrases or single words (e.g., "sound", "ghost", "journey to the west"), and they seem like they could be part of an anime/manga/movie title or a significant keyword related to one, list them as potential titles. Treat standalone nouns or thematic words as potential titles if they could plausibly relate to an anime series.
+- Extract any *other* general themes (e.g., nature, culture, specific genre like "sci-fi" or "fantasy") if mentioned separately from titles or keywords.
 
 Strict output:
 You must strictly return the result in the following JSON format:
@@ -162,7 +163,7 @@ You must strictly return the result in the following JSON format:
   ],
   "potential_titles": [
     { "index": 1, "title": "..." } 
-    // ... more titles found
+    // ... more titles/keywords found
   ],
   "other_themes": [
      { "index": 1, "theme": "..." }
@@ -174,11 +175,11 @@ You must strictly return the result in the following JSON format:
 
 Important rules:
 - If no locations are found, return an empty "locations" array: []
-- If no titles are found, return an empty "potential_titles" array: []
+- If no titles or title-like keywords are found, return an empty "potential_titles" array: []
 - If no other themes are found, return an empty "other_themes" array: []
 - You must include "startDate" and "endDate" exactly as provided above.
 - Do not invent new locations, titles, or themes.
-- Only extract what is mentioned or implied.
+- Extract only what is mentioned or reasonably implied by the user's input, especially for shorter queries.
 - Output only the JSON and nothing else.
 - Do not explain anything outside of the JSON.
 
