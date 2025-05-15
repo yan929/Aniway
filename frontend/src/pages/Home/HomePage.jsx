@@ -155,7 +155,7 @@ function HomePage() {
           locList={locData}
           onLocationClick={handleLocationCardClick}
         />
-
+        <div className="my-6 mb-8" />
         <DisplayPopAniInfo sectionTitle="Popular Anime" aniList={aniData} />
       </div>
 

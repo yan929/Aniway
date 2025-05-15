@@ -14,7 +14,7 @@ function DisplayDetailAniInfo({ aniData }) {
         <div className="relative z-10 flex items-start gap-10 px-10 py-8">
           {/* Poster */}
           <img
-            src={aniData.images.small ?? aniData.cover}
+            src={aniData.images?.small ?? aniData.cover}
             alt={aniData.name}
             className="rounded-xl border-[6px] border-white shadow-lg w-48 h-auto"
           />
