@@ -81,7 +81,7 @@ function NavBar() {
           <img
             src="/aniway.png"
             alt="Aniway Logo"
-            className="w-10 h-10 rounded-full object-contain mr-2"
+            className="w-10 h-10 object-contain mr-2"
           />
           <span className="text-gray-600 font-medium dark:text-gray-100  dark:bg-gray-900">
             Aniway
