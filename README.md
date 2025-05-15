@@ -21,7 +21,7 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 - **🔍 Scene Search by Anime/Episode** — Find exact places where your anime scenes happen.
 - **🌏 Popular Destinations & Recommendations** — Discover trending spots for anime fans.
 - **🔑 Google One-Click Login** — Simple, secure login & profile management.
-- **👤 Itinerary Save & Email** — Access your plans online & offline.
+- **👤 Itinerary Save & View** — Easy access your plans history
 
 ---
 
@@ -101,7 +101,10 @@ npm test
 ### Environment Variables (.env example):
 
 📦 Frontend Environment Variables
-Please create a .env file in the /frontend directory.
+Please create a .env file in the /frontend directory.<br />
+**Important** <br />
+If you downloaded the key from canvas, there is a .env called "frontend.env". Please put that file in the frontend folder and modify its file name as ".env"
+<br />
 Example: /frontend/.env.example
 
 ```bash
@@ -114,6 +117,10 @@ VITE_BACKEND_API=http://127.0.0.1:5050/
 
 🖥️ Backend Environment Variables
 Please create a .env file in the /backend directory.
+<br/>
+**Important** <br />
+If you downloaded the key from canvas, there is a .env called "backend.env". Please put that file in the frontend folder and modify its file name as ".env"
+<br />
 Example: /backend/.env.example
 
 ```bash
@@ -180,61 +187,37 @@ You can access the live version of Aniway here:
 ### Rocky Shi ([sban351@aucklanduni.ac.nz](mailto:sban351@aucklanduni.ac.nz)) [@sban351](https://github.com/sban351)
 
 **Fullstack Developer & Project Lead**  
-Led overall project coordination and task management.  
-Developed backend features including data preparation, homepage search API, and AI RAG API.  
-Implemented frontend components such as HistoryTripCard and ChatWindow, and optimized various UI elements for a better user experience.  
-Managed deployment of backend services (APIs, databases) and frontend application to cloud platforms, ensuring the entire service is live and production ready.
+
 
 ---
 
 ### Yan Wa Ho ([yho777@aucklanduni.ac.nz](mailto:yho777@aucklanduni.ac.nz)) [@tiff777](https://github.com/tiff777)
 
 **Fullstack Developer & Project Coordinator**  
-Implemented frontend features including the search bar, anime display components, and settings page.  
-Handled backend API integration and database setup.  
-Contributed to project management tasks, including coordination and progress tracking.  
-Wrote and maintained project documentation.
 
 ---
 
 ### Zephyr Chen ([bche942@aucklanduni.ac.nz](mailto:bche942@aucklanduni.ac.nz)) [@zephyr942](https://github.com/zephyr942)
 
 **Fullstack Developer (Trip Planner Features)**  
-Designed the homepage, trip planner interface, and core UI in Figma.  
-Developed the trip planner feature with frontend components, routing, custom hooks and backend APIs.  
-Integrated GMap components from teammates and extended related API queries.  
-Built and connected the MongoDB trip data model for managing trip information.  
-Developed a ChatGPT powered single day itinerary generation demo and integrated it into the trip planner.
 
 ---
 
 ### Tun-Yu Hsieh ([thsi160@aucklanduni.ac.nz](mailto:thsi160@aucklanduni.ac.nz)) [@Claire1234Claire](https://github.com/Claire1234Claire)
 
 **Fullstack Developer (Google Features & Authentication)**  
-Implemented Google Maps integration and developed backend API routes for location data, connecting them with frontend components.  
-Built the LocationPopup component to display detailed place information with interactive maps and itinerary features.  
-Created a Google Maps demo to showcase location updates and support reusable map components.  
-Implemented Google OAuth login flow across frontend and backend, handling user authentication, profile display, and logout functionality.  
-Developed unit tests for GoogleLogin, GMap, AuthRoutes, and GmapController.  
-Created and maintained the project README documentation.
 
 ---
 
 ### Hong Ying Xie ([hxie943@aucklanduni.ac.nz](mailto:hxie943@aucklanduni.ac.nz)) [@xhy0518](https://github.com/xhy0518)
 
 **Frontend Developer**  
-Implemented the website's homepage frontend design and functionality.  
-Developed navigation bar and footer components, including dropdown menus for user login/logout functionality.  
-Created the user profile frontend interface and enhanced backend user-related features, enabling the display and edit of user trip plans.  
-Built the location search page display functionality and implemented frontend features for adding search results to daily itineraries.
 
 ---
 
 ### Nicholas Travis ([nkaw981@aucklanduni.ac.nz](mailto:nkaw981@aucklanduni.ac.nz)) [@nkaw981](https://github.com/nkaw981)
 
 **Backend Developer**  
-Focused on middleware development for use by routes to access external resources (e.g. databases, Google Maps and ChatGPT).
-Created the user dropdown functionality.
-Developed unit tests for AnimeController, LocationController, and UserController.
+
 
 ---
