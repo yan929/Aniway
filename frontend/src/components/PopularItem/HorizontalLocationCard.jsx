@@ -9,6 +9,7 @@ function HorizontalLocationCard({
   onRemoveFromItinerary,
   addedLocations = new Set(),
 }) {
+
   // Extract all anime names (English and Japanese) from arrays
   const getAnimeNames = (location) => {
     if (location?.anime_en_names?.length > 0) {
@@ -40,6 +41,8 @@ function HorizontalLocationCard({
       </h2>
       <div className="flex flex-col gap-4 pb-8">
         {locList.map((data) => (
+          console.log("data", data),  
+
           <div
             key={data.id}
             className="flex bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 relative group dark:bg-gray-800"
@@ -71,7 +74,7 @@ function HorizontalLocationCard({
             >
               <div>
                 <h3 className="text-xl font-bold mb-2 text-left dark:text-white">
-                  {data.name}
+                  {data.anitabi_names}
                 </h3>
                 <p className="text-gray-600 mb-4 line-clamp-2 text-left dark:text-gray-300">
                   {data.addresses?.[0] || "No address available"}
