@@ -40,11 +40,6 @@ function LocationsSearchPage() {
     setSelectedLocation(null);
   };
 
-  // Handle back button click to return to trip planner
-  const handleBackClick = () => {
-    navigate("/tripplanner");
-  };
-
   // Function to add a location to the current day's itinerary
   // This closely follows the pattern from TripDayPlan.jsx
   const handleAddToItinerary = async (location) => {
@@ -84,15 +79,16 @@ function LocationsSearchPage() {
       const newItemArray = [...currentItinerary, updateItem];
       // Call updateItinerary exactly like in TripDayPlan
       updateItinerary(currentDay.date, newItemArray);
+      console.log("test location: ", location);
 
       // Mark as added in UI
       setAddedLocations((prev) => {
         const newSet = new Set(prev);
-        newSet.add(location.id);
+        newSet.add(location._id);
         return newSet;
       });
 
-      console.log("Added location to itinerary:", location.id);
+      console.log("Added location to itinerary:", location._id);
     } catch (error) {
       console.error("Error adding location to itinerary:", error);
       alert(`Failed to add location to itinerary: ${error.message}`);
@@ -103,15 +99,15 @@ function LocationsSearchPage() {
   const handleRemoveFromItinerary = (location) => {
     setAddedLocations((prev) => {
       const newSet = new Set(prev);
-      newSet.delete(location.id);
+      newSet.delete(location._id);
       return newSet;
     });
-    console.log("Location removed from UI state:", location.id);
+    console.log("Location removed from UI state:", location._id);
   };
 
   // Toggle function for adding/removing a location
   const handleToggleInItinerary = (location) => {
-    if (addedLocations.has(location.id)) {
+    if (addedLocations.has(location._id)) {
       handleRemoveFromItinerary(location);
     } else {
       handleAddToItinerary(location);
@@ -157,7 +153,12 @@ function LocationsSearchPage() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <h1 className="text-3xl font-bold">Locations for "{searchQuery}"</h1>
           {currentDay && (
-            <div className="px-4 py-2 bg-orange-100 dark:bg-orange-800 rounded-lg mt-2 sm:mt-0">
+            <div
+              className="px-4 py-2 bg-orange-100 dark:bg-[var(--custom-dark-bg)] rounded-lg mt-2 sm:mt-0"
+              style={{
+                "--custom-dark-bg": "#626fe4",
+              }}
+            >
               <p className="font-semibold">
                 Adding to: {new Date(currentDay.date).toLocaleDateString()}
               </p>
