@@ -85,6 +85,8 @@ function LocationsSearchPage() {
       setAddedLocations((prev) => {
         const newSet = new Set(prev);
         newSet.add(location._id);
+        
+
         return newSet;
       });
 
@@ -107,6 +109,9 @@ function LocationsSearchPage() {
 
   // Toggle function for adding/removing a location
   const handleToggleInItinerary = (location) => {
+    console.log("Test location: ", location);
+    console.log("Test addedlocation: ", addedLocations);
+
     if (addedLocations.has(location._id)) {
       handleRemoveFromItinerary(location);
     } else {
@@ -202,7 +207,7 @@ function LocationsSearchPage() {
           location={selectedLocation}
           onClose={handleClosePopup}
           onToggleInItinerary={handleToggleInItinerary}
-          isAdded={addedLocations.has(selectedLocation.id)}
+          isAdded={addedLocations.has(selectedLocation._id)}
         />
       )}
     </div>
