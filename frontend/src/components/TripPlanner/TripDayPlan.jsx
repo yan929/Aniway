@@ -124,7 +124,7 @@ export default function TripDayPlan({ day, index, dayStartingGlobalIndex }) {
 
   return (
     <>
-      <div className="flex items-center gap-6 text-[1.375rem] font-semibold  text-gray-800">
+      <div className="flex items-center gap-6 text-[1.375rem] font-semibold text-gray-800 min-w-[430px]">
         <span className="text-[#626fe3] dark:text-white font-bold">
           Day {index + 1}
         </span>
