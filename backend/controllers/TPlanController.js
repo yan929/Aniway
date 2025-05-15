@@ -11,7 +11,7 @@ const getAllPlans = asyncHandler(async (req, res) => {
       .select("title content userId image startDate endDate destination");
 
     const tripPlans = tripPlansData.map((plan) => ({
-      id: plan.id,
+      _id: plan._id, // Ensure _id is used
       title: plan.title,
       content: plan.content,
       image: plan.image,
@@ -62,7 +62,7 @@ const getPlan = asyncHandler(async (req, res) => {
         .json({ message: "Trip plan not found or not authorized" });
     }
     const tripPlan = {
-      id: tripPlanData.id,
+      _id: tripPlanData._id, // Ensure _id is used
       title: tripPlanData.title,
       content: tripPlanData.content,
       image: tripPlanData.image,
