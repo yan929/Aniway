@@ -7,6 +7,7 @@ import { fetchPlaceByLatLng } from "../../hooks/fetchPlaceByLatLng";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import HorizontalLocationCard from "../../components/PopularItem/HorizontalLocationCard";
 import LoadingImage from "../../components/Animation/Loading";
+import BackToButton from "../../components/Buttons/BackToButton";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
@@ -150,14 +151,7 @@ function LocationsSearchPage() {
   return (
     <div className="p-5 max-w-7xl mx-auto relative dark:bg-gray-800">
       {/* Fixed position Back to Planner button - shown conditionally */}
-      {showBackButton && (
-        <button
-          onClick={handleBackClick}
-          className="fixed top-22 left-8 z-10 inline-flex items-center gap-2 text-blue-500 no-underline text-base hover:underline bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-md"
-        >
-          <FaArrowLeft /> Back to Planner
-        </button>
-      )}
+      <BackToButton message={"Planner"} page={"tripplanner"} />
 
       <header className={`mb-8 ${showBackButton ? "pt-16" : "pt-4"}`}>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">

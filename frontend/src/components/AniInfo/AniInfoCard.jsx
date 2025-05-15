@@ -1,4 +1,6 @@
+import { useNavigate } from "react-router-dom";
 function AniInfoCard({ data }) {
+  const navigate = useNavigate();
   return (
     <div
       key={data.id}
