@@ -54,11 +54,11 @@ AniWay transforms anime-inspired travel into reality by offering features tailor
 
 ### Prerequisites:
 
-- Node.js & npm
+- Node.js & npm (v18+ recommended)
 - Google Cloud API key (Maps, Places API)
-- OpenAI API key
-- Anitabi API key
-- MongoDB URI
+- OpenAI API key (included in .env)
+- Anitabi API key (included in .env)
+- MongoDB URI (included in .env)
 
 ### Installation:
 
@@ -119,7 +119,7 @@ VITE_BACKEND_API=http://127.0.0.1:5050/
 Please create a .env file in the /backend directory.
 <br/>
 **Important** <br />
-If you downloaded the key from canvas, there is a .env called "backend.env". Please put that file in the frontend folder and modify its file name as ".env"
+If you downloaded the key from canvas, there is a .env called "backend.env". Please put that file in the backend folder and modify its file name as ".env"
 <br />
 Example: /backend/.env.example
 
@@ -186,38 +186,44 @@ You can access the live version of Aniway here:
 
 ### Rocky Shi ([sban351@aucklanduni.ac.nz](mailto:sban351@aucklanduni.ac.nz)) [@sban351](https://github.com/sban351)
 
-**Fullstack Developer & Project Lead**  
-
+**Fullstack Developer & Project Lead**
 
 ---
 
 ### Yan Wa Ho ([yho777@aucklanduni.ac.nz](mailto:yho777@aucklanduni.ac.nz)) [@tiff777](https://github.com/tiff777)
 
-**Fullstack Developer & Project Coordinator**  
+**Fullstack Developer & Project Coordinator**
 
 ---
 
 ### Zephyr Chen ([bche942@aucklanduni.ac.nz](mailto:bche942@aucklanduni.ac.nz)) [@zephyr942](https://github.com/zephyr942)
 
-**Fullstack Developer (Trip Planner Features)**  
+**Fullstack Developer (Trip Planner Features)**
 
 ---
 
 ### Tun-Yu Hsieh ([thsi160@aucklanduni.ac.nz](mailto:thsi160@aucklanduni.ac.nz)) [@Claire1234Claire](https://github.com/Claire1234Claire)
 
-**Fullstack Developer (Google Features & Authentication)**  
+**Fullstack Developer (Google Features & Authentication)**
 
 ---
 
 ### Hong Ying Xie ([hxie943@aucklanduni.ac.nz](mailto:hxie943@aucklanduni.ac.nz)) [@xhy0518](https://github.com/xhy0518)
 
-**Frontend Developer**  
+**Frontend Developer**
 
 ---
 
 ### Nicholas Travis ([nkaw981@aucklanduni.ac.nz](mailto:nkaw981@aucklanduni.ac.nz)) [@nkaw981](https://github.com/nkaw981)
 
-**Backend Developer**  
-
+**Backend Developer**
 
 ---
+
+## AI Disclaminer
+
+While this project leverages AI technologies such as OpenAI’s GPT and external APIs to assist with itinerary generation, development tasks and organise the documentation. All core logic, functionality, interface design, and implementation were originally developed by our team.
+
+## License
+
+This project is licensed under the MIT License.
