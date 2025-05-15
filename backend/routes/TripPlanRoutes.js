@@ -6,7 +6,7 @@ import {
   getPlan,
   partialUpdatePlan,
   deletePlan,
-} from "../controllers/TPlanController.js";
+} from "../controllers/TripPlanController.js";
 
 const router = express.Router();
 
