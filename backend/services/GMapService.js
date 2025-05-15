@@ -14,12 +14,6 @@ const getPlaceDetails = async (placeId) => {
       "name,formatted_address,geometry,rating,photos,opening_hours,editorial_summary,formatted_phone_number", // add any other fields you need
   });
 
-  console.log("Fetching Place ID:", placeId);
-  console.log(
-    "Final Request URL:",
-    `${GMAP_PLACE_DETAILS_ENDPOINT}?${params.toString()}`
-  );
-
   try {
     const response = await axios.get(
       `${GMAP_PLACE_DETAILS_ENDPOINT}?${params.toString()}`

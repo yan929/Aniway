@@ -4,7 +4,6 @@ import TripPlan from "../models/TripPlan.js";
 export const getUserDetails = (req, res) => {
   if (req.isAuthenticated()) {
     const user = req.user; // From deserializeUser
-    // console.log("Test req.user in getUserDetails: ", user);
     res.json({
       id: user.id,
       name: user.displayName,
@@ -107,8 +106,6 @@ export const modifyUserProfile = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    console.log("User profile update request:", req.body.name);
-
     const { name } = req.body;
 
     // Find user by Google ID
@@ -120,8 +117,6 @@ export const modifyUserProfile = async (req, res) => {
 
     // Update user profile
     user.name = name || user.name;
-
-    console.log("Updated user:", user);
 
     await user.save();
 

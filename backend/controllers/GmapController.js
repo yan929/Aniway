@@ -9,14 +9,11 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
   if (keyword) {
     nearbyUrl += `&keyword=${encodeURIComponent(keyword)}`;
   }
-  // console.log("[Service] nearbyUrl (initial attempt):", nearbyUrl);
 
   let nearbyRes = await axios.get(nearbyUrl);
-  console.log("[Service] response status:", nearbyRes.status);
   let operationalResults = [];
   if (nearbyRes.status === 200 && nearbyRes.data.status !== "ZERO_RESULTS") {
     let nearbyData = nearbyRes.data;
-    console.log("[Service] nearbyData:", nearbyData);
     operationalResults =
       nearbyData.results?.filter(
         (result) => result.business_status === "OPERATIONAL"
@@ -25,13 +22,9 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
 
   // Fallback if no operational results (not just if results is empty)
   if (!operationalResults.length) {
-    console.log(
-      "[Service] No operational results with keyword, trying without keyword."
-    );
     nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
     const nearbyResFallback = await axios.get(nearbyUrl);
     const nearbyDataFallback = nearbyResFallback.data;
-    console.log("[Service] nearbyDataFallback:", nearbyDataFallback);
     operationalResults =
       nearbyDataFallback.results?.filter(
         (result) => result.business_status === "OPERATIONAL"
@@ -45,7 +38,6 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
 
   const firstResult = operationalResults[0];
   const placeId = firstResult.place_id;
-  // console.log("[Service] backend placeId:", placeId);
 
   const detailsRes = await axios.get(
     `${GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number,address_components&key=${process.env.GOOGLE_API_KEY}`
@@ -160,7 +152,6 @@ const fetchPlaceNearby = async (req, res) => {
 
 // 处理Place Details请求
 const getPlaceDetails = async (req, res) => {
-  console.log("getPlaceDetails req.params", req.params);
   try {
     const { placeId } = req.params;
 

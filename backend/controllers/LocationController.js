@@ -121,16 +121,10 @@ const getLocationByAnime = async (req, res) => {
 
 // New Service Function to fetch relevant locations
 const searchRelevantLocationsService = async (extractedInfo) => {
-  console.log(
-    "LocationService: Fetching relevant places based on:",
-    extractedInfo
-  );
-
   const { destination, interests } = extractedInfo || {}; // Handle undefined extractedInfo
 
   // Basic validation
   if (!destination && (!interests || interests.length === 0)) {
-    console.log("LocationService: No destination or interests provided.");
     return [];
   }
 
@@ -191,13 +185,6 @@ const searchRelevantLocationsService = async (extractedInfo) => {
     return []; // Return empty array on error
   }
 
-  console.log(
-    `LocationService: Found ${
-      places.length
-    } places matching query for destination: '${destination}', interests: '${interests?.join(
-      ", "
-    )}'`
-  );
   return places;
 };
 
