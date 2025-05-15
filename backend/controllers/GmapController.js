@@ -13,7 +13,7 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
   let nearbyRes = await axios.get(nearbyUrl);
   console.log("[Service] response status:", nearbyRes.status);
   let operationalResults = [];
-  if (nearbyRes.status === 200) {
+  if (nearbyRes.status === 200 && nearbyRes.data.status !== "ZERO_RESULTS") {
     let nearbyData = nearbyRes.data;
     operationalResults =
       nearbyData.results?.filter(
@@ -27,10 +27,10 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
       "[Service] No operational results with keyword, trying without keyword."
     );
     nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
-    nearbyRes = await axios.get(nearbyUrl);
-    nearbyData = nearbyRes.data;
+    const nearbyResFallback = await axios.get(nearbyUrl);
+    const nearbyDataFallback = nearbyResFallback.data;
     operationalResults =
-      nearbyData.results?.filter(
+      nearbyDataFallback.results?.filter(
         (result) => result.business_status === "OPERATIONAL"
       ) || [];
     if (!operationalResults.length) {
