@@ -7,43 +7,43 @@ dayjs.extend(isSameOrBefore);
 
 const AppContext = React.createContext({
   currentTrip: null,
-  loadCurrentTrip: async () => {},
-  appendItemsToContent: () => {},
-  replaceEntireTrip: () => {},
-  updateCurrentTripTitle: () => {},
-  saveCurrentTripToDb: async () => {},
-  updateTrip: () => {},
-  fetchTrip: () => {},
-  updateItinerary: () => {},
-  deleteTripItem: () => {},
+  loadCurrentTrip: async () => { },
+  appendItemsToContent: () => { },
+  replaceEntireTrip: () => { },
+  updateCurrentTripTitle: () => { },
+  saveCurrentTripToDb: async () => { },
+  updateTrip: () => { },
+  fetchTrip: () => { },
+  updateItinerary: () => { },
+  deleteTripItem: () => { },
   user: null,
-  loginUser: () => {},
-  logoutUser: () => {},
+  loginUser: () => { },
+  logoutUser: () => { },
   selectedDay: null,
-  selectDay: () => {},
+  selectDay: () => { },
   isAuthenticated: false,
   isAuthLoading: true,
   tripTitle: "",
   tripLocation: null,
-  setTripDetails: () => {},
-  clearCurrentTrip: () => {},
+  setTripDetails: () => { },
+  clearCurrentTrip: () => { },
   // For Generic Confirm Modal
   isConfirmModalOpen: false,
   confirmModalConfig: {
     title: "",
     message: "",
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: () => { },
+    onCancel: () => { },
   },
   // eslint-disable-next-line no-unused-vars
-  showConfirmModal: (config) => {},
-  hideConfirmModal: () => {},
+  showConfirmModal: (config) => { },
+  hideConfirmModal: () => { },
   // For Success Toast
   isSuccessToastOpen: false,
   successToastMessage: "",
   // eslint-disable-next-line no-unused-vars
-  showSuccessToast: (message) => {},
-  hideSuccessToast: () => {},
+  showSuccessToast: (message) => { },
+  hideSuccessToast: () => { },
 });
 
 function AppContextProvider({ children }) {
@@ -99,7 +99,7 @@ function AppContextProvider({ children }) {
   const [confirmModalConfig, setConfirmModalConfig] = useState({
     title: "Confirm Action",
     message: "Are you sure?",
-    onConfirm: () => {},
+    onConfirm: () => { },
     confirmText: "Confirm", // Default confirm button text
     cancelText: "Cancel", // Default cancel button text
   });
@@ -117,7 +117,7 @@ function AppContextProvider({ children }) {
       setConfirmModalConfig({
         title: config.title || "Confirm Action",
         message: config.message || "Are you sure?",
-        onConfirm: config.onConfirm || (() => {}),
+        onConfirm: config.onConfirm || (() => { }),
         confirmText: config.confirmText || "Confirm",
         cancelText: config.cancelText || "Cancel",
       });
@@ -373,8 +373,22 @@ function AppContextProvider({ children }) {
     // It's used, for example, when changing dates in TripHeader
     (newDayPlanArray) => {
       if (currentTrip) {
+        let newStartDate = currentTrip.startDate; // Preserve by default
+        let newEndDate = currentTrip.endDate;   // Preserve by default
+
+        if (newDayPlanArray && newDayPlanArray.length > 0) {
+          newStartDate = newDayPlanArray[0].date; // First day's date
+          newEndDate = newDayPlanArray[newDayPlanArray.length - 1].date; // Last day's date
+        } else {
+          // If the array is empty, perhaps dates should be nulled or handled as per app logic
+          newStartDate = null;
+          newEndDate = null;
+        }
+
         const updatedTrip = {
           ...currentTrip,
+          startDate: newStartDate, // Update root startDate
+          endDate: newEndDate,   // Update root endDate
           content: newDayPlanArray,
         };
         setCurrentTrip(updatedTrip);
@@ -594,6 +608,9 @@ function AppContextProvider({ children }) {
     });
 
     let newContent = [];
+    let newTripStartDate = null; // Initialize for root startDate
+    let newTripEndDate = null;   // Initialize for root endDate
+
     const hasStartDate = dates && dates.startDate;
     const hasEndDate = dates && dates.endDate;
     const isStartBeforeEnd =
@@ -604,6 +621,10 @@ function AppContextProvider({ children }) {
     if (hasStartDate && hasEndDate && isStartBeforeEnd) {
       let currentDay = dayjs(dates.startDate);
       const endDay = dayjs(dates.endDate);
+
+      // Set root start and end dates for the trip object
+      newTripStartDate = dayjs(dates.startDate).format("YYYY-MM-DD");
+      newTripEndDate = dayjs(dates.endDate).format("YYYY-MM-DD");
 
       while (currentDay.isSameOrBefore(endDay, "day")) {
         const currentDateStr = currentDay.format("YYYY-MM-DD");
@@ -637,6 +658,8 @@ function AppContextProvider({ children }) {
         ...prevTrip, // Preserve other fields like image, userId etc.
         id: tripId, // User changed this from _id
         title: title || "My Trip", // Set title directly in currentTrip
+        startDate: newTripStartDate, // Set the root startDate here
+        endDate: newTripEndDate,     // Set the root endDate here
         content: newContent, // Set content directly in currentTrip
       };
       console.log("Setting new currentTrip context:", newTrip);
