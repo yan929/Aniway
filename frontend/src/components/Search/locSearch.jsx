@@ -8,7 +8,7 @@ import SearchLocItem from "./searchLocItem";
 import { FaLocationDot } from "react-icons/fa6";
 import "../../layout/SearchBar.css";
 
-function LocSearchBar({ setSelectedLocation }) {
+function LocSearchBar({ setSelectedLocation, dayIndex }) {
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showResult, setShowResult] = useState(false);
@@ -54,7 +54,7 @@ function LocSearchBar({ setSelectedLocation }) {
 
   const handleSelectLocation = (loc) => {
     setSelectedLocation({
-      label: loc.label,//very important: will cause placeid returen vague if not using label or null
+      label: loc.label, //very important: will cause placeid returen vague if not using label or null
       lat: loc.lat,
       lng: loc.lng,
       gpPlaceId: loc.googlePlaceId,
@@ -94,6 +94,7 @@ function LocSearchBar({ setSelectedLocation }) {
             selectedIndex={selectedIndex}
             onSelectLocation={(loc) => handleSelectLocation(loc)}
             searchTerm={input}
+            dayIndex={dayIndex}
           />
         </div>
       )}

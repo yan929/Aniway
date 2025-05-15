@@ -11,7 +11,7 @@ import BackToButton from "../../components/Buttons/BackToButton";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
-  const { tripData, updateItinerary, selectedDay } = useContext(AppContext);
+  const { currentTrip, updateItinerary, selectedDay } = useContext(AppContext);
 
   const searchQuery = searchParams.get("q");
   const dayIndexParam = searchParams.get("day");
@@ -114,14 +114,43 @@ function LocationsSearchPage() {
   };
 
   useEffect(() => {
-    const parsedIndex = parseInt(dayIndexParam, 10);
+    let newTargetDay = null;
 
-    if (tripData && !isNaN(parsedIndex) && tripData[parsedIndex]) {
-      setCurrentDay(tripData[parsedIndex]);
-    } else if (selectedDay) {
-      setCurrentDay(selectedDay);
+    if (dayIndexParam != null) {
+      // URL specifies a day index
+      const parsedIndex = parseInt(dayIndexParam, 10);
+      if (currentTrip && currentTrip.content && !isNaN(parsedIndex)) {
+        if (parsedIndex >= 0 && parsedIndex < currentTrip.content.length) {
+          newTargetDay = currentTrip.content[parsedIndex];
+        } else {
+          // Invalid index from URL.
+          console.error(
+            `Day index ${parsedIndex} from URL is out of bounds. Trip content length: ${
+              currentTrip.content?.length || 0
+            }.`
+          );
+        }
+      }
+      // If currentTrip or currentTrip.content is not ready, newTargetDay remains null,
+      // and the effect will re-run when currentTrip updates. This is fine.
+    } else {
+      // No day index in URL, rely on context's selectedDay or a default
+      if (selectedDay) {
+        newTargetDay = selectedDay;
+      } else if (
+        currentTrip &&
+        currentTrip.content &&
+        currentTrip.content.length > 0
+      ) {
+        // No URL param, no selectedDay from context, but trip has content. Default to first day.
+        newTargetDay = currentTrip.content[0];
+      }
     }
-  }, [tripData, dayIndexParam, selectedDay]);
+    // Update state only if the target day (or its absence) is different from the current day
+    if (JSON.stringify(currentDay) !== JSON.stringify(newTargetDay)) {
+      setCurrentDay(newTargetDay);
+    }
+  }, [currentTrip, dayIndexParam, selectedDay, currentDay]);
 
   // Fetch locations based on search query
   useEffect(() => {
