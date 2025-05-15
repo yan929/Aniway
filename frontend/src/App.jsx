@@ -16,6 +16,7 @@ import ReferencePage from "./pages/Reference/Reference";
 import ContactPage from "./pages/Contact/Contact";
 import ConfirmModal from "./components/Modal/ConfirmModal";
 import SuccessMessageToast from "./components/Modal/SuccessMessageToast.jsx";
+import AnimeSearchPage from "./pages/Anime/AnimeSearchPage.jsx";
 import { AppContext } from "./context/AppContext";
 
 import "./App.css";
@@ -66,6 +67,7 @@ function App() {
             <Route path="/profile/:userId" element={<ProfilePage />} />
             <Route path="/tripplanner" element={<TripPlanner />} />
             <Route path="/locations/search" element={<LocationsSearchPage />} />
+            <Route path="/anime/search" element={<AnimeSearchPage />} />
             <Route path="/anime/:id" element={<AniDetail />} />
             <Route path="/profile/:userId/setting" element={<Setting />} />
             <Route path="/create-trip" element={<TripPlanner />} />
@@ -77,14 +79,6 @@ function App() {
 
           {/* Routes without NavBar and Footer (e.g., LoginPage) */}
           <Route path="/login" element={<LoginPage />} />
-
-          {/*
-          Temporarily disabled the following routes while focusing on TripPlanner.
-          - HomePage: planned for homepage in future
-          - /planner: planned dedicated route for trip planner
-        */}
-          {/* <Route path="/" element={<HomePage />} /> */}
-          {/* <Route path="/planner" element={<TripPlanner />} /> */}
         </Routes>
       </DndProvider>
     </LoadScript>

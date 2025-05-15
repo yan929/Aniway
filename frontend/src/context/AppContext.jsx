@@ -3,6 +3,7 @@ import apiClient from "../util/api.js";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useNavigate, useLocation } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 dayjs.extend(isSameOrBefore);
 
 const AppContext = React.createContext({
@@ -169,11 +170,14 @@ function AppContextProvider({ children }) {
   useEffect(() => {
     if (currentTrip) {
       const tripToSave = { ...currentTrip };
-      // Normalize to use _id and remove id if it exists
-      if (tripToSave.id && !tripToSave._id) {
-        tripToSave._id = tripToSave.id;
-      }
-      delete tripToSave.id; // Always remove the virtual 'id' if present
+      // assign a tmp_id to each item in the itinerary if it doesn't have one
+      tripToSave.content.forEach((day) => {
+        day.itinerary.forEach((item) => {
+          if (!item.tmp_id) {
+            item.tmp_id = uuidv4();
+          }
+        });
+      });
       localStorage.setItem("currentTrip", JSON.stringify(tripToSave));
     }
   }, [currentTrip]);
@@ -250,6 +254,18 @@ function AppContextProvider({ children }) {
         );
         return;
       }
+      // assign a tmp_id to each item in the itemsToAppend if it doesn't have one
+      if (Array.isArray(itemsToAppend)) {
+        itemsToAppend.forEach((item) => {
+          if (!item.tmp_id) {
+            item.tmp_id = uuidv4();
+          }
+        });
+      } else {
+        if (!itemsToAppend.tmp_id) {
+          itemsToAppend.tmp_id = uuidv4();
+        }
+      }
       setCurrentTrip((prevTrip) => {
         // Ensure prevTrip and prevTrip.content are valid
         const existingContent = prevTrip?.content || [];
@@ -273,6 +289,14 @@ function AppContextProvider({ children }) {
   // Added for replacing the entire trip (e.g., with AI suggestion)
   const replaceEntireTrip = useCallback(
     (newTripData) => {
+      // assign a tmp_id to each item in the newTripData if it doesn't have one
+      newTripData.content.forEach((day) => {
+        day.itinerary.forEach((item) => {
+          if (!item.tmp_id) {
+            item.tmp_id = uuidv4();
+          }
+        });
+      });
       // Update currentTrip with newTripData
       setCurrentTrip(newTripData);
       // Reset selected day based on new content
@@ -339,7 +363,6 @@ function AppContextProvider({ children }) {
     try {
       let response;
       if (currentTrip._id) {
-        // Consistent _id usage
         console.log(
           `AppContext: Updating existing trip ID: ${currentTrip._id}`
         );
@@ -348,8 +371,6 @@ function AppContextProvider({ children }) {
           currentTrip,
           { withCredentials: true }
         );
-        // Although setCurrentTrip is not called here for PATCH, if it were, data should be normalized.
-        // For now, just ensuring the log is accurate if we were to use the response for setCurrentTrip.
         let updatedTripData = response.data;
         if (updatedTripData.id && !updatedTripData._id) {
           updatedTripData._id = updatedTripData.id;
@@ -520,7 +541,7 @@ function AppContextProvider({ children }) {
     const updatedContent = currentTrip.content.map((day) => {
       if (day.date === deleteTripDay.date) {
         const updatedItinerary = day.itinerary.filter(
-          (item) => item._id !== deleteItem._id
+          (item) => item.tmp_id !== deleteItem.tmp_id
         );
         return { ...day, itinerary: updatedItinerary };
       }
@@ -534,7 +555,7 @@ function AppContextProvider({ children }) {
       setSelectedDay((prevSelectedDay) => ({
         ...prevSelectedDay,
         itinerary: prevSelectedDay.itinerary.filter(
-          (item) => item._id !== deleteItem._id
+          (item) => item.tmp_id !== deleteItem.tmp_id
         ),
       }));
       console.log("Item deleted from selected day, selectedDay state updated.");
@@ -567,12 +588,12 @@ function AppContextProvider({ children }) {
 
     const sourceDay = { ...finalContent[sourceDayIndex] }; // Shallow copy day object
     const itemIndexInSource = sourceDay.itinerary.findIndex(
-      (item) => item._id === itemToMove._id
+      (item) => item.tmp_id === itemToMove.tmp_id
     );
 
     if (itemIndexInSource === -1) {
       console.warn(
-        `Item to move (ID: ${itemToMove._id}) not found in source day ${sourceDayDate}. It might have been already moved or deleted.`
+        `Item to move (ID: ${itemToMove.tmp_id}) not found in source day ${sourceDayDate}. It might have been already moved or deleted.`
       );
       // This can happen if a move operation is accidentally triggered twice or if the item was removed by another process.
       // Depending on desired behavior, you might stop here or proceed to ensure it's added to the target if that's robust.
@@ -621,7 +642,7 @@ function AppContextProvider({ children }) {
         }
       }
       console.log(
-        `Item ${itemToMove._id} moved from ${sourceDayDate} to ${targetDayDate}.`
+        `Item ${itemToMove.tmp_id} moved from ${sourceDayDate} to ${targetDayDate}.`
       );
     } else {
       console.warn("Move operation did not complete successfully.");

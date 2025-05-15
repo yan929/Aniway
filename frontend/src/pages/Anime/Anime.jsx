@@ -6,6 +6,7 @@ import DisplayDetailAniInfo from "../../components/AniInfo/AniInfo";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import NavigatePlanButton from "../../components/AniInfo/AniPlanButton";
 import LoadingImage from "../../components/Animation/Loading";
+import BackToButton from "../../components/Buttons/BackToButton";
 
 function AniDetail() {
   const { id } = useParams();
@@ -78,6 +79,10 @@ function AniDetail() {
 
   return (
     <div className="dark:bg-gray-800 min-h-screen p-4 md:p-6 lg:p-8">
+      <BackToButton message={"home"} page={""} />
+
+      <div className="mt-4 px-4" />
+
       {animeData ? (
         <DisplayDetailAniInfo aniData={animeData} />
       ) : (

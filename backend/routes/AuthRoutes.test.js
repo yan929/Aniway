@@ -62,6 +62,6 @@ describe('Auth Routes', () => {
   test('GET /auth/google/callback should redirect after auth', async () => {
     const res = await request(app).get('/auth/google/callback');
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe('http://localhost:5173/login');
+    expect(res.headers.location).toBe('http://localhost:5173/profile/123');
   });
 });

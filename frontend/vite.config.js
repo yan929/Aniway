@@ -19,6 +19,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss(), flowbiteReact()],
+    test: {
+       environment: 'jsdom',
+       globals: true,
+       setupFiles: './setupTests.js',
+    },
     server: {
       proxy: {
         // Proxy requests starting with /api
