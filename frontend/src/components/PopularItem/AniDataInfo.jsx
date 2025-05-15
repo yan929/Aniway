@@ -32,7 +32,7 @@ function DisplayPopAniInfo({ sectionTitle, aniList }) {
       {/* Horizontal scrolling on ALL screen sizes */}
       <div className="overflow-x-auto flex -mx-4 px-4 pb-6 md:pb-8 ">
         {aniList.map((anime) => (
-          <AniInfoCard data={anime} />
+          <AniInfoCard key={anime.id} data={anime} />
         ))}
       </div>
     </>
