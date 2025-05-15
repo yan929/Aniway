@@ -12,11 +12,15 @@ function SearchLocItem({
   showBackButton = true, // Prop to control whether to show Back button on search results page
   dayIndex = null, // Optional day index to pass to search page
 }) {
-  const { tripData } = useContext(AppContext);
+  const { currentTrip } = useContext(AppContext);
 
   // Default to current day index if not provided
   const currentDayIndex =
-    dayIndex !== null ? dayIndex : tripData && tripData.length > 0 ? 0 : null;
+    dayIndex !== null
+      ? dayIndex
+      : currentTrip && currentTrip.content && currentTrip.content.length > 0
+      ? 0
+      : null;
 
   // Handle clicking a location item
   const handleResultClick = (result) => {
@@ -68,7 +72,11 @@ function SearchLocItem({
 
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-16 rounded-md overflow-hidden z-10">
                   <img
-                    src={result.images?.[0] || (result.image || PLACEHOLDER_IMAGE_PATH)}
+                    src={
+                      result.images?.[0] ||
+                      result.image ||
+                      PLACEHOLDER_IMAGE_PATH
+                    }
                     alt={result.name || "Location image"}
                     className="w-full h-full object-cover"
                     onError={handleImageError}

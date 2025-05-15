@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
-import {
-  FaCalendarAlt,
-  FaMapMarkerAlt,
-  FaEdit,
-  FaSave,
-  FaTimes,
-} from "react-icons/fa";
+import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import dayjs from "dayjs";
 import DatePicker from "../../components/DatePicker/DatePicker";
 
@@ -15,6 +9,8 @@ export default function TripHeader() {
     useContext(AppContext);
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [editableTitle, setEditableTitle] = useState(() =>
     currentTrip && currentTrip.title
       ? currentTrip.title.slice(0, 50)
@@ -80,7 +76,9 @@ export default function TripHeader() {
     const endDayjs = dayjs(newEndString);
 
     if (startDayjs.isAfter(endDayjs, "day")) {
-      alert("Start date cannot be after end date!");
+      setToastMessage("Start date cannot be after end date!");
+      setIsToastVisible(true);
+
       // Revert to previous valid dates from currentTrip if possible, or do nothing
       if (
         currentTrip &&
@@ -123,8 +121,10 @@ export default function TripHeader() {
 
   const handleSaveTitle = () => {
     if (!currentTrip) {
-      console.error("Cannot save title: currentTrip is not available.");
-      alert("Error: Could not save trip title. Trip data is missing.");
+      setToastMessage(
+        "Error: Could not save trip title. Trip data is missing."
+      );
+      setIsToastVisible(true);
       return;
     }
     updateCurrentTripTitle(editableTitle.slice(0, 50));
@@ -141,12 +141,12 @@ export default function TripHeader() {
   };
 
   return (
-
-    <div className=" px-4 py-3 shadow-md w-full"
+    <div
+      className=" px-4 py-3 shadow-md w-full"
       style={{
-        background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/tripplanner-banner.jpg') center center / cover no-repeat`
-      }}>
-
+        background: `linear-gradient(rgba(107, 121, 229, 0.80), rgba(107, 121, 229, 0.85)), url('/tripplanner-banner.jpg') center center / cover no-repeat`,
+      }}
+    >
       {/* Top Row: Title and Save Button */}
       <div className="flex items-center w-full mb-2">
         {/* Trip Title Section (Left) */}
@@ -175,7 +175,9 @@ export default function TripHeader() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl  text-white font-bold truncate ">{editableTitle}</h1>
+              <h1 className="text-2xl  text-white font-bold truncate ">
+                {editableTitle}
+              </h1>
               <button
                 onClick={handleEditTitle}
                 className="p-1 text-white hover:text-gray-700 ml-2"
@@ -184,7 +186,6 @@ export default function TripHeader() {
               </button>
             </>
           )}
-
         </div>
       </div>
 
@@ -199,6 +200,5 @@ export default function TripHeader() {
         </div>
       </div>
     </div>
-
   );
 }

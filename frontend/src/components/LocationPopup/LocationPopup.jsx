@@ -224,7 +224,9 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
                 </div>
                 <span
                   className={`font-medium ${
-                    isAdded ? "text-green-600" : "text-gray-700"
+                    isAdded
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-700 dark:text-gray-300 hover:text-gray-700"
                   }`}
                 >
                   {isAdded ? "Added to Itinerary" : "Add to Itinerary"}

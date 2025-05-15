@@ -11,8 +11,7 @@ import BackToButton from "../../components/Buttons/BackToButton";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { tripData, updateItinerary, selectedDay } = useContext(AppContext);
+  const { currentTrip, updateItinerary, selectedDay } = useContext(AppContext);
 
   const searchQuery = searchParams.get("q");
   const dayIndexParam = searchParams.get("day");
@@ -24,11 +23,9 @@ function LocationsSearchPage() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [addedLocations, setAddedLocations] = useState(new Set());
 
-  // Calculate current day - if dayIndex is provided in URL, use that day, otherwise use selectedDay from context
-  const currentDay =
-    dayIndexParam && tripData
-      ? tripData[parseInt(dayIndexParam, 10)]
-      : selectedDay;
+  const [currentDay, setCurrentDay] = useState(null);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Handle location card click to show detailed popup
   const handleLocationClick = (location) => {
@@ -46,9 +43,11 @@ function LocationsSearchPage() {
     console.log("Check location:", location);
 
     if (!currentDay) {
-      alert(
+      setToastMessage(
         "No day selected. Please go to the trip planner first to select a day."
       );
+      setIsToastVisible(true);
+
       return;
     }
 
@@ -85,13 +84,14 @@ function LocationsSearchPage() {
       setAddedLocations((prev) => {
         const newSet = new Set(prev);
         newSet.add(location._id);
+
         return newSet;
       });
 
       console.log("Added location to itinerary:", location._id);
     } catch (error) {
-      console.error("Error adding location to itinerary:", error);
-      alert(`Failed to add location to itinerary: ${error.message}`);
+      setToastMessage(`Failed to add location to itinerary: ${error.message}`);
+      setIsToastVisible(true);
     }
   };
 
@@ -107,12 +107,54 @@ function LocationsSearchPage() {
 
   // Toggle function for adding/removing a location
   const handleToggleInItinerary = (location) => {
+    console.log("Test location: ", location);
+    console.log("Test addedlocation: ", addedLocations);
+
     if (addedLocations.has(location._id)) {
       handleRemoveFromItinerary(location);
     } else {
       handleAddToItinerary(location);
     }
   };
+
+  useEffect(() => {
+    let newTargetDay = null;
+
+    if (dayIndexParam != null) {
+      // URL specifies a day index
+      const parsedIndex = parseInt(dayIndexParam, 10);
+      if (currentTrip && currentTrip.content && !isNaN(parsedIndex)) {
+        if (parsedIndex >= 0 && parsedIndex < currentTrip.content.length) {
+          newTargetDay = currentTrip.content[parsedIndex];
+        } else {
+          // Invalid index from URL.
+          console.error(
+            `Day index ${parsedIndex} from URL is out of bounds. Trip content length: ${
+              currentTrip.content?.length || 0
+            }.`
+          );
+        }
+      }
+      // If currentTrip or currentTrip.content is not ready, newTargetDay remains null,
+      // and the effect will re-run when currentTrip updates. This is fine.
+    } else {
+      // No day index in URL, rely on context's selectedDay or a default
+      if (selectedDay) {
+        newTargetDay = selectedDay;
+      } else if (
+        currentTrip &&
+        currentTrip.content &&
+        currentTrip.content.length > 0
+      ) {
+        // No URL param, no selectedDay from context, but trip has content. Default to first day.
+        newTargetDay = currentTrip.content[0];
+      }
+    }
+    // Update state only if the target day (or its absence) is different from the current day
+    if (JSON.stringify(currentDay) !== JSON.stringify(newTargetDay)) {
+      setCurrentDay(newTargetDay);
+    }
+  }, [currentTrip, dayIndexParam, selectedDay, currentDay]);
 
   // Fetch locations based on search query
   useEffect(() => {
@@ -202,8 +244,12 @@ function LocationsSearchPage() {
           location={selectedLocation}
           onClose={handleClosePopup}
           onToggleInItinerary={handleToggleInItinerary}
-          isAdded={addedLocations.has(selectedLocation.id)}
+          isAdded={addedLocations.has(selectedLocation._id)}
         />
+      )}
+
+      {isToastVisible && (
+        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
       )}
     </div>
   );
