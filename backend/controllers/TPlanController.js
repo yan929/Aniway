@@ -11,7 +11,7 @@ const getAllPlans = asyncHandler(async (req, res) => {
       .select("title content userId image startDate endDate destination");
 
     const tripPlans = tripPlansData.map((plan) => ({
-      _id: plan._id, // Ensure _id is used
+      _id: plan._id,
       title: plan.title,
       content: plan.content,
       image: plan.image,
@@ -62,7 +62,7 @@ const getPlan = asyncHandler(async (req, res) => {
         .json({ message: "Trip plan not found or not authorized" });
     }
     const tripPlan = {
-      _id: tripPlanData._id, // Ensure _id is used
+      _id: tripPlanData._id,
       title: tripPlanData.title,
       content: tripPlanData.content,
       image: tripPlanData.image,
@@ -80,7 +80,6 @@ const getPlan = asyncHandler(async (req, res) => {
   }
 });
 
-// Reference from the code of partialUpdateLocation in LocationController
 const partialUpdatePlan = asyncHandler(async (req, res) => {
   console.log("patch, id:", req.params.id);
   console.log("patch, user:", req.user);

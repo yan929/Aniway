@@ -18,19 +18,17 @@ import homeRoutes from "./routes/HomeRoutes.js";
 import gmapRoutes from "./routes/GMapRoutes.js";
 // Anime Routes
 import animeRoutes from "./routes/AnimeRoutes.js";
-// OpenAI API
-import chatgptRoutes from "./routes/ChatgptRoutes.js";
 // Trip Plan Routes
 import tPlanRoutes from "./routes/TPlanRoutes.js";
 // Error handling middleware
 import { errorHandler } from "./middleware/ErrorMiddleware.js";
-import { ensureAuthenticated } from "./middleware/auth.js";
+import { ensureAuthenticated } from "./middleware/Authenticate.js";
 // AuthRoute
 import authRoutes from "./routes/AuthRoutes.js";
 // User Routes
 import userRoutes from "./routes/UserRoutes.js";
 
-import AIAdviceRoutes from "./routes/AIAdviceRoutes.js";
+import AIRoutes from "./routes/AIRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -135,9 +133,7 @@ app.use("/api/gmap", gmapRoutes);
 
 app.use("/api/anime", animeRoutes);
 
-app.use("/api/chatgpt", chatgptRoutes);
-
-app.use("/api/ai", AIAdviceRoutes);
+app.use("/api/ai", AIRoutes);
 
 app.use("/api/tplan", ensureAuthenticated, tPlanRoutes);
 
