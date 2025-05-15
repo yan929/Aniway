@@ -81,8 +81,6 @@ const getPlan = asyncHandler(async (req, res) => {
 });
 
 const partialUpdatePlan = asyncHandler(async (req, res) => {
-  console.log("patch, id:", req.params.id);
-  console.log("patch, user:", req.user);
   try {
     const updatedPlan = await TripPlan.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },

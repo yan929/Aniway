@@ -11,8 +11,6 @@ const openai = new OpenAI({
 
 const analyzeUserInput = async (req, res) => {
   const { prompt, currentItinerary } = req.body;
-  console.log("🟢 Prompt received:", prompt);
-  console.log("🗓️ Current Itinerary received:", currentItinerary);
 
   // Validate essential inputs from req.body
   if (!prompt) {
@@ -30,7 +28,6 @@ const analyzeUserInput = async (req, res) => {
   }
 
   const itineraryDate = currentItinerary.date;
-  console.log("ℹ️ Itinerary Date for AI prompt:", itineraryDate);
 
   try {
     // Step 1: Initial AI call to extract locations and themes from the user's prompt
@@ -51,9 +48,6 @@ const analyzeUserInput = async (req, res) => {
     });
 
     const initialReply = initialChatResponse.choices[0].message.content;
-    console.log(
-      `✅ Response from initial ChatGPT for location/theme extraction`
-    );
     let initialAIResponse;
     try {
       initialAIResponse = JSON.parse(initialReply);
@@ -68,17 +62,12 @@ const analyzeUserInput = async (req, res) => {
         raw: initialReply,
       });
     }
-    console.log("Parsed JSON from initial AI:", initialAIResponse);
 
     const locations = initialAIResponse.locations?.map((l) => l.location) || [];
     const potentialTitles =
       initialAIResponse.potential_titles?.map((t) => t.title) || [];
     const otherThemes =
       initialAIResponse.other_themes?.map((t) => t.theme) || [];
-
-    console.log("Extracted Locations:", locations);
-    console.log("Extracted Potential Titles:", potentialTitles);
-    console.log("Extracted Other Themes:", otherThemes);
 
     // Process potential titles into individual keywords
     let keywordsFromTitles = [];
@@ -105,17 +94,13 @@ const analyzeUserInput = async (req, res) => {
       ]),
     ];
 
-    console.log("Keywords for DB Search:", combinedKeywords);
-
     // Step 2: Search for raw location data based on extracted locations and processed keywords
     // This data will be the 'newlyAddedLocation' for the replanning step
     const rawLocations = await searchRawLocationDataByLocateAnime(
       locations,
       combinedKeywords
     );
-    console.log("Raw Locations from DB search:", rawLocations);
     res.json(rawLocations); // Send the whole array
-    console.log("✅ Successfully sent location suggestions to client.");
   } catch (err) {
     console.error(
       "❌ Error in analyzeUserInput processing pipeline:",
@@ -143,8 +128,6 @@ const analyzeUserInput = async (req, res) => {
 
 const itinerary = async (req, res) => {
   const { prompt, startDate, endDate } = req.body;
-  console.log(" Itinerary Prompt received:", prompt);
-  console.log(" Start:", startDate, "End:", endDate);
 
   if (!prompt || !startDate || !endDate) {
     return res
@@ -170,7 +153,6 @@ const itinerary = async (req, res) => {
     });
 
     const reply = chatResponse.choices[0].message.content;
-    console.log(" Response from ChatGPT for Itinerary");
 
     try {
       res.json(JSON.parse(reply));
@@ -188,7 +170,6 @@ const itinerary = async (req, res) => {
 
 const argumentItinerary = async (req, res) => {
   const { userMessageText, chatHistory } = req.body; // Accept history
-  console.log(" Augment Itinerary Prompt received:", userMessageText);
 
   if (!userMessageText) {
     return res.status(400).json({ error: "Missing user message" });

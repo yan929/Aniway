@@ -57,9 +57,6 @@ export const deleteUserAccount = async (req, res, next) => {
   const user = req.user; // Assuming this user object has id and accessToken
   const accessToken = user?.accessToken;
 
-  // console.log("[AuthController] Delete request for user:", user);
-  // console.log("[AuthController] AccessToken:", accessToken);
-
   if (!user || !user.id) {
     // This case should ideally not happen if ensureAuthenticated is working
     return res.status(400).json({ message: "User information is missing." });
@@ -82,9 +79,6 @@ export const deleteUserAccount = async (req, res, next) => {
             "Content-Type": "application/x-www-form-urlencoded",
           },
         });
-        console.log(
-          `[AuthController] Google token successfully revoked for user: ${user.id}`
-        );
       } catch (revokeError) {
         console.error(
           `[AuthController] Error revoking Google token for user ${user.id}:`,
@@ -101,9 +95,6 @@ export const deleteUserAccount = async (req, res, next) => {
 
     // Delete user from your database
     await User.findOneAndDelete({ google_id: user.id });
-    console.log(
-      `[AuthController] User ${user.id} successfully deleted from database.`
-    );
 
     // Logout and destroy session
     req.logout((logoutErr) => {

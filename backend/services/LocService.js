@@ -217,9 +217,6 @@ export async function searchRawLocationDataByLocateAnime(
       }));
     } else {
       // No effective location or theme keywords provided
-      console.log(
-        "No effective location or theme keywords provided for searchRawLocationDataByLocateAnime."
-      );
       return [];
     }
   }
