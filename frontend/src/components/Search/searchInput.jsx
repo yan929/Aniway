@@ -44,7 +44,7 @@ function SearchInput({
         <input
           type="text"
           placeholder={placeholder ?? "Search by anime name or location..."}
-          className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent text-gray-200"
+          className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent text-black dark:text-gray-200"
           value={inputValue ?? ""}
           onChange={(e) => {
             handleChange(e.target.value);
