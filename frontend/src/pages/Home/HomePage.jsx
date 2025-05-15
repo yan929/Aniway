@@ -80,12 +80,10 @@ function HomePage() {
   // Handle location selection from dropdown
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
-    console.log("Location selected:", location);
   };
 
   // Handle search by text
   const handleSearchByText = (searchText) => {
-    console.log("Search by text:", searchText);
     // Perform search with the entered text
   };
 

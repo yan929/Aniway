@@ -16,7 +16,6 @@ function usePlaceDetails(itinerary) {
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
           details = JSON.parse(cached);
-          console.log("usePlaceDetails: Using cached details");
         } else {
           try {
             const res = await apiClient.get(

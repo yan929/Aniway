@@ -75,7 +75,6 @@ const getTripStatusWithDayjs = (startDateStr, endDateStr) => {
 };
 
 const TripCard = ({ user, trip, onDelete, onClick }) => {
-  console.log("tripcard trip", trip);
   const { title, startDate, endDate, destination } = trip;
   const [coverImage, setCoverImage] = useState("https://picsum.photos/300/200");
 
@@ -99,13 +98,11 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
 
     const fetchAndSetCoverImage = async () => {
       const firstGpPlaceId = findFirstGpPlaceId();
-      console.log("firstGpPlaceId", firstGpPlaceId);
       let newCoverImage = "https://picsum.photos/300/200";
 
       if (firstGpPlaceId) {
         try {
           const placeDetails = await fetchPlaceDetails(firstGpPlaceId);
-          console.log("placeDetails", placeDetails);
 
           // Assuming placeDetails.photos is an array and we take the first photo's reference
           const photoReference = placeDetails?.photos?.[0]?.photo_reference;
@@ -160,7 +157,7 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
     if (onDelete) {
       onDelete(trip);
     } else {
-      console.log("Delete clicked for:", title);
+      // console.log("Delete clicked for:", title);
     }
   };
 

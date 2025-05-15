@@ -15,7 +15,6 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
     if (!isOpen) return null;
 
     const handleAdvice = async (prompt) => {
-        console.log("Prompt:", prompt);
 
         if (!prompt) {
             setError("Please fill in all fields.");
@@ -27,13 +26,11 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
         setSuggestions([]);
 
         try {
-            console.log("day for advice:", day);
             const res = await apiClient.post(`/api/ai/advice`, {
                 prompt: prompt,
                 currentItinerary: day,
             });
 
-            console.log("Response Data from API (suggestions):", res.data);
             if (Array.isArray(res.data)) {
                 const transformedSuggestions = res.data.map((item) => ({
                     id: item.id,
@@ -66,15 +63,8 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
             console.error("Missing currentTrip, currentTrip.content, or day.date");
             return;
         }
-        console.log("Attempting to add to itinerary:", clickedSuggestion);
 
         try {
-            console.log("Calling /api/gmap/place_by_nearby with params:", {
-                keyword: clickedSuggestion.locationName,
-                lat: clickedSuggestion.lat,
-                lng: clickedSuggestion.lng,
-            });
-
             const apiClientResponse = await apiClient.get(
                 "/api/gmap/place_by_nearby",
                 {
@@ -87,11 +77,6 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
             );
 
             const enrichedLocationDataFromAPI = apiClientResponse.data;
-            console.log(
-                "Received enrichedLocationData from API:",
-                enrichedLocationDataFromAPI
-            );
-
             if (
                 !enrichedLocationDataFromAPI ||
                 !enrichedLocationDataFromAPI.place_id

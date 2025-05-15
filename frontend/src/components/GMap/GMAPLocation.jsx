@@ -5,7 +5,6 @@ const GMAPLocation = ({ baseLocations, focusOnLocation }) => {
   // In a real app, you might use focusOnLocation to pan/zoom the map
   // For now, it's a placeholder for future functionality
   if (focusOnLocation) {
-    console.log("Focusing on location:", focusOnLocation);
   }
 
   return (

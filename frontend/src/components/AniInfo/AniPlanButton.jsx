@@ -19,7 +19,6 @@ function NavigatePlanButton({ animeName }) {
 
   const handleNavigateTrip = () => {
     const tripTitle = `Trip for ${animeName}`;
-    console.log("Test date:", selectedDates);
 
     if (!currentTrip) {
       setTripDetails(selectedLocation, tripTitle, selectedDates);

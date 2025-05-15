@@ -8,20 +8,16 @@ const GoogleLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Add console logs for debugging
-    console.log("GoogleLogin component mounted");
 
     apiClient
       .get(`/api/user`, { withCredentials: true })
       .then((res) => {
-        console.log("User data received:", res.data);
         setUser(res.data);
 
         // Extract the user ID correctly
         const userId = res.data?.id || res.data?._id || res.data?.google_id;
 
         if (userId) {
-          console.log("User ID found, navigating to:", `/profile/${userId}`);
           // Use a small timeout to ensure state update completes
           setTimeout(() => {
             navigate(`/profile/${userId}`);

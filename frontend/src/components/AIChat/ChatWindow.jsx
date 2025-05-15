@@ -82,12 +82,10 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
           const lines = block.split("\n");
           lines.forEach((line) => {
             if (line.startsWith("event: suggestion")) {
-              console.log("Received suggestion event marker.");
               expectingSuggestionData = true;
             } else if (line.startsWith("data: ")) {
               const jsonData = line.substring(6);
               if (jsonData === "[DONE]") {
-                console.log("Stream finished marker received.");
                 setIsStreaming(false);
                 expectingSuggestionData = false; // Reset flag on DONE
                 // No return needed here, let loop finish processing buffer
@@ -95,7 +93,6 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                 // This data line contains the suggestions
                 try {
                   const suggestions = JSON.parse(jsonData);
-                  console.log("Parsed suggestion data:", suggestions);
                   if (aiMessageId) {
                     // Ensure we have an ID to attach to
                     setChatHistory((prev) => {
@@ -108,9 +105,6 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
                           ...updatedHistory[msgIndex],
                           suggestionData: suggestions, // Attach suggestions
                         };
-                        console.log(
-                          `Attached suggestions to message ID: ${aiMessageId}`
-                        );
                         return updatedHistory;
                       } else {
                         console.warn(
@@ -199,7 +193,6 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
-          console.log("Reader finished (stream closed by server).");
           buffer += decoder.decode();
           processBuffer();
           setIsStreaming(false);
@@ -253,12 +246,11 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
 
   // Handler for the "Apply Suggestion" button
   const handleApplyClick = (suggestionData) => {
-    console.log("Applying suggestion:", suggestionData);
 
     // Save the entire suggestion to localStorage
     try {
       localStorage.setItem("tripData", JSON.stringify(suggestionData));
-      console.log("Suggestion data saved to localStorage.");
+
     } catch (e) {
       console.error("Failed to save suggestion data to localStorage:", e);
     }

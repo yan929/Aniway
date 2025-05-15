@@ -161,7 +161,6 @@ function AppContextProvider({ children }) {
 
   useEffect(() => {
     if (currentTrip && currentTrip.content.length > 0 && !selectedDay) {
-      console.log("Initially setting selected day to:", currentTrip.content[0]);
       setSelectedDay(currentTrip.content[0]);
     }
   }, [currentTrip, selectedDay]);
@@ -204,25 +203,16 @@ function AppContextProvider({ children }) {
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        console.log("AppContext: Checking API for session...");
         const response = await apiClient.get("/api/user", {
           withCredentials: true,
         });
         if (response.data) {
-          console.log(
-            "AppContext: User session found via API, logging in:",
-            response.data
-          );
           setUser(response.data);
           setIsAuthenticated(true);
 
           // Handle redirection after setting auth state
           const redirectPath = localStorage.getItem("redirectPath");
           if (redirectPath) {
-            console.log(
-              "AppContext: Found redirectPath, navigating to:",
-              redirectPath
-            );
             localStorage.removeItem("redirectPath");
             navigate(redirectPath);
           }
@@ -341,7 +331,6 @@ function AppContextProvider({ children }) {
 
   const saveCurrentTripToDb = useCallback(async () => {
     if (!isAuthenticated) {
-      console.log("User not authenticated. Prompting for login.");
       showConfirmModal({
         title: "Login Required",
         message:
@@ -358,14 +347,11 @@ function AppContextProvider({ children }) {
       return;
     }
 
-    console.log("AppContext: currentTrip:", currentTrip);
 
     try {
       let response;
       if (currentTrip._id) {
-        console.log(
-          `AppContext: Updating existing trip ID: ${currentTrip._id}`
-        );
+
         response = await apiClient.patch(
           `/api/tplan/${currentTrip._id}`,
           currentTrip,
@@ -376,19 +362,11 @@ function AppContextProvider({ children }) {
           updatedTripData._id = updatedTripData.id;
         }
         delete updatedTripData.id;
-        console.log(
-          "AppContext: Trip updated successfully (raw response):",
-          response.data,
-          "Normalized would be:",
-          updatedTripData
-        );
         showSuccessToast("Trip updated successfully!");
       } else {
-        console.log("AppContext: Saving new trip.");
         response = await apiClient.post("/api/tplan", currentTrip, {
           withCredentials: true,
         });
-        console.log("AppContext: New trip saved successfully:", response.data);
         let savedTripData = response.data;
         // Normalize to use _id and remove id if it exists
         if (savedTripData.id && !savedTripData._id) {
@@ -401,7 +379,6 @@ function AppContextProvider({ children }) {
     } catch (error) {
       console.error("AppContext: Error saving trip:", error);
       if (error.response && error.response.status === 401) {
-        console.log("AppContext: Unauthorized to save. Prompting for login.");
         showConfirmModal({
           title: "Login Required",
           message:
@@ -455,15 +432,8 @@ function AppContextProvider({ children }) {
         if (!selectedDayStillExists) {
           if (newDayPlanArray.length > 0) {
             setSelectedDay(newDayPlanArray[0]);
-            console.log(
-              "Selected day was outside new range, reset to:",
-              newDayPlanArray[0]
-            );
           } else {
             setSelectedDay(null);
-            console.log(
-              "Selected day was outside new range, and new range is empty, reset to null."
-            );
           }
         }
       } else {
@@ -477,10 +447,6 @@ function AppContextProvider({ children }) {
 
   // Refactored function to update itinerary for a specific day
   function updateItinerary(dayDate, newItemsArray) {
-    console.log(
-      `Updating itinerary for date: ${dayDate} with items:`,
-      newItemsArray
-    );
 
     if (!currentTrip || !currentTrip.content) {
       console.error(
@@ -508,7 +474,6 @@ function AppContextProvider({ children }) {
 
       setCurrentTrip((prevTrip) => {
         const newTripState = { ...prevTrip, content: updatedContent };
-        // console.log("New trip state after itinerary update:", newTripState);
         return newTripState;
       });
 
@@ -519,9 +484,6 @@ function AppContextProvider({ children }) {
           ...prevSelectedDay,
           itinerary: newItemsArray,
         }));
-        // console.log(
-        //   "Selected day itinerary updated directly in selectedDay state."
-        // );
       }
     } catch (error) {
       console.error("Error in updateItinerary:", error);
@@ -530,8 +492,7 @@ function AppContextProvider({ children }) {
   }
 
   function deleteTripItem(deleteTripDay, deleteItem) {
-    console.log("Attempting to delete item:", deleteItem);
-    console.log("From day:", deleteTripDay);
+
 
     if (!currentTrip) {
       console.error("Cannot delete item: currentTrip is null.");
@@ -558,7 +519,6 @@ function AppContextProvider({ children }) {
           (item) => item.tmp_id !== deleteItem.tmp_id
         ),
       }));
-      console.log("Item deleted from selected day, selectedDay state updated.");
     }
   }
 
@@ -641,9 +601,6 @@ function AppContextProvider({ children }) {
           setSelectedDay(targetDay);
         }
       }
-      console.log(
-        `Item ${itemToMove.tmp_id} moved from ${sourceDayDate} to ${targetDayDate}.`
-      );
     } else {
       console.warn("Move operation did not complete successfully.");
     }
@@ -653,12 +610,6 @@ function AppContextProvider({ children }) {
   function setTripDetails(location, title, dates) {
     setTripTitle(title || "My Trip"); // Set the separate tripTitle state
     setTripLocation(location); // Set the separate tripLocation state
-
-    console.log("[setTripDetails] Received:", {
-      location,
-      title,
-      dates,
-    });
 
     let newContent = [];
     let newTripStartDate = null; // Initialize for root startDate
@@ -691,7 +642,7 @@ function AppContextProvider({ children }) {
         });
         currentDay = currentDay.add(1, "day");
       }
-      console.log("[setTripDetails] Generated content:", newContent);
+
     } else {
       console.warn(
         "[setTripDetails] Date check failed. Content will be empty.",
@@ -715,16 +666,13 @@ function AppContextProvider({ children }) {
         endDate: newTripEndDate, // Set the root endDate here
         content: newContent, // Set content directly in currentTrip
       };
-      console.log("Setting new currentTrip context:", newTrip);
       return newTrip;
     });
 
     if (newContent.length > 0) {
       setSelectedDay(newContent[0]);
-      console.log("Resetting selectedDay to:", newContent[0]);
     } else {
       setSelectedDay(null);
-      console.log("Resetting selectedDay to null as content is empty.");
     }
   }
 
@@ -735,13 +683,12 @@ function AppContextProvider({ children }) {
 
   const loadCurrentTrip = useCallback(async (tripId) => {
     if (!tripId) {
-      console.log(
+      console.warn(
         "AppContext: No tripId provided, cannot load trip. Setting to null or initial."
       );
       return;
     }
     try {
-      console.log(`AppContext: Loading trip with ID: ${tripId}`);
       const response = await apiClient.get(`/api/tplan/${tripId}`, {
         withCredentials: true,
       });
@@ -753,10 +700,6 @@ function AppContextProvider({ children }) {
         }
         delete tripData.id; // Always remove the virtual 'id' if present
         setCurrentTrip(tripData);
-        console.log(
-          "AppContext: Trip loaded successfully (normalized):",
-          tripData
-        );
       } else {
         console.warn(`AppContext: No data returned for trip ID ${tripId}.`);
       }
@@ -769,7 +712,6 @@ function AppContextProvider({ children }) {
     (userData) => {
       setUser(userData);
       setIsAuthenticated(true);
-      console.log("AppContext: User logged in, isAuthenticated set to true.");
 
       const redirectPath = localStorage.getItem("redirectPath");
       if (redirectPath) {
@@ -797,7 +739,6 @@ function AppContextProvider({ children }) {
     const currentPath = location.pathname; // Store current path before logout
     try {
       await apiClient.post("/auth/logout");
-      console.log("AppContext: Logout successful on backend.");
     } catch (error) {
       console.error("AppContext: Error during backend logout:", error);
     }
@@ -805,7 +746,6 @@ function AppContextProvider({ children }) {
     setIsAuthenticated(false);
     setSelectedDay(null); // Clear selected day
     clearCurrentTrip(); // Clear current trip data from state and localStorage
-    console.log("AppContext: User logged out, isAuthenticated set to false.");
     // Navigate to the page the user was on, or a default like home
     navigate(currentPath); // Redirect to the page user was on
   }, [
@@ -820,7 +760,6 @@ function AppContextProvider({ children }) {
   const updateUser = useCallback((updatedUserData) => {
     setUser(updatedUserData);
     setIsAuthenticated(true);
-    console.log("AppContext: User update with new name.");
   }, []);
 
   const context = {

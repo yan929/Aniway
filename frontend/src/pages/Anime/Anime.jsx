@@ -41,9 +41,6 @@ function AniDetail() {
         `/api/anime/locations/${encodedName}`
       );
 
-      if (!response) {
-        console.log("Test response:", response);
-      }
       const data = await response.data;
 
       const locData = data.map((location) => ({
