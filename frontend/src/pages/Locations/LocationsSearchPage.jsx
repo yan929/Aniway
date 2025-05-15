@@ -11,7 +11,6 @@ import BackToButton from "../../components/Buttons/BackToButton";
 
 function LocationsSearchPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { tripData, updateItinerary, selectedDay } = useContext(AppContext);
 
   const searchQuery = searchParams.get("q");
@@ -24,11 +23,7 @@ function LocationsSearchPage() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [addedLocations, setAddedLocations] = useState(new Set());
 
-  // Calculate current day - if dayIndex is provided in URL, use that day, otherwise use selectedDay from context
-  const currentDay =
-    dayIndexParam && tripData
-      ? tripData[parseInt(dayIndexParam, 10)]
-      : selectedDay;
+  const [currentDay, setCurrentDay] = useState(null);
 
   // Handle location card click to show detailed popup
   const handleLocationClick = (location) => {
@@ -85,7 +80,6 @@ function LocationsSearchPage() {
       setAddedLocations((prev) => {
         const newSet = new Set(prev);
         newSet.add(location._id);
-        
 
         return newSet;
       });
@@ -118,6 +112,16 @@ function LocationsSearchPage() {
       handleAddToItinerary(location);
     }
   };
+
+  useEffect(() => {
+    const parsedIndex = parseInt(dayIndexParam, 10);
+
+    if (tripData && !isNaN(parsedIndex) && tripData[parsedIndex]) {
+      setCurrentDay(tripData[parsedIndex]);
+    } else if (selectedDay) {
+      setCurrentDay(selectedDay);
+    }
+  }, [tripData, dayIndexParam, selectedDay]);
 
   // Fetch locations based on search query
   useEffect(() => {
