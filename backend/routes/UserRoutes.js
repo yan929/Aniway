@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getUserDetails,
   getUserProfile,
   getUserTrips,
   modifyUserProfile,
@@ -7,6 +8,7 @@ import {
 
 const router = express.Router();
 
+router.get("/", getUserDetails);
 // Get user profile (includes basic trips info)
 router.get("/profile", getUserProfile);
 // Update user profile

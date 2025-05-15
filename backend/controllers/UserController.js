@@ -1,6 +1,21 @@
 import User from "../models/User.js";
 import TripPlan from "../models/TripPlan.js";
 
+export const getUserDetails = (req, res) => {
+  if (req.isAuthenticated()) {
+    const user = req.user; // From deserializeUser
+    // console.log("Test req.user in getUserDetails: ", user);
+    res.json({
+      id: user.id,
+      name: user.displayName,
+      avatar: user.avatar, // Should be set correctly by deserializeUser
+      email: user.email, // Should be set correctly by deserializeUser
+    });
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
 // Get user profile with trips
 export const getUserProfile = async (req, res) => {
   try {
