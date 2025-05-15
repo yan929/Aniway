@@ -24,6 +24,8 @@ function LocationsSearchPage() {
   const [addedLocations, setAddedLocations] = useState(new Set());
 
   const [currentDay, setCurrentDay] = useState(null);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Handle location card click to show detailed popup
   const handleLocationClick = (location) => {
@@ -41,9 +43,11 @@ function LocationsSearchPage() {
     console.log("Check location:", location);
 
     if (!currentDay) {
-      alert(
+      setToastMessage(
         "No day selected. Please go to the trip planner first to select a day."
       );
+      setIsToastVisible(true);
+
       return;
     }
 
@@ -86,8 +90,8 @@ function LocationsSearchPage() {
 
       console.log("Added location to itinerary:", location._id);
     } catch (error) {
-      console.error("Error adding location to itinerary:", error);
-      alert(`Failed to add location to itinerary: ${error.message}`);
+      setToastMessage(`Failed to add location to itinerary: ${error.message}`);
+      setIsToastVisible(true);
     }
   };
 
@@ -242,6 +246,10 @@ function LocationsSearchPage() {
           onToggleInItinerary={handleToggleInItinerary}
           isAdded={addedLocations.has(selectedLocation._id)}
         />
+      )}
+
+      {isToastVisible && (
+        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
       )}
     </div>
   );

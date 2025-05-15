@@ -19,6 +19,8 @@ const ProfilePage = () => {
   // Local loading state for data fetching, distinct from auth loading
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const navigate = useNavigate();
   const { userId } = useParams(); // Still useful if you plan to view other users' profiles (public part)
 
@@ -138,8 +140,8 @@ const ProfilePage = () => {
         )
       );
     } catch (err) {
-      console.error("Failed to delete trip:", err);
-      alert("Failed to delete trip. Please try again.");
+      setToastMessage("Failed to delete trip. Please try again.");
+      setIsToastVisible(true);
     }
   };
 
@@ -293,6 +295,9 @@ const ProfilePage = () => {
           )}
         </div>
       </div>
+      {isToastVisible && (
+        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
+      )}
     </>
   );
 };

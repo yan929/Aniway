@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import DisplayPopAniInfo from "../../components/PopularItem/AniDataInfo";
 import DisplayPopLocInfo from "../../components/PopularItem/LocDataInfo";
@@ -8,6 +7,7 @@ import DatePicker from "../../components/DatePicker/DatePicker";
 import LocationPopup from "../../components/LocationPopup/LocationPopup";
 import DisplayContactBanner from "../../components/Contact/ContactBanner";
 import WaveText from "../../components/Animation/TextWave";
+import ErrorToast from "../../components/Modal/ErrorMessageToast";
 import { AppContext } from "../../context/AppContext";
 import apiClient from "../../util/api";
 
@@ -21,6 +21,8 @@ function HomePage() {
   const [selectedDates, setSelectedDates] = useState(null); // Initialize as null instead of default date range
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPopupLocation, setSelectedPopupLocation] = useState(null);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Access the context for transferring data to TripPlanner
   const { setTripDetails } = useContext(AppContext);
@@ -68,9 +70,10 @@ function HomePage() {
       navigate("/tripplanner");
     } else {
       // Prompt user to select destination and dates
-      alert(
+      setToastMessage(
         "Please select a destination and a complete travel date range (start and end date)."
       );
+      setIsToastVisible(true);
     }
   };
 
@@ -94,6 +97,11 @@ function HomePage() {
   // Close popup
   const handleClosePopup = () => {
     setSelectedPopupLocation(null);
+  };
+
+  const handleCloseToast = () => {
+    setIsToastVisible(false);
+    setToastMessage("");
   };
 
   return (
@@ -167,6 +175,10 @@ function HomePage() {
         />
       )}
 
+      {isToastVisible && (
+        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
+      )}
+ 
       <br />
       <DisplayContactBanner />
     </div>

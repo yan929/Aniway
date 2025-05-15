@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { FaExclamationCircle } from "react-icons/fa"; // Error icon
 
-export default function SuccessToast({ message, onClose }) {
+export default function ErrorToast({ message, onClose }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();

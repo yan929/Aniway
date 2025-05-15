@@ -118,7 +118,7 @@ function UserForm({ user }) {
         )}
 
         {showError && (
-          <ErrorToast message={error} onClose={() => setShowSuccess(false)} />
+          <ErrorToast message={error} onClose={() => setShowError(false)} />
         )}
       </div>
     </>
