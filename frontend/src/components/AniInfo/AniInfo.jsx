@@ -61,15 +61,20 @@ function DisplayDetailAniInfo({ aniData }) {
                       </a>
                     </p>
                   )}
-                  {aniData.copyrights &&
-                    aniData.copyrights.map((copyright, index) => (
-                      <p
-                        key={index}
-                        className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
-                      >
-                        {copyright}
-                      </p>
-                    ))}
+                  {aniData.copyrights && Array.isArray(aniData.copyrights)
+                    ? aniData.copyrights.map((copyright, index) => (
+                        <p
+                          key={index}
+                          className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+                        >
+                          {copyright}
+                        </p>
+                      ))
+                    : aniData.copyrights && (
+                        <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {aniData.copyrights}
+                        </p>
+                      )}
                 </>
               ) : null}
             </div>
