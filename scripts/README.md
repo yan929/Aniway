@@ -1,6 +1,6 @@
-# Database Management (Export/Import)
+# Database Management (Import)
 
-This document outlines the steps to export the `aniway` database for sharing and import it into a local MongoDB instance.
+This document outlines the steps to import the `aniway` database into a local MongoDB instance.
 
 **Prerequisites:**
 
@@ -13,7 +13,7 @@ This document outlines the steps to export the `aniway` database for sharing and
 This command restores the database dump into your local (or target) MongoDB instance.
 
 1.  **Download and Extract:**
-    Download the shared database dump file (e.g., `aniway_dump.tar.gz`) and extract it. You should have a folder named `aniway` containing `.bson` and `.metadata.json` files.
+    Download the shared database dump file (e.g., `aniway_dump.tar.gz`) and extract it. You should have a folder named `aniway_backup` containing `.bson` and `.metadata.json` files.
 
     ```bash
     tar -xzvf aniway_dump.tar.gz
@@ -28,11 +28,6 @@ This command restores the database dump into your local (or target) MongoDB inst
     ```bash
     mongorestore --uri="<MONGO_URI_WITH_ADMIN_AUTH>" --nsInclude="aniway.*" --drop ./aniway
     ```
-
-    - `--uri`: Specifies the connection string for the target MongoDB.
-    - `--nsInclude="aniway.*"`: Ensures only the `aniway` database is affected.
-    - `--drop`: Drops each collection from the target database before restoring it from the dump (ensures a clean import).
-    - `./aniway`: The path to the _directory_ containing the dumped database files (`.bson`, `.metadata.json`).
 
     _(Note: Adjust the `localhost:27017` part if your local MongoDB runs on a different host or port)_
 

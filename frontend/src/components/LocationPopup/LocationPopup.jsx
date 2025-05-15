@@ -243,7 +243,7 @@ const LocationPopup = ({ location, onClose, onToggleInItinerary, isAdded }) => {
                 {getAnimeNames().map((anime, index) => (
                   <div
                     key={index}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-gray-800"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-gray-800 cursor-pointer"
                     onClick={() => handleNavigateAnime(anime.en_name)}
                   >
                     <p className="text-base font-semibold text-gray-900 dark:text-gray-200">

@@ -99,7 +99,6 @@ const fetchPlaceInfo = async (req, res) => {
     const detailsRes = await axios.get(
       `${GOOGLE_API_HOST}/place/details/json?place_id=${placeId}&fields=name,formatted_address,opening_hours,rating,user_ratings_total,photos,website,geometry,formatted_phone_number&key=${process.env.GOOGLE_API_KEY}`
     );
-    console.log("[Service] detailsRes:", detailsRes);
 
     if (!detailsRes || !detailsRes.data || !detailsRes.data.result) {
       return res.status(404).json({ error: "Place not found" });
