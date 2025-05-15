@@ -174,7 +174,8 @@ You can access the live version of Aniway here:
 
 ### Itinerary Planner with Interactive Map View
 
-![Itinerary Planner & Map](./images/trip-planner-map.png)
+![Itinerary Planner & Map](./images/trip-planner-map-1.png)
+![Itinerary Planner & Map](./images/trip-planner-map-2.png)
 
 ### Anime Location Detail Page
 
