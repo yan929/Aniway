@@ -36,9 +36,6 @@ export default function TripPlanner() {
     }
 
     if (!currentTrip) {
-      console.log(
-        "TripPlanner: No currentTrip found after auth check, creating default 'New Trip'."
-      );
       const defaultNewTrip = {
         title: "New Trip",
         content: [],
@@ -84,7 +81,6 @@ export default function TripPlanner() {
 
   // Handle suggestions from the AI chat
   const handleApplySuggestion = async (suggestion) => {
-    console.log("Original suggestion to apply to trip plan:", suggestion);
 
     try {
       const updatedContent = await Promise.all(
@@ -166,11 +162,6 @@ export default function TripPlanner() {
               ].city || undefined
             : undefined,
       };
-      console.log(
-        "Applying updated suggestion to trip plan:",
-        updatedSuggestion
-      );
-
       replaceEntireTrip(updatedSuggestion);
     } catch (error) {
       console.error("Error processing suggestions:", error);

@@ -12,19 +12,6 @@ function WaveText({ text, className = "" }) {
           }}
         >
           {char === " " ? "\u00A0" : char}
-          <style jsx>{`
-            @keyframes waveOnce {
-              0% {
-                transform: translateY(0);
-              }
-              50% {
-                transform: translateY(-15px);
-              }
-              100% {
-                transform: translateY(0);
-              }
-            }
-          `}</style>
         </span>
       ))}
     </div>

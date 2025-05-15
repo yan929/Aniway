@@ -26,10 +26,9 @@ export default function TripDayPlan({ day, index, dayStartingGlobalIndex }) {
     accept: "ITINERARY_ITEM",
     hover(draggedItem, monitor) {
       if (!monitor.isOver({ shallow: true })) {
-        // console.log(`[TripDayPlan ${day.date}] Monitor not over shallowly.`);
         return;
       }
-      console.log(`[TripDayPlan ${day.date}] Monitor IS over shallowly.`);
+      // console.log(`[TripDayPlan ${day.date}] Monitor IS over shallowly.`); // This line was uncommented by previous edit, but should be left as is or handled if user wants.
 
       if (draggedItem.fromDate !== day.date) {
         console.log(
@@ -108,7 +107,6 @@ export default function TripDayPlan({ day, index, dayStartingGlobalIndex }) {
         arrivalTime: "12:00",
         note: "",
       };
-      console.log("[TripDayPlan] newItem:", newItem);
 
       const newItemsArray = [...currentItinerary, newItem];
       updateItinerary(day.date, newItemsArray);
@@ -118,7 +116,6 @@ export default function TripDayPlan({ day, index, dayStartingGlobalIndex }) {
   };
 
   const handleDelete = (itemToDelete) => {
-    console.log(`[TripDayPlan ${day.date}] handleDelete item:`, itemToDelete);
     deleteTripItem(day, itemToDelete); // Pass the full day object and item object
   };
 

@@ -17,9 +17,6 @@ export default function ItinerarySection({ onRefsCreated }) {
     }
   }, [dayPlans, onRefsCreated]);
 
-  console.log("ItinerarySection - currentTrip:", currentTrip);
-  console.log("ItinerarySection - dayPlans (currentTrip.content):", dayPlans);
-
   if (!dayPlans || !Array.isArray(dayPlans)) {
     return (
       <div className="text-red-500">

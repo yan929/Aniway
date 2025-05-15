@@ -24,7 +24,7 @@ function DeleteAccountSection() {
         navigate("/");
       }
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error deleting account:", error);
     }
   };
 

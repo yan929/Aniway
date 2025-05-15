@@ -27,8 +27,8 @@ function UserForm({ user }) {
         { withCredentials: true }
       );
 
-      if (!response) {
-        console.log("Error: ", response);
+      if (!response || !response.data) {
+        console.error("Error: API response or response.data was falsy after user profile update.", response);
         return;
       }
 
@@ -40,7 +40,9 @@ function UserForm({ user }) {
       setShowError(false);
       updateUser(data.user);
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error updating user profile:", error);
+      setError("Failed to update profile. Please try again.");
+      setShowError(true);
     }
   };
 

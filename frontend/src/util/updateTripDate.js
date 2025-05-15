@@ -8,7 +8,6 @@ dayjs.extend(isBetween);
 import { extendTripDate } from './extendTripDate';
 
 export function updateTripDate(newRangeTripData) {
-    console.log("💡 updateTripDate input:", newRangeTripData);
 
     if (!Array.isArray(newRangeTripData) || newRangeTripData.length === 0) {
         console.error("Invalid newRangeTripData");

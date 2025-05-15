@@ -40,7 +40,6 @@ function LocationsSearchPage() {
   // Function to add a location to the current day's itinerary
   // This closely follows the pattern from TripDayPlan.jsx
   const handleAddToItinerary = async (location) => {
-    console.log("Check location:", location);
 
     if (!currentDay) {
       setToastMessage(
@@ -78,7 +77,6 @@ function LocationsSearchPage() {
       const newItemArray = [...currentItinerary, updateItem];
       // Call updateItinerary exactly like in TripDayPlan
       updateItinerary(currentDay.date, newItemArray);
-      console.log("test location: ", location);
 
       // Mark as added in UI
       setAddedLocations((prev) => {
@@ -88,7 +86,6 @@ function LocationsSearchPage() {
         return newSet;
       });
 
-      console.log("Added location to itinerary:", location._id);
     } catch (error) {
       setToastMessage(`Failed to add location to itinerary: ${error.message}`);
       setIsToastVisible(true);
@@ -102,13 +99,10 @@ function LocationsSearchPage() {
       newSet.delete(location._id);
       return newSet;
     });
-    console.log("Location removed from UI state:", location._id);
   };
 
   // Toggle function for adding/removing a location
   const handleToggleInItinerary = (location) => {
-    console.log("Test location: ", location);
-    console.log("Test addedlocation: ", addedLocations);
 
     if (addedLocations.has(location._id)) {
       handleRemoveFromItinerary(location);
