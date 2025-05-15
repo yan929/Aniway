@@ -73,7 +73,7 @@ function AniSearchBar() {
           }}
           inputValue={input}
           onInputChange={(value) => setInput(value)}
-          placeholder={"Search by anime"}
+          placeholder={"Search anime..."}
         />
         {showResult && (
           <div className="absolute top-full left-0 w-full z-10 bg-white dark:bg-gray-800 rounded-[10px] shadow-md px-[15px]">

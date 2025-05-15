@@ -8,7 +8,7 @@ function SearchInput({
   onSelectItem,
   inputValue,
   onInputChange,
-  placeholder
+  placeholder,
 }) {
   // Keyboard control
   const handleKeyDown = (e) => {
@@ -36,12 +36,15 @@ function SearchInput({
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 w-full rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] dark:shadow-[0_0_1px_#333] flex items-center">
-        <FaSearch id="search-icon" className="text-gray-600 dark:text-gray-300" />
+      <div className="bg-white dark:bg-gray-700 w-full rounded-[10px] h-10 px-[15px] shadow-[0_0_8px_#ddd] dark:shadow-[0_0_8px_#777] flex items-center">
+        <FaSearch
+          id="search-icon"
+          className="text-gray-600 dark:text-gray-500"
+        />
         <input
           type="text"
-          placeholder={placeholder ??"Search by anime name or location..."}
-          className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-500 bg-transparent text-gray-800 dark:text-gray-300"
+          placeholder={placeholder ?? "Search by anime name or location..."}
+          className="w-full h-full outline-none border-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent text-gray-800 dark:text-gray-900"
           value={inputValue ?? ""}
           onChange={(e) => {
             handleChange(e.target.value);
