@@ -1,8 +1,11 @@
+import React, { useState, useEffect } from "react";
 import { FaCalendarAlt, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import isToday from "dayjs/plugin/isToday";
 import isBetween from "dayjs/plugin/isBetween";
+import { fetchPlaceDetails } from "../../hooks/fetchPlaceDetail.js";
+import { fetchPlacePhoto } from "../../hooks/fetchPlacePhoto.js";
 
 // Extend Day.js with the plugins
 dayjs.extend(relativeTime);
@@ -72,10 +75,79 @@ const getTripStatusWithDayjs = (startDateStr, endDateStr) => {
 };
 
 const TripCard = ({ user, trip, onDelete, onClick }) => {
+  console.log("tripcard trip", trip);
   const { title, startDate, endDate, destination } = trip;
+  const [coverImage, setCoverImage] = useState("https://picsum.photos/300/200");
 
-  // --- Get Image ---
-  const coverImage = trip.image || "https://picsum.photos/300/200";
+  useEffect(() => {
+    let isMounted = true;
+
+    const findFirstGpPlaceId = () => {
+      if (trip?.content && Array.isArray(trip.content)) {
+        for (const day of trip.content) {
+          if (day?.itinerary && Array.isArray(day.itinerary)) {
+            for (const item of day.itinerary) {
+              if (item?.gpPlaceId && typeof item.gpPlaceId === 'string' && item.gpPlaceId.trim() !== '') {
+                return item.gpPlaceId;
+              }
+            }
+          }
+        }
+      }
+      return null;
+    };
+
+    const fetchAndSetCoverImage = async () => {
+      const firstGpPlaceId = findFirstGpPlaceId();
+      console.log("firstGpPlaceId", firstGpPlaceId);
+      let newCoverImage = "https://picsum.photos/300/200";
+
+      if (firstGpPlaceId) {
+        try {
+          const placeDetails = await fetchPlaceDetails(firstGpPlaceId);
+          console.log("placeDetails", placeDetails);
+
+          // Assuming placeDetails.photos is an array and we take the first photo's reference
+          const photoReference = placeDetails?.photos?.[0]?.photo_reference;
+
+          if (photoReference) {
+            const photoDataUrl = await fetchPlacePhoto(photoReference);
+            if (photoDataUrl) {
+              newCoverImage = photoDataUrl;
+            } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+              // Fallback if fetchPlacePhoto fails but trip.image exists
+              newCoverImage = trip.image;
+            }
+            // If photoDataUrl is null and trip.image is also not there, it stays default placeholder
+          } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+            // No photo reference, fallback to trip's main image
+            newCoverImage = trip.image;
+          }
+          // If no photo reference and no trip.image, it remains the default placeholder
+        } catch (error) {
+          console.error(`Failed to fetch place details or photo for ${firstGpPlaceId} in TripCard:`, error);
+          // On error fetching details/photo, fallback to trip.image or default
+          if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+            newCoverImage = trip.image;
+          }
+        }
+      } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+        // No gpPlaceId found, use trip.image
+        newCoverImage = trip.image;
+      }
+      // Else, newCoverImage remains the default placeholder initially set
+
+      if (isMounted) {
+        setCoverImage(newCoverImage);
+      }
+    };
+
+    fetchAndSetCoverImage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [trip]);
 
   // --- Calculate Trip Status using Day.js ---
   const tripStatusText = getTripStatusWithDayjs(startDate, endDate);
@@ -98,7 +170,7 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
       onClick={onClick}
     >
       {/* Image Section */}
-      <div className="w-48 flex-shrink-0 relative">
+      <div className="w-48 max-h-[150px] flex-shrink-0 relative">
         <img
           src={coverImage}
           alt={`Image for ${title}`}
