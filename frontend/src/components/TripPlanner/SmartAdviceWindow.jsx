@@ -182,9 +182,9 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
             onMouseDown={handleMouseDownOnBackdrop}
             onMouseUp={handleBackdropMouseUp}
         >
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl animate-fadeIn relative">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-2xl animate-fadeIn relative">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">Smart Advice</h2>
+                    <h2 className="text-xl font-bold dark:text-white">Smart Advice</h2>
                     <div
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 active:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 active:bg-gray-200 absolute top-2 right-4 cursor-pointer transition-all duration-200"
@@ -196,10 +196,10 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                 <div className="space-y-4">
                     <input
                         type="text"
-                        placeholder="Enter your preferences..."
+                        placeholder="Search by anime, location, or natural language"
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
-                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="appearance-none w-full bg-white border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 dark:placeholder-gray-400"
                     />
 
                     <button
@@ -212,7 +212,7 @@ export default function SmartAdvice({ isOpen, onClose, day }) {
                     </button>
 
                     {!loading && suggestions.length > 0 && (
-                        <p className="text-xs text-gray-600 mt-0 text-left">
+                        <p className="text-xs text-gray-600 mt-0 text-left dark:text-gray-300">
                             Found {suggestions.length} location(s).
                         </p>
                     )}
