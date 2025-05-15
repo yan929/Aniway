@@ -220,7 +220,7 @@ You can access the live version of Aniway here:
 
 ---
 
-## AI Disclaminer
+## 🤖 AI Usage Statement
 
 While this project leverages AI technologies such as OpenAI’s GPT and external APIs to assist with itinerary generation, development tasks and organise the documentation. All core logic, functionality, interface design, and implementation were originally developed by our team.
 
