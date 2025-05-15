@@ -28,13 +28,13 @@ function SearchLocItem({
   };
 
   // Placeholder image path
-  const PLACEHOLDER_IMAGE_PATH = "/no-image.jpg"; // Correct path if no-image.jpg is in the public directory
+  const PLACEHOLDER_IMAGE_PATH = "/default-image.jpg"; // Correct path if default-image.jpg is in the public directory
 
   // Handle image loading error
   const handleImageError = (e) => {
     e.target.src = PLACEHOLDER_IMAGE_PATH; // Set the source to the placeholder on error
     // Optional: Add a class to the image container if needed to style the placeholder state
-    // e.target.parentElement.classList.add('no-image');
+    // e.target.parentElement.classList.add('default-image');
   };
 
   return (

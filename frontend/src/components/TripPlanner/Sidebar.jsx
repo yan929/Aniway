@@ -1,4 +1,4 @@
-import React, { useContext,useState } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import {
   IoSparkles,
@@ -88,7 +88,13 @@ export default function Sidebar({ onToggleChat, onScrollToDay }) {
         Save Trip
       </button>
       {isToastVisible && (
-        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
+        <ErrorToast
+          message={toastMessage}
+          onClose={() => {
+            setIsToastVisible(false);
+            setToastMessage("");
+          }}
+        />
       )}
     </aside>
   );

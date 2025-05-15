@@ -19,19 +19,20 @@ function AniLocCard({
         {locList.map((data) => (
           <div
             key={data.id}
-            className={`flex bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer ${cardClassName || "h-48"
-              }`}
+            className={`flex bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md transition-transform duration-300 ease-in-out transform hover:scale-102 cursor-pointer ${
+              cardClassName || "h-48"
+            }`}
             onClick={() => onLocationClick && onLocationClick(data)}
           >
             {/* Left side - Image */}
             <div className="w-1/4 aspect-video">
               <img
-                src={data.image || "/no-image.jpg"}
+                src={data.image || "/default-image.jpg"}
                 alt={data.locationName || "Location image"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "/no-image.jpg";
+                  e.target.src = "/default-image.jpg";
                 }}
               />
             </div>

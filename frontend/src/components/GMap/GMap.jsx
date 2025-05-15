@@ -1,5 +1,5 @@
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
-import React, { useState } from "react";
+import { useState } from "react";
 import apiClient from "../../util/api";
 
 const containerStyle = {

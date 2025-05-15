@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import GMap from "./GMap"; // adjust path if needed
 
 // Simulate fetching or updating locations

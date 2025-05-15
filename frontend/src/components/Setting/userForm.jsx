@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import apiClient from "../../util/api";
 import { AppContext } from "../../context/AppContext";
 import { FaMagic } from "react-icons/fa";
