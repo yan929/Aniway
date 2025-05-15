@@ -1,4 +1,3 @@
-// backend/controllers/HomeController.js
 import asyncHandler from "express-async-handler";
 import Anime from "../models/Anime.js";
 import Location from "../models/Location.js";
@@ -10,13 +9,12 @@ const getTrendingData = asyncHandler(async (req, res) => {
   const limit = 5; // Number of items to fetch for each category
 
   try {
-    // Fetch top 5 trending anime
     const trendingAnimeData = await Anime.find()
       .sort({ searchRanking: -1 }) // Sort by ranking descending
       .limit(limit)
       .select(
         "_id name name_cn name_en images cover overview summary locations"
-      ); // Select only needed fields for display
+      );
 
     // Rename fields in the anime data
     const trendingAnime = trendingAnimeData.map((anime) => ({
@@ -28,12 +26,11 @@ const getTrendingData = asyncHandler(async (req, res) => {
       description: anime.overview || anime.summary,
     }));
 
-    // Fetch top 5 trending locations
-    const trendingLocationsData = await Location.find({ isValid: true }) // Filter valid locations
-      .sort({ searchRanking: -1 }) // Sort by ranking descending
+    const trendingLocationsData = await Location.find({ isValid: true })
+      .sort({ searchRanking: -1 })
       .limit(limit)
       .select("_id anitabi_names lat lng addresses images")
-      .lean(); // Get plain JS objects
+      .lean();
 
     // For each location, find related anime
     const trendingLocations = await Promise.all(
@@ -57,8 +54,8 @@ const getTrendingData = asyncHandler(async (req, res) => {
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
-              relatedAnime[0].name ||
-              relatedAnime[0].name_cn
+                relatedAnime[0].name ||
+                relatedAnime[0].name_cn
               : null,
         };
       })
@@ -155,15 +152,15 @@ const searchData = asyncHandler(async (req, res) => {
 
     const searchAnimeLocations = searchAnimeData?.[0]?.locations
       ? searchAnimeData[0].locations
-        .map((loc) => ({
-          id: loc.id,
-          name: loc.name,
-          image: loc.image,
-          lat: loc.lat,
-          lng: loc.lng,
-          addresses: loc.addresses,
-        }))
-        .slice(0, limit)
+          .map((loc) => ({
+            id: loc.id,
+            name: loc.name,
+            image: loc.image,
+            lat: loc.lat,
+            lng: loc.lng,
+            addresses: loc.addresses,
+          }))
+          .slice(0, limit)
       : [];
 
     // Search Locations
@@ -194,7 +191,6 @@ const searchData = asyncHandler(async (req, res) => {
           .select("_id name name_en name_cn locations")
           .limit(1) // Get just the first related anime
           .lean();
-        // console.log("Test related anime:", relatedAnime[0].locations);
 
         const index = relatedAnime[0].locations.findIndex(
           (location) => location.lat === loc.lat && location.lng === loc.lng
@@ -217,8 +213,8 @@ const searchData = asyncHandler(async (req, res) => {
           animeName:
             relatedAnime.length > 0
               ? relatedAnime[0].name_en ||
-              relatedAnime[0].name ||
-              relatedAnime[0].name_cn
+                relatedAnime[0].name ||
+                relatedAnime[0].name_cn
               : null,
         };
       })
@@ -264,7 +260,10 @@ const searchCitiesAndCountries = asyncHandler(async (req, res) => {
       if (loc.city && loc.city.toLowerCase().includes(trimmedQ.toLowerCase())) {
         cities.add(loc.city);
       }
-      if (loc.country && loc.country.toLowerCase().includes(trimmedQ.toLowerCase())) {
+      if (
+        loc.country &&
+        loc.country.toLowerCase().includes(trimmedQ.toLowerCase())
+      ) {
         countries.add(loc.country);
       }
     });

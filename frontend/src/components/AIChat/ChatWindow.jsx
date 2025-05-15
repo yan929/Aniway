@@ -42,7 +42,7 @@ export default function ChatWindow({ onClose, onApplySuggestion }) {
 
     // Start fetching the stream from the backend using fetch with POST
     try {
-      const response = await fetch("/api/chatgpt/augment-itinerary", {
+      const response = await fetch("/api/ai/augment-itinerary", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

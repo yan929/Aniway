@@ -1,7 +1,6 @@
-// backend/controllers/AnimeController.js
 import asyncHandler from "express-async-handler";
-import Anime from "../models/Anime.js"; // Assuming Anime model exists
-import Location from "../models/Location.js"; // Assuming Location model exists
+import Anime from "../models/Anime.js";
+import Location from "../models/Location.js";
 
 // @desc    Search anime by location keyword
 // @route   GET /api/anime/search
@@ -36,16 +35,6 @@ const searchAnimeByLocation = asyncHandler(async (req, res) => {
     images: anime.images,
     cover: anime.cover,
     description: anime.overview || anime.summary,
-    // locations: anime.locations.map((loc) => ({
-    //   id: loc._id,
-    //   lat: loc.lat,
-    //   lng: loc.lng,
-    //   names: loc.anitabi_names,
-    //   addresses: loc.addresses,
-    //   images: loc.images,
-    //   s: loc.s,
-    //   ep: loc.ep,
-    // })),
   }));
 
   if (animeList && animeList.length > 0) {
@@ -68,8 +57,8 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
   if (!animeData) {
     res.status(404);
     throw new Error("Anime not found");
-  } 
-  
+  }
+
   const animeInfo = {
     id: animeData._id,
     name: animeData.name_en || animeData.name || animeData.name_cn,
@@ -78,7 +67,7 @@ const getAnimeInfoById = asyncHandler(async (req, res) => {
     description: animeData.overview || animeData.summary,
     director: animeData.director,
     site: animeData.site,
-    copyrights: animeData.info?.Copyright ||[],
+    copyrights: animeData.info?.Copyright || [],
   };
   res.json(animeInfo);
 });
@@ -132,7 +121,7 @@ const getAnimeLocation = async (req, res) => {
       })
         .select("_id anitabi_names  anime_cn_names anime_en_names")
         .lean();
-              
+
       return {
         id: location.id,
         locationName: location.name,

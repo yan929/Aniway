@@ -1,4 +1,5 @@
 import axios from "axios";
+import PlaceDetails from "../services/GMapService.js";
 
 const GOOGLE_API_HOST = "https://maps.googleapis.com/maps/api";
 
@@ -15,6 +16,7 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
   let operationalResults = [];
   if (nearbyRes.status === 200 && nearbyRes.data.status !== "ZERO_RESULTS") {
     let nearbyData = nearbyRes.data;
+    console.log("[Service] nearbyData:", nearbyData);
     operationalResults =
       nearbyData.results?.filter(
         (result) => result.business_status === "OPERATIONAL"
@@ -29,6 +31,7 @@ async function getNearbyPlaceDetailsService(lat, lng, keyword = null) {
     nearbyUrl = `${GOOGLE_API_HOST}/place/nearbysearch/json?location=${lat},${lng}&radius=1500&key=${process.env.GOOGLE_API_KEY}`;
     const nearbyResFallback = await axios.get(nearbyUrl);
     const nearbyDataFallback = nearbyResFallback.data;
+    console.log("[Service] nearbyDataFallback:", nearbyDataFallback);
     operationalResults =
       nearbyDataFallback.results?.filter(
         (result) => result.business_status === "OPERATIONAL"
@@ -155,9 +158,28 @@ const fetchPlaceNearby = async (req, res) => {
   }
 };
 
+// 处理Place Details请求
+const getPlaceDetails = async (req, res) => {
+  console.log("getPlaceDetails req.params", req.params);
+  try {
+    const { placeId } = req.params;
+
+    if (!placeId || placeId.length < 5) {
+      return res.status(400).json({ error: "Invalid place_id parameter" });
+    }
+
+    const details = await PlaceDetails(placeId);
+    res.json(details);
+  } catch (error) {
+    console.error(`[Place Error] ${error.message}`);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   fetchPlaceInfo,
   fetchPlacePhoto,
   fetchPlaceNearby,
   getNearbyPlaceDetailsService,
-}; // Export the new service function
+  getPlaceDetails,
+};
