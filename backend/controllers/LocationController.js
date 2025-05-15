@@ -1,28 +1,10 @@
-// controllers/LocationController.js
 import asyncHandler from "express-async-handler";
 import Location from "../models/Location.js";
 import { DatabaseMiddleware } from "../middleware/DatabaseMiddleware.js";
 
 const getAllLocations = asyncHandler(async (req, res) => {
-  const locations = await Location.find({ isValid: true }); // Filter only valid locations
+  const locations = await Location.find({ isValid: true });
   res.json(locations);
-});
-
-const addLocation = asyncHandler(async (req, res) => {
-  const {
-    name,
-    name_cn,
-    lat_precise,
-    lng_precise /* other Location fields */,
-  } = req.body;
-  const location = new Location({
-    name,
-    name_cn,
-    lat_precise,
-    lng_precise /* ... */,
-  });
-  const saved = await location.save();
-  res.status(201).json(saved);
 });
 
 const updateLocation = asyncHandler(async (req, res) => {
@@ -66,7 +48,7 @@ const deleteLocation = asyncHandler(async (req, res) => {
 });
 
 // Controller function to get distinct cities for a specific country with filtering and pagination
-export const getCitiesByCountry = async (req, res) => {
+const getCitiesByCountry = async (req, res) => {
   try {
     const countryName = req.params.country;
     const { q, offset: offsetQuery, limit: limitQuery } = req.query;
@@ -137,17 +119,8 @@ const getLocationByAnime = async (req, res) => {
   return response;
 };
 
-export {
-  getAllLocations,
-  getLocationByAnime,
-  addLocation,
-  updateLocation,
-  partialUpdateLocation,
-  deleteLocation,
-};
-
 // New Service Function to fetch relevant locations
-export const searchRelevantLocationsService = async (extractedInfo) => {
+const searchRelevantLocationsService = async (extractedInfo) => {
   console.log(
     "LocationService: Fetching relevant places based on:",
     extractedInfo
@@ -229,7 +202,7 @@ export const searchRelevantLocationsService = async (extractedInfo) => {
 };
 
 // New API Handler Function
-export const searchRelevantLocationsApi = asyncHandler(async (req, res) => {
+const searchRelevantLocationsApi = asyncHandler(async (req, res) => {
   const { destination, interests: interestsQuery } = req.query;
 
   // Interests might come as a comma-separated string from query params
@@ -259,3 +232,14 @@ export const searchRelevantLocationsApi = asyncHandler(async (req, res) => {
       .json({ message: "Server error fetching relevant locations." });
   }
 });
+
+export {
+  getAllLocations,
+  getLocationByAnime,
+  updateLocation,
+  partialUpdateLocation,
+  deleteLocation,
+  getCitiesByCountry,
+  searchRelevantLocationsService,
+  searchRelevantLocationsApi,
+};

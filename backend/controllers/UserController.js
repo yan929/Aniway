@@ -1,4 +1,3 @@
-// controllers/UserController.js
 import User from "../models/User.js";
 import TripPlan from "../models/TripPlan.js";
 
