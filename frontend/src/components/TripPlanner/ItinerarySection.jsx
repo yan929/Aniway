@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from "react";
+import { useContext, useRef, useEffect } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import TripDayPlan from "./TripDayPlan.jsx";
 
@@ -37,12 +37,13 @@ export default function ItinerarySection({ onRefsCreated }) {
   let globalItemCounter = 0;
 
   return (
-
     <div className="flex flex-col bg-[f3f2f3] dark:bg-gray-700 shadow-md  py-3 px-8">
       {dayPlans.map((day, index) => {
         const dayStartingGlobalIndex = globalItemCounter;
         // Ensure day.itinerary is an array before accessing its length
-        const itineraryLength = Array.isArray(day.itinerary) ? day.itinerary.length : 0;
+        const itineraryLength = Array.isArray(day.itinerary)
+          ? day.itinerary.length
+          : 0;
         globalItemCounter += itineraryLength;
 
         return (
@@ -65,7 +66,6 @@ export default function ItinerarySection({ onRefsCreated }) {
           </div>
         );
       })}
-
     </div>
   );
 }

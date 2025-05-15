@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../../components/Layout/NavBar";
 import apiClient from "../../util/api";
@@ -140,6 +140,7 @@ const ProfilePage = () => {
         )
       );
     } catch (err) {
+      console.error("Failed to delete trip:", err);
       setToastMessage("Failed to delete trip. Please try again.");
       setIsToastVisible(true);
     }
@@ -296,7 +297,13 @@ const ProfilePage = () => {
         </div>
       </div>
       {isToastVisible && (
-        <ErrorToast message={toastMessage} onClose={handleCloseToast} />
+        <ErrorToast
+          message={toastMessage}
+          onClose={() => {
+            setIsToastVisible(false);
+            setToastMessage("");
+          }}
+        />
       )}
     </>
   );

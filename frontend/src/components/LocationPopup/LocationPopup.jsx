@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../util/api";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";

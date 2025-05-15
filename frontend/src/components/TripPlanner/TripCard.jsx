@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaCalendarAlt, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -87,7 +87,11 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
         for (const day of trip.content) {
           if (day?.itinerary && Array.isArray(day.itinerary)) {
             for (const item of day.itinerary) {
-              if (item?.gpPlaceId && typeof item.gpPlaceId === 'string' && item.gpPlaceId.trim() !== '') {
+              if (
+                item?.gpPlaceId &&
+                typeof item.gpPlaceId === "string" &&
+                item.gpPlaceId.trim() !== ""
+              ) {
                 return item.gpPlaceId;
               }
             }
@@ -114,24 +118,43 @@ const TripCard = ({ user, trip, onDelete, onClick }) => {
             const photoDataUrl = await fetchPlacePhoto(photoReference);
             if (photoDataUrl) {
               newCoverImage = photoDataUrl;
-            } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+            } else if (
+              trip?.image &&
+              typeof trip.image === "string" &&
+              trip.image.trim() !== ""
+            ) {
               // Fallback if fetchPlacePhoto fails but trip.image exists
               newCoverImage = trip.image;
             }
             // If photoDataUrl is null and trip.image is also not there, it stays default placeholder
-          } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+          } else if (
+            trip?.image &&
+            typeof trip.image === "string" &&
+            trip.image.trim() !== ""
+          ) {
             // No photo reference, fallback to trip's main image
             newCoverImage = trip.image;
           }
           // If no photo reference and no trip.image, it remains the default placeholder
         } catch (error) {
-          console.error(`Failed to fetch place details or photo for ${firstGpPlaceId} in TripCard:`, error);
+          console.error(
+            `Failed to fetch place details or photo for ${firstGpPlaceId} in TripCard:`,
+            error
+          );
           // On error fetching details/photo, fallback to trip.image or default
-          if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+          if (
+            trip?.image &&
+            typeof trip.image === "string" &&
+            trip.image.trim() !== ""
+          ) {
             newCoverImage = trip.image;
           }
         }
-      } else if (trip?.image && typeof trip.image === 'string' && trip.image.trim() !== '') {
+      } else if (
+        trip?.image &&
+        typeof trip.image === "string" &&
+        trip.image.trim() !== ""
+      ) {
         // No gpPlaceId found, use trip.image
         newCoverImage = trip.image;
       }

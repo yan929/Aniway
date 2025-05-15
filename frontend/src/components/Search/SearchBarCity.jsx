@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import apiClient from "../../util/api";
 import { FaSearch } from "react-icons/fa";
@@ -186,10 +186,11 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
                       return (
                         <div
                           key={`city-${id}`}
-                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${selectedIndex === currentIndex
+                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                            selectedIndex === currentIndex
                               ? "bg-gray-50 dark:bg-gray-700"
                               : ""
-                            }`}
+                          }`}
                           onClick={() =>
                             handleSelect({ name: city, type: "city" })
                           }
@@ -215,10 +216,11 @@ function SearchBarCity({ placeholder = "Where?", onSelect, onSearch }) {
                       return (
                         <div
                           key={`country-${id}`}
-                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${selectedIndex === currentIndex
+                          className={`flex items-start px-4 py-2 w-full border-b border-gray-100 dark:border-gray-700 gap-2.5 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                            selectedIndex === currentIndex
                               ? "bg-gray-50 dark:bg-gray-700"
                               : ""
-                            }`}
+                          }`}
                           onClick={() =>
                             handleSelect({ name: country, type: "country" })
                           }

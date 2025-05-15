@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import dayjs from "dayjs";
@@ -199,6 +199,16 @@ export default function TripHeader() {
           />
         </div>
       </div>
+
+      {isToastVisible && (
+        <ErrorToast
+          message={toastMessage}
+          onClose={() => {
+            setIsToastVisible(false);
+            setToastMessage("");
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useContext,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../../components/TripPlanner/Sidebar.jsx";
 import TripHeader from "../../components/TripPlanner/TripHeader.jsx";
