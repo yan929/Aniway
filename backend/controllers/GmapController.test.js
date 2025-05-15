@@ -66,7 +66,7 @@ describe("fetchPlacePhoto", () => {
     fetch.mockReset();
   });
 
-  
+
 
   it("returns 400 if no photo_reference", async () => {
     const mockReq = { body: {} };
