@@ -1,7 +1,13 @@
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
 import { searchRawLocationDataByLocateAnime } from "../services/LocService.js";
-import { buildUserQueryPrompt } from "../utils/AIPrompt.js";
+import {
+  buildUserQueryPrompt,
+  buildExtractionPrompt,
+  buildArgumentSystemPrompt,
+  buildJsonConversionSystemPrompt,
+} from "../utils/AIPrompt.js";
+import { searchRelevantLocationsService } from "./LocationController.js";
 
 dotenv.config();
 
