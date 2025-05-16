@@ -1,5 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
 import User from "../models/User.js";
+
+dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
