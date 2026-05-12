@@ -150,13 +150,7 @@ FRONTEND_URL=http://localhost:5173/
 ---
 
 ## 🌐 Live Demo (Deployment)
-
-You can access the live version of Aniway here:
-
-👉 [https://aniway.tty0.top/](https://aniway.tty0.top/)
-
-> ✅ This is the deployed frontend application.
-> The backend API is also connected and functional.
+-----
 
 ---
 
